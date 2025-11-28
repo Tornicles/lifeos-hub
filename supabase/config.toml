@@ -1,1 +1,28 @@
 project_id = "ggaonvyheaxrbobmxism"
+
+[functions.automation-trigger]
+verify_jwt = true
+
+[functions.calculate-ultra-score]
+verify_jwt = true
+
+[functions.evaluate-automation]
+verify_jwt = true
+
+[functions.generate-daily-insight]
+verify_jwt = true
+
+[functions.generate-weekly-review]
+verify_jwt = true
+
+[functions.generate-monthly-insights]
+verify_jwt = true
+
+[functions.calendar-autofill]
+verify_jwt = true
+
+[functions.system-validate]
+verify_jwt = true
+
+[functions.automation-rebalance]
+verify_jwt = true
