@@ -14,6 +14,7 @@ import Logs from "./pages/Logs";
 import Automation from "./pages/Automation";
 import StatesEngine from "./pages/StatesEngine";
 import AutomationRules from "./pages/AutomationRules";
+import AutomationDiagnostics from "./pages/AutomationDiagnostics";
 import Insights from "./pages/Insights";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="/logs" element={<Logs />} />
             <Route path="/automation" element={<Automation />} />
             <Route path="/automation-rules" element={<AutomationRules />} />
+            <Route path="/automation-diagnostics" element={<AutomationDiagnostics />} />
             <Route path="/states-engine" element={<StatesEngine />} />
             <Route path="/insights" element={<Insights />} />
             <Route path="/settings" element={<Settings />} />
