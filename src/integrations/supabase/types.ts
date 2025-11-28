@@ -71,6 +71,153 @@ export type Database = {
           },
         ]
       }
+      automation_context_cache: {
+        Row: {
+          cache_key: string
+          cache_value: Json
+          created_at: string | null
+          expires_at: string
+          id: number
+          user_id: string
+        }
+        Insert: {
+          cache_key: string
+          cache_value: Json
+          created_at?: string | null
+          expires_at: string
+          id?: number
+          user_id: string
+        }
+        Update: {
+          cache_key?: string
+          cache_value?: Json
+          created_at?: string | null
+          expires_at?: string
+          id?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      automation_executions: {
+        Row: {
+          actions_executed: Json | null
+          conditions_met: Json | null
+          created_at: string | null
+          execution_date: string | null
+          execution_result: string | null
+          id: number
+          rule_id: number | null
+          trigger_type: string
+          user_id: string
+        }
+        Insert: {
+          actions_executed?: Json | null
+          conditions_met?: Json | null
+          created_at?: string | null
+          execution_date?: string | null
+          execution_result?: string | null
+          id?: number
+          rule_id?: number | null
+          trigger_type: string
+          user_id: string
+        }
+        Update: {
+          actions_executed?: Json | null
+          conditions_met?: Json | null
+          created_at?: string | null
+          execution_date?: string | null
+          execution_result?: string | null
+          id?: number
+          rule_id?: number | null
+          trigger_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_executions_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "automation_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      automation_rule_actions: {
+        Row: {
+          action_payload: Json | null
+          action_type: string
+          created_at: string | null
+          id: number
+          priority: number | null
+          rule_id: number
+        }
+        Insert: {
+          action_payload?: Json | null
+          action_type: string
+          created_at?: string | null
+          id?: number
+          priority?: number | null
+          rule_id: number
+        }
+        Update: {
+          action_payload?: Json | null
+          action_type?: string
+          created_at?: string | null
+          id?: number
+          priority?: number | null
+          rule_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_rule_actions_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "automation_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      automation_rule_conditions: {
+        Row: {
+          comparison_window: number | null
+          condition_type: string
+          created_at: string | null
+          id: number
+          metric_name: string | null
+          operator: string
+          rule_id: number
+          threshold_value: number | null
+        }
+        Insert: {
+          comparison_window?: number | null
+          condition_type: string
+          created_at?: string | null
+          id?: number
+          metric_name?: string | null
+          operator: string
+          rule_id: number
+          threshold_value?: number | null
+        }
+        Update: {
+          comparison_window?: number | null
+          condition_type?: string
+          created_at?: string | null
+          id?: number
+          metric_name?: string | null
+          operator?: string
+          rule_id?: number
+          threshold_value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_rule_conditions_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "automation_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       automation_rules: {
         Row: {
           action_target: string
