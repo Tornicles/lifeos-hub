@@ -4,14 +4,17 @@ import { supabase } from '@/integrations/supabase/client';
 export interface AutomationResult {
   ultra_score: number;
   state: string;
+  base_state: string;
   state_color: string;
   state_icon: string;
   state_level: 'GREEN' | 'YELLOW' | 'ORANGE' | 'RED';
   state_reasons: string[];
+  priority_zone: string;
   priority_hub: { code: string; name: string } | null;
   priority_score: number;
   weakest_hub: { code: string; name: string } | null;
   weakest_score: number;
+  strongest_hub: { code: string; name: string } | null;
   hubs_in_danger: number;
   hub_imbalance: number;
   habit_consistency: number;

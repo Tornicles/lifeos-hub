@@ -14,6 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
+      auto_actions: {
+        Row: {
+          action_date: string
+          action_text: string
+          action_type: string
+          completed_at: string | null
+          created_at: string | null
+          domain_id: number | null
+          hub_id: number | null
+          id: number
+          priority: number | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          action_date: string
+          action_text: string
+          action_type: string
+          completed_at?: string | null
+          created_at?: string | null
+          domain_id?: number | null
+          hub_id?: number | null
+          id?: number
+          priority?: number | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          action_date?: string
+          action_text?: string
+          action_type?: string
+          completed_at?: string | null
+          created_at?: string | null
+          domain_id?: number | null
+          hub_id?: number | null
+          id?: number
+          priority?: number | null
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "auto_actions_domain_id_fkey"
+            columns: ["domain_id"]
+            isOneToOne: false
+            referencedRelation: "ultra_domains"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "auto_actions_hub_id_fkey"
+            columns: ["hub_id"]
+            isOneToOne: false
+            referencedRelation: "hubs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       automation_rules: {
         Row: {
           action_target: string
@@ -389,6 +446,124 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      state_warnings: {
+        Row: {
+          created_at: string | null
+          dismissed: boolean | null
+          dismissed_at: string | null
+          id: number
+          related_habit_id: number | null
+          related_hub_id: number | null
+          related_project_id: number | null
+          severity: string | null
+          user_id: string
+          warning_text: string
+          warning_type: string
+        }
+        Insert: {
+          created_at?: string | null
+          dismissed?: boolean | null
+          dismissed_at?: string | null
+          id?: number
+          related_habit_id?: number | null
+          related_hub_id?: number | null
+          related_project_id?: number | null
+          severity?: string | null
+          user_id: string
+          warning_text: string
+          warning_type: string
+        }
+        Update: {
+          created_at?: string | null
+          dismissed?: boolean | null
+          dismissed_at?: string | null
+          id?: number
+          related_habit_id?: number | null
+          related_hub_id?: number | null
+          related_project_id?: number | null
+          severity?: string | null
+          user_id?: string
+          warning_text?: string
+          warning_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "state_warnings_related_habit_id_fkey"
+            columns: ["related_habit_id"]
+            isOneToOne: false
+            referencedRelation: "habits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "state_warnings_related_hub_id_fkey"
+            columns: ["related_hub_id"]
+            isOneToOne: false
+            referencedRelation: "hubs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "state_warnings_related_project_id_fkey"
+            columns: ["related_project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      system_state_daily: {
+        Row: {
+          created_at: string | null
+          id: number
+          priority_zone: string | null
+          state: string
+          state_date: string
+          state_reasons: Json | null
+          strongest_hub_id: number | null
+          ultra_score: number
+          user_id: string
+          weakest_hub_id: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          priority_zone?: string | null
+          state: string
+          state_date: string
+          state_reasons?: Json | null
+          strongest_hub_id?: number | null
+          ultra_score: number
+          user_id: string
+          weakest_hub_id?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          priority_zone?: string | null
+          state?: string
+          state_date?: string
+          state_reasons?: Json | null
+          strongest_hub_id?: number | null
+          ultra_score?: number
+          user_id?: string
+          weakest_hub_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "system_state_daily_strongest_hub_id_fkey"
+            columns: ["strongest_hub_id"]
+            isOneToOne: false
+            referencedRelation: "hubs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "system_state_daily_weakest_hub_id_fkey"
+            columns: ["weakest_hub_id"]
+            isOneToOne: false
+            referencedRelation: "hubs"
             referencedColumns: ["id"]
           },
         ]
