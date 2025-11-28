@@ -61,6 +61,7 @@ const toolItems = [
 ];
 
 const systemItems = [
+  { title: "States Engine", url: "/states-engine", icon: Brain },
   { title: "Reports", url: "/reports", icon: BarChart3 },
   { title: "Automation", url: "/automation", icon: Zap },
   { title: "Insights", url: "/insights", icon: Sparkles },
