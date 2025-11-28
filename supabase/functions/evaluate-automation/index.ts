@@ -266,23 +266,67 @@ Deno.serve(async (req) => {
 
     const triggeredActions = [];
 
-    // Evaluate rules
+    // RULE EVALUATION ENGINE - All 7 Rule Families
     if (rules) {
       for (const rule of rules) {
         let triggered = false;
 
         switch (rule.condition_type) {
+          // Family A: ULTRA Score Based
           case 'ULTRA_BELOW':
             if (ultraScore < (rule.condition_value || 0)) triggered = true;
             break;
           case 'ULTRA_ABOVE':
             if (ultraScore >= (rule.condition_value || 0)) triggered = true;
             break;
+          case 'ULTRA_RANGE':
+            const [min, max] = (rule.action_value || '0,100').split(',').map(Number);
+            if (ultraScore >= min && ultraScore < max) triggered = true;
+            break;
+            
+          // Family B: Weakest Hub Based
           case 'HUB_BELOW':
             if (weakestScore < (rule.condition_value || 0)) triggered = true;
             break;
+          case 'WEAKEST_HUB_IS':
+            if (weakestHub?.code === rule.action_value) triggered = true;
+            break;
           case 'HUBS_IN_DANGER':
             if (hubsInDanger >= (rule.condition_value || 0)) triggered = true;
+            break;
+            
+          // Family C: Missing Logs
+          case 'NO_LOGS_TODAY':
+            if ((recentLogs || 0) === 0) triggered = true;
+            break;
+          case 'LOGS_BELOW':
+            if ((recentLogs || 0) < (rule.condition_value || 0)) triggered = true;
+            break;
+            
+          // Family D: Habit Logic
+          case 'HABIT_STREAK_BELOW':
+            if (avgStreak < (rule.condition_value || 0)) triggered = true;
+            break;
+          case 'HABIT_STREAK_ABOVE':
+            if (avgStreak >= (rule.condition_value || 0)) triggered = true;
+            break;
+            
+          // Family E: Emotional Triggers
+          case 'SCORE_TREND_NEGATIVE':
+            if (scoreTrend < -5) triggered = true;
+            break;
+            
+          // Family F: Calendar/Project Logic
+          case 'CALENDAR_OVERLOAD':
+            if ((calendarLoad || 0) > (rule.condition_value || 0)) triggered = true;
+            break;
+          case 'HUB_IMBALANCE_HIGH':
+            if (hubImbalance > (rule.condition_value || 0)) triggered = true;
+            break;
+            
+          // Family G: State-Based Modes
+          case 'STATE_IS':
+            if (baseState === rule.action_value) triggered = true;
             break;
         }
 
