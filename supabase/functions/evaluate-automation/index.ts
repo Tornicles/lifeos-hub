@@ -16,7 +16,8 @@ type SystemState =
   | 'DANGER_MODE' 
   | 'CRISIS_MODE' 
   | 'RESET_MODE'
-  | 'OVERLOAD_WARNING';
+  | 'OVERLOAD_WARNING'
+  | 'WEAK';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -59,13 +60,14 @@ Deno.serve(async (req) => {
     // Get all hub scores
     const { data: hubMetrics } = await supabaseClient
       .from('metrics')
-      .select('hub_id, name, value, hubs(code, name)')
+      .select('hub_id, name, value, hubs(id, code, name)')
       .eq('user_id', user.id)
       .eq('name', 'DailyScore')
       .eq('metric_date', today);
 
     const hubScores = (hubMetrics || []).map(m => ({
       score: m.value,
+      hub_id: m.hub_id,
       hub: Array.isArray(m.hubs) ? m.hubs[0] : m.hubs
     })).filter(h => h.hub);
 
@@ -121,87 +123,78 @@ Deno.serve(async (req) => {
     const hubsInDanger = hubScores.filter(h => h.score < 40).length;
     const hubsInCrisis = hubScores.filter(h => h.score < 20).length;
 
-    // ADVANCED STATE CLASSIFICATION ALGORITHM
+    // EXACT STATE CLASSIFICATION (Per Prompt 7 Requirements)
+    // State Table: 0-29=CRISIS, 30-49=WEAK, 50-64=NEUTRAL, 65-79=GROWTH, 80-100=AFFLUENCE
     let state: SystemState = 'NEUTRAL_MODE';
+    let baseState = 'NEUTRAL'; // CRISIS, WEAK, NEUTRAL, GROWTH, AFFLUENCE
     let stateColor = '#808080';
     let stateIcon = 'minus-circle';
     let stateLevel: 'GREEN' | 'YELLOW' | 'ORANGE' | 'RED' = 'YELLOW';
     const stateReasons: string[] = [];
     
-    if (ultraScore >= 80 && avgStreak >= 7 && hubImbalance < 30 && (calendarLoad || 0) < 5) {
-      state = 'AFFLUENCE_MODE';
-      stateColor = '#7FBA00';
-      stateIcon = 'check-circle';
-      stateLevel = 'GREEN';
-      stateReasons.push('Excellent overall performance');
-      stateReasons.push('Strong habit consistency');
-      stateReasons.push('Well-balanced domains');
-    } else if (ultraScore >= 80) {
-      state = 'ULTRA_MODE';
-      stateColor = '#7FBA00';
-      stateIcon = 'zap';
-      stateLevel = 'GREEN';
-      stateReasons.push('High ULTRA Score');
-    } else if (ultraScore >= 60 && scoreTrend > 0) {
-      state = 'ASCENSION_MODE';
-      stateColor = '#00BCF2';
-      stateIcon = 'trending-up';
-      stateLevel = 'GREEN';
-      stateReasons.push('Positive trend detected');
-      stateReasons.push('Growing momentum');
-    } else if (ultraScore >= 60) {
-      state = 'GROWTH_MODE';
-      stateColor = '#00BCF2';
-      stateIcon = 'activity';
-      stateLevel = 'YELLOW';
-      stateReasons.push('Stable performance');
-    } else if (ultraScore >= 40 && hubImbalance < 40) {
-      state = 'BALANCED_MODE';
-      stateColor = '#FFA500';
-      stateIcon = 'target';
-      stateLevel = 'YELLOW';
-      stateReasons.push('Moderate performance');
-      stateReasons.push('Room for improvement');
-    } else if (ultraScore >= 40) {
-      state = 'NEUTRAL_MODE';
-      stateColor = '#808080';
-      stateIcon = 'minus-circle';
-      stateLevel = 'ORANGE';
-      stateReasons.push('Below optimal levels');
-    } else if (ultraScore >= 30 || (hubsInDanger >= 2 && hubsInDanger < 4)) {
-      state = 'STRUGGLING_MODE';
-      stateColor = '#FF8C00';
-      stateIcon = 'alert-triangle';
-      stateLevel = 'ORANGE';
-      stateReasons.push('Multiple hubs need attention');
-      if (avgStreak < 3) stateReasons.push('Low habit consistency');
-    } else if (ultraScore >= 20 || hubsInDanger >= 2) {
-      state = 'DANGER_MODE';
-      stateColor = '#FF4500';
-      stateIcon = 'alert-triangle';
-      stateLevel = 'RED';
-      stateReasons.push('Critical attention required');
-      stateReasons.push(`${hubsInDanger} hub${hubsInDanger > 1 ? 's' : ''} in danger zone`);
-    } else {
+    // Base state determination from ULTRA Score
+    if (ultraScore < 30) {
+      baseState = 'CRISIS';
       state = 'CRISIS_MODE';
       stateColor = '#FF0000';
       stateIcon = 'alert-octagon';
       stateLevel = 'RED';
-      stateReasons.push('Emergency intervention needed');
-      stateReasons.push('System-wide performance collapse');
+      stateReasons.push('Emergency danger - ULTRA Score below 30');
+    } else if (ultraScore < 50) {
+      baseState = 'WEAK';
+      state = 'WEAK';
+      stateColor = '#FF4500';
+      stateIcon = 'alert-triangle';
+      stateLevel = 'RED';
+      stateReasons.push('System failing - needs recovery');
+    } else if (ultraScore < 65) {
+      baseState = 'NEUTRAL';
+      state = 'NEUTRAL_MODE';
+      stateColor = '#808080';
+      stateIcon = 'minus-circle';
+      stateLevel = 'YELLOW';
+      stateReasons.push('Stable but not improving');
+    } else if (ultraScore < 80) {
+      baseState = 'GROWTH';
+      state = 'GROWTH_MODE';
+      stateColor = '#00BCF2';
+      stateIcon = 'trending-up';
+      stateLevel = 'GREEN';
+      stateReasons.push('Good improvement trajectory');
+    } else {
+      baseState = 'AFFLUENCE';
+      state = 'AFFLUENCE_MODE';
+      stateColor = '#7FBA00';
+      stateIcon = 'check-circle';
+      stateLevel = 'GREEN';
+      stateReasons.push('High performance - peak zone');
     }
     
-    // Additional state modifiers
-    if ((recentLogs || 0) < 3 && state !== 'CRISIS_MODE') {
-      stateReasons.push('Low logging activity detected');
+    // Enhance base state with modifiers
+    if (avgStreak >= 7 && hubImbalance < 30 && baseState === 'AFFLUENCE') {
+      state = 'AFFLUENCE_MODE';
+      stateReasons.push('Strong habit consistency');
+      stateReasons.push('Well-balanced domains');
+    } else if (scoreTrend > 10 && (baseState === 'GROWTH' || baseState === 'AFFLUENCE')) {
+      state = 'ASCENSION_MODE';
+      stateColor = '#00BCF2';
+      stateIcon = 'trending-up';
+      stateReasons.push('Exceptional positive momentum');
+    } else if (hubImbalance > 40 && baseState !== 'CRISIS') {
+      stateReasons.push('Significant domain imbalance detected');
+    }
+    
+    // Additional state modifiers and warnings
+    if ((recentLogs || 0) < 3) {
+      stateReasons.push('Low logging activity - system visibility reduced');
     }
     
     if (avgStreak < 2 && ultraScore < 60) {
-      stateReasons.push('Habit streaks need rebuilding');
+      stateReasons.push('Habit consistency breakdown');
     }
     
     if ((calendarLoad || 0) > 8) {
-      stateReasons.push('High calendar stress load');
+      stateReasons.push('Calendar overload - burnout risk');
       if (state === 'GROWTH_MODE' || state === 'ASCENSION_MODE') {
         state = 'OVERLOAD_WARNING';
         stateColor = '#FFD700';
@@ -209,22 +202,25 @@ Deno.serve(async (req) => {
       }
     }
     
-    if (hubsInCrisis >= 1) {
+    if (hubsInCrisis >= 1 && baseState !== 'CRISIS') {
       state = 'RESET_MODE';
+      baseState = 'WEAK';
       stateColor = '#DC143C';
       stateIcon = 'refresh-cw';
       stateLevel = 'RED';
-      stateReasons.push('Critical hub failure - reset protocol activated');
+      stateReasons.push('Critical hub failure - emergency reset activated');
     }
     
-    if (scoreTrend < -10 && ultraScore < 50) {
-      stateReasons.push('Declining trend detected');
+    if (scoreTrend < -10) {
+      stateReasons.push(`Declining trend: ${scoreTrend.toFixed(1)} points in 7 days`);
     }
 
     // PRIORITY HUB ENGINE - Advanced calculation
     let priorityHub: { code: string; name: string } | null = null;
+    let priorityHubId: number | null = null;
     let priorityScore = 0;
     let weakestHub: { code: string; name: string } | null = null;
+    let weakestHubId: number | null = null;
     let weakestScore = 100;
     
     for (const hub of hubScores) {
@@ -232,6 +228,7 @@ Deno.serve(async (req) => {
       if (hub.score < weakestScore) {
         weakestScore = hub.score;
         weakestHub = hub.hub;
+        weakestHubId = hub.hub_id;
       }
       
       // Priority calculation: (100 - score) + trend_penalty + impact_weight
@@ -257,6 +254,7 @@ Deno.serve(async (req) => {
       if (calculatedPriority > priorityScore) {
         priorityScore = calculatedPriority;
         priorityHub = hub.hub;
+        priorityHubId = hub.hub_id;
       }
     }
 
@@ -324,18 +322,63 @@ Deno.serve(async (req) => {
     if (hubImbalance < 20) focusRecommendations.opportunities.push('Well-balanced domains');
     if (ultraScore >= 70) focusRecommendations.opportunities.push('High performance baseline');
 
+    // PRIORITY ZONE CALCULATION (Per Prompt 7)
+    let priorityZone = '';
+    if (baseState === 'CRISIS') {
+      priorityZone = priorityHub?.name || 'Emergency Recovery';
+    } else if (baseState === 'WEAK') {
+      // Weakest hub OR critical life domain (health/finance)
+      const criticalHubs = ['HEALTH', 'FINANCE'];
+      const isCritical = criticalHubs.includes(priorityHub?.code || '');
+      priorityZone = isCritical ? `CRITICAL: ${priorityHub?.name}` : (priorityHub?.name || 'Recovery');
+    } else if (baseState === 'NEUTRAL') {
+      // Ultra domain causing imbalance
+      priorityZone = sortedHubs[0]?.hub.name || 'Domain Rebalance';
+    } else if (baseState === 'GROWTH') {
+      priorityZone = 'Strategic Goals & Projects';
+    } else { // AFFLUENCE
+      priorityZone = 'Long-term Scaling & Expansion';
+    }
+
+    // Store daily state in database
+    try {
+      await supabaseClient
+        .from('system_state_daily')
+        .upsert({
+          user_id: user.id,
+          state_date: today,
+          state: baseState,
+          ultra_score: ultraScore,
+          weakest_hub_id: weakestHubId,
+          strongest_hub_id: hubScores.length > 0 
+            ? hubScores.reduce((max, h) => h.score > max.score ? h : max, hubScores[0])?.hub_id 
+            : null,
+          priority_zone: priorityZone,
+          state_reasons: JSON.stringify(stateReasons),
+        }, {
+          onConflict: 'user_id,state_date'
+        });
+    } catch (storeError) {
+      console.error('Error storing daily state:', storeError);
+    }
+
     return new Response(
       JSON.stringify({
         ultra_score: ultraScore,
         state,
+        base_state: baseState,
         state_color: stateColor,
         state_icon: stateIcon,
         state_level: stateLevel,
         state_reasons: stateReasons,
+        priority_zone: priorityZone,
         priority_hub: priorityHub,
         priority_score: priorityScore,
         weakest_hub: weakestHub,
         weakest_score: weakestScore,
+        strongest_hub: hubScores.length > 0 
+          ? hubScores.reduce((max, h) => h.score > max.score ? h : max, hubScores[0]).hub 
+          : null,
         hubs_in_danger: hubsInDanger,
         hub_imbalance: hubImbalance,
         habit_consistency: avgStreak,
