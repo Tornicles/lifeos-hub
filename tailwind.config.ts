@@ -61,6 +61,7 @@ export default {
           urgency: "hsl(var(--ultra-urgency))",
           stable: "hsl(var(--ultra-stable))",
           affluent: "hsl(var(--ultra-affluent))",
+          peak: "hsl(var(--ultra-peak))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
