@@ -13,6 +13,8 @@ The LifeOS Automation Engine is a complete intelligent system that analyzes user
    - Determines weakest hub
    - Calculates priority zone
    - Generates intelligent recommendations
+   - Evaluates all active automation rules
+   - Logs execution history
 
 2. **Score Calculator** (`calculate-ultra-score`)
    - Computes ULTRA Score from 7 domain metrics
@@ -44,6 +46,51 @@ The LifeOS Automation Engine is a complete intelligent system that analyzes user
    - Central orchestrator for recalculations
    - Triggered on data changes (logs, metrics, habits, projects)
    - Calls dependent functions in sequence
+
+## Database Architecture
+
+### Core Automation Tables
+
+#### automation_rules
+Main rule definitions with basic configuration:
+- `name`: Rule identifier
+- `description`: What the rule does
+- `condition_type`: Primary condition type
+- `action_target`: Primary action to execute
+- `is_active`: Whether rule is currently enabled
+
+#### automation_rule_conditions
+Detailed condition specifications for complex rules:
+- `rule_id`: Link to parent rule
+- `condition_type`: ULTRA_SCORE_THRESHOLD, HUB_SCORE_THRESHOLD, TREND_DROP, TREND_RISE, IS_WEAKEST, STREAK_BROKEN, etc.
+- `metric_name`: The specific metric to evaluate
+- `operator`: LESS_THAN, GREATER_THAN, EQUALS, NOT_EQUALS, etc.
+- `threshold_value`: Numeric threshold for comparison
+- `comparison_window`: Days to look back for trend analysis
+
+#### automation_rule_actions
+Actions to execute when rules trigger:
+- `rule_id`: Link to parent rule
+- `action_type`: CREATE_TASK, CREATE_CALENDAR_BLOCK, SEND_ALERT, RECOMMEND_HABIT, SET_PRIORITY, CHANGE_MODE, GENERATE_INSIGHT, TRIGGER_RECOVERY
+- `action_payload`: JSON with action details (task title, calendar time, alert message, etc.)
+- `priority`: Execution priority (1=highest)
+
+#### automation_executions
+Complete audit log of rule firings:
+- `user_id`: User who triggered the rule
+- `rule_id`: Which rule was executed
+- `execution_date`: When it executed
+- `trigger_type`: What triggered it (ON_METRIC_UPDATE, ON_LOG_ENTRY, ON_HABIT_STREAK_CHANGE, etc.)
+- `conditions_met`: JSON of conditions that evaluated true
+- `actions_executed`: JSON of actions performed
+- `execution_result`: success/failed/partial
+
+#### automation_context_cache
+Performance optimization cache:
+- `user_id`: Cache owner
+- `cache_key`: Unique identifier (e.g., "ultra_score_7day", "hub_scores_today")
+- `cache_value`: Cached JSON data
+- `expires_at`: Automatic expiration timestamp
 
 ## State Classification System
 
@@ -88,33 +135,55 @@ This ensures critical life domains (Health, Finance) receive higher priority eve
 
 ## Automation Rule Families
 
+The system supports 10+ comprehensive rule families for intelligent automation:
+
 ### Family A: ULTRA Score Based
-- `ULTRA_BELOW`: Triggers when score drops below threshold
-- `ULTRA_ABOVE`: Triggers when score exceeds threshold
-- `ULTRA_RANGE`: Triggers within score range
+- `ULTRA_SCORE_THRESHOLD`: Triggers when ULTRA Score crosses specific thresholds
+- Example: ULTRA Score < 40 → Activate "Intensive Recovery Mode"
+- Example: ULTRA Score > 80 → Suggest "Growth & Expansion" tasks
 
 ### Family B: Hub-Based Rules
-- `HUB_BELOW`: Weakest hub below threshold
-- `WEAKEST_HUB_IS`: Specific hub is weakest
-- `HUBS_IN_DANGER`: Multiple hubs in danger zone
+- `HUB_SCORE_THRESHOLD`: Monitors individual hub performance
+- `IS_WEAKEST`: Identifies the current weakest hub
+- `IS_STRONGEST`: Identifies the current strongest hub
+- Example: Health Hub < 30 → Create "20-minute walk" calendar block
 
-### Family C: Missing Logs
-- `NO_LOGS_TODAY`: No activity logged today
-- `LOGS_BELOW`: Insufficient logging activity
+### Family C: Trend Analysis
+- `TREND_DROP`: Detects declining performance over time
+- `TREND_RISE`: Detects improving performance over time
+- Example: If ULTRA Score drops 10% over 7 days → Send alert
 
-### Family D: Habit Logic
-- `HABIT_STREAK_BELOW`: Consistency breakdown
-- `HABIT_STREAK_ABOVE`: Strong consistency reward
+### Family D: Missing Logs
+- `MISSING_LOGS`: Flags when activity logging stops
+- Example: No logs for 3+ days → Create "System Reset" task
 
-### Family E: Emotional Triggers
-- `SCORE_TREND_NEGATIVE`: Declining momentum
+### Family E: Habit Logic
+- `STREAK_BROKEN`: Detects when habit streaks are broken
+- `CONSISTENCY_LOW`: Monitors overall habit consistency
+- `CONSISTENCY_HIGH`: Rewards strong consistency
+- Example: Habit streak = 0 → Generate recovery action
 
-### Family F: Calendar/Project Logic
-- `CALENDAR_OVERLOAD`: Too many scheduled events
-- `HUB_IMBALANCE_HIGH`: Severe domain imbalance
+### Family F: Emotional Triggers
+- `EMOTIONAL_STATE_LOW`: Monitors emotional intelligence scores
+- Example: Emotional score < 4 → Recommend grounding exercise
 
-### Family G: State-Based Modes
-- `STATE_IS`: Triggers for specific state (CRISIS, GROWTH, etc.)
+### Family G: Calendar/Project Logic
+- `CALENDAR_OVERLOAD`: Detects excessive scheduling
+- `PROJECT_OVERDUE`: Identifies overdue tasks
+- Example: 20+ events in 3 days → Reduce calendar load
+
+### Family H: State-Based Modes
+- `STATE_CHANGE`: Triggers when system state transitions
+- Modes: Burnout, Reset, Deep Focus, Momentum, Growth, High-Performance
+- Example: State = CRISIS → Activate emergency protocols
+
+### Family I: Anomaly Detection
+- `ANOMALY_DETECTED`: Identifies unusual patterns
+- Example: Sudden 30% score drop → Investigate cause
+
+### Family J: Multi-Condition Complex Rules
+- Supports AND/OR logic combining multiple conditions
+- Example: (ULTRA < 50) AND (Health < 30) AND (Habit Streak = 0) → Full system reset
 
 ## Data Flow
 
@@ -212,6 +281,25 @@ Runs diagnostics:
 - Recommended actions list
 - System metrics grid
 - Opportunities and risk factors
+- Manual engine execution button
+
+### Automation Control Center (`/automation`)
+- Current system status overview
+- System controls (validation, rebalance, calendar generation)
+- Auto-generated actions list with completion tracking
+- System warnings and alerts
+- Active automation rules display
+- Real-time metrics dashboard
+
+### Rule Builder (`/automation-rules`)
+- Visual rule creation interface
+- Condition type selector with 10+ options
+- Action target configuration
+- Threshold value inputs
+- Rule activation toggle
+- Rule testing functionality
+- Execution history timeline
+- Drag-and-drop rule priority management
 
 ### Dashboard Integration
 - Mini Ultra Score gauge
@@ -219,6 +307,7 @@ Runs diagnostics:
 - Daily insight card
 - Priority hub card
 - AI action plan
+- Quick action buttons
 
 ## Best Practices
 

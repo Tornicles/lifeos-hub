@@ -17,7 +17,8 @@ import {
   Zap,
   Settings,
   ChevronRight,
-  Sparkles
+  Sparkles,
+  Sliders
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -64,6 +65,7 @@ const systemItems = [
   { title: "States Engine", url: "/states-engine", icon: Brain },
   { title: "Reports", url: "/reports", icon: BarChart3 },
   { title: "Automation", url: "/automation", icon: Zap },
+  { title: "Rule Builder", url: "/automation-rules", icon: Sliders },
   { title: "Insights", url: "/insights", icon: Sparkles },
   { title: "Settings", url: "/settings", icon: Settings },
 ];

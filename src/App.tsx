@@ -13,6 +13,7 @@ import Calendar from "./pages/Calendar";
 import Logs from "./pages/Logs";
 import Automation from "./pages/Automation";
 import StatesEngine from "./pages/StatesEngine";
+import AutomationRules from "./pages/AutomationRules";
 import Insights from "./pages/Insights";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/logs" element={<Logs />} />
             <Route path="/automation" element={<Automation />} />
+            <Route path="/automation-rules" element={<AutomationRules />} />
             <Route path="/states-engine" element={<StatesEngine />} />
             <Route path="/insights" element={<Insights />} />
             <Route path="/settings" element={<Settings />} />
