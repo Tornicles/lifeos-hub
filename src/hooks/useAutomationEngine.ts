@@ -6,9 +6,18 @@ export interface AutomationResult {
   state: string;
   state_color: string;
   state_icon: string;
+  state_level: 'GREEN' | 'YELLOW' | 'ORANGE' | 'RED';
+  state_reasons: string[];
+  priority_hub: { code: string; name: string } | null;
+  priority_score: number;
   weakest_hub: { code: string; name: string } | null;
   weakest_score: number;
   hubs_in_danger: number;
+  hub_imbalance: number;
+  habit_consistency: number;
+  calendar_load: number;
+  score_trend: number;
+  recent_activity: number;
   triggered_actions: Array<{
     rule: string;
     target: string;
@@ -19,6 +28,8 @@ export interface AutomationResult {
     primary_domain: string;
     secondary_domain: string;
     suggested_actions: string[];
+    risk_factors: string[];
+    opportunities: string[];
   };
   date: string;
 }
