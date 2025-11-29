@@ -19,6 +19,8 @@ import Insights from "./pages/Insights";
 import Settings from "./pages/Settings";
 import Security from "./pages/Security";
 import Admin from "./pages/Admin";
+import Profile from "./pages/Profile";
+import PasswordReset from "./pages/PasswordReset";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +34,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/password-reset" element={<PasswordReset />} />
           <Route element={<AppLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/ultra" element={<UltraHub />} />
@@ -45,6 +48,7 @@ const App = () => (
             <Route path="/states-engine" element={<StatesEngine />} />
             <Route path="/insights" element={<Insights />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="/security" element={<Security />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/hubs/:hubCode" element={<div className="p-6"><h1 className="text-2xl">Hub Detail - Coming Soon</h1></div>} />

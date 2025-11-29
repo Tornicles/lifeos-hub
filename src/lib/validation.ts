@@ -145,6 +145,18 @@ export const authSchemas = {
     password: z.string().min(1, "Password is required"),
   }),
   
+  passwordReset: z.object({
+    email: commonSchemas.email,
+  }),
+  
+  passwordChange: z.object({
+    newPassword: commonSchemas.password,
+    confirmPassword: z.string(),
+  }).refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  }),
+  
   resetPassword: z.object({
     email: commonSchemas.email,
   }),

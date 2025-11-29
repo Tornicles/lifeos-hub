@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -205,17 +205,31 @@ const Auth = () => {
               </Button>
             </form>
 
-            <div className="mt-4 text-center text-sm">
-              <button
-                type="button"
-                onClick={() => setIsLogin(!isLogin)}
-                className="text-primary hover:text-primary-hover transition-lifeos underline"
-                disabled={loading}
-              >
-                {isLogin
-                  ? "Don't have an account? Sign up"
-                  : "Already have an account? Sign in"}
-              </button>
+            <div className="mt-4 text-center text-sm space-y-2">
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setIsLogin(!isLogin)}
+                  className="text-primary hover:text-primary-hover transition-lifeos underline"
+                  disabled={loading}
+                >
+                  {isLogin
+                    ? "Don't have an account? Sign up"
+                    : "Already have an account? Sign in"}
+                </button>
+              </div>
+              {isLogin && (
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => navigate('/password-reset')}
+                    className="text-muted-foreground hover:text-foreground transition-lifeos underline text-xs"
+                    disabled={loading}
+                  >
+                    Forgot your password?
+                  </button>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
