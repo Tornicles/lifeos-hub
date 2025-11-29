@@ -28,6 +28,7 @@ import PasswordReset from "./pages/PasswordReset";
 import NotFound from "./pages/NotFound";
 import Notifications from "./pages/Notifications";
 import NotificationSettings from "./pages/NotificationSettings";
+import Analytics from "./pages/Analytics";
 
 const queryClient = new QueryClient();
 
@@ -63,6 +64,7 @@ const App = () => (
             <Route path="/admin" element={<Admin />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/notification-settings" element={<NotificationSettings />} />
+            <Route path="/analytics" element={<Analytics />} />
             <Route path="/reports" element={<div className="p-6"><h1 className="text-2xl">Reports - Coming Soon</h1></div>} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
