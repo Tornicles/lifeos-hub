@@ -7,6 +7,7 @@ import { StateBadge } from "@/components/automation/StateBadge";
 import { PriorityHubCard } from "@/components/automation/PriorityHubCard";
 import { HubTile } from "@/components/cards/HubTile";
 import { RecommendationCard } from "@/components/cards/RecommendationCard";
+import { AICoachCard } from "@/components/dashboard/AICoachCard";
 import { useNavigate } from "react-router-dom";
 import { 
   TrendingUp, 
@@ -56,6 +57,9 @@ export default function Dashboard() {
           {dateStr}
         </p>
       </div>
+
+      {/* AI Coach Dashboard */}
+      <AICoachCard />
 
       {/* Ultra Score & System State */}
       <div className="grid gap-4 md:grid-cols-3">
