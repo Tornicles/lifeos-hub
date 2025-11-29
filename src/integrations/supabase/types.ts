@@ -879,6 +879,117 @@ export type Database = {
           },
         ]
       }
+      notification_preferences: {
+        Row: {
+          calendar_alerts_enabled: boolean | null
+          created_at: string | null
+          habit_reminders_enabled: boolean | null
+          id: string
+          intensity_level: string | null
+          life_event_alerts_enabled: boolean | null
+          max_notifications_per_hour: number | null
+          monthly_reports_enabled: boolean | null
+          performance_alerts_enabled: boolean | null
+          project_alerts_enabled: boolean | null
+          quiet_hours_end: string | null
+          quiet_hours_start: string | null
+          tenant_id: string | null
+          updated_at: string | null
+          user_id: string
+          weekly_reports_enabled: boolean | null
+        }
+        Insert: {
+          calendar_alerts_enabled?: boolean | null
+          created_at?: string | null
+          habit_reminders_enabled?: boolean | null
+          id?: string
+          intensity_level?: string | null
+          life_event_alerts_enabled?: boolean | null
+          max_notifications_per_hour?: number | null
+          monthly_reports_enabled?: boolean | null
+          performance_alerts_enabled?: boolean | null
+          project_alerts_enabled?: boolean | null
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
+          tenant_id?: string | null
+          updated_at?: string | null
+          user_id: string
+          weekly_reports_enabled?: boolean | null
+        }
+        Update: {
+          calendar_alerts_enabled?: boolean | null
+          created_at?: string | null
+          habit_reminders_enabled?: boolean | null
+          id?: string
+          intensity_level?: string | null
+          life_event_alerts_enabled?: boolean | null
+          max_notifications_per_hour?: number | null
+          monthly_reports_enabled?: boolean | null
+          performance_alerts_enabled?: boolean | null
+          project_alerts_enabled?: boolean | null
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
+          tenant_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+          weekly_reports_enabled?: boolean | null
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          is_resolved: boolean | null
+          message: string
+          metadata: Json | null
+          read_at: string | null
+          related_entity_id: string | null
+          related_entity_type: string | null
+          resolved_at: string | null
+          severity: string
+          tenant_id: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          is_resolved?: boolean | null
+          message: string
+          metadata?: Json | null
+          read_at?: string | null
+          related_entity_id?: string | null
+          related_entity_type?: string | null
+          resolved_at?: string | null
+          severity?: string
+          tenant_id?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          is_resolved?: boolean | null
+          message?: string
+          metadata?: Json | null
+          read_at?: string | null
+          related_entity_id?: string | null
+          related_entity_type?: string | null
+          resolved_at?: string | null
+          severity?: string
+          tenant_id?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null
