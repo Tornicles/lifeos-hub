@@ -18,6 +18,7 @@ import AutomationDiagnostics from "./pages/AutomationDiagnostics";
 import Insights from "./pages/Insights";
 import Settings from "./pages/Settings";
 import Security from "./pages/Security";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -45,6 +46,7 @@ const App = () => (
             <Route path="/insights" element={<Insights />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/security" element={<Security />} />
+            <Route path="/admin" element={<Admin />} />
             <Route path="/hubs/:hubCode" element={<div className="p-6"><h1 className="text-2xl">Hub Detail - Coming Soon</h1></div>} />
             <Route path="/reports" element={<div className="p-6"><h1 className="text-2xl">Reports - Coming Soon</h1></div>} />
           </Route>
