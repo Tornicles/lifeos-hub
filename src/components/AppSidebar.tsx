@@ -71,6 +71,7 @@ const systemItems = [
   { title: "Reports", url: "/reports", icon: BarChart3 },
   { title: "Automation", url: "/automation", icon: Zap },
   { title: "Rule Builder", url: "/automation-rules", icon: Sliders },
+  { title: "Auto Settings", url: "/automation-settings", icon: Settings },
   { title: "Insights", url: "/insights", icon: Sparkles },
   { title: "Security", url: "/security", icon: Shield },
   { title: "Settings", url: "/settings", icon: Settings },
