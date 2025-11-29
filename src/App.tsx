@@ -16,6 +16,9 @@ import StatesEngine from "./pages/StatesEngine";
 import AutomationRules from "./pages/AutomationRules";
 import AutomationDiagnostics from "./pages/AutomationDiagnostics";
 import AutomationSettings from "./pages/AutomationSettings";
+import HubDetail from "./pages/HubDetail";
+import ProjectDetail from "./pages/ProjectDetail";
+import HabitDetail from "./pages/HabitDetail";
 import Insights from "./pages/Insights";
 import Settings from "./pages/Settings";
 import Security from "./pages/Security";
@@ -39,8 +42,11 @@ const App = () => (
           <Route element={<AppLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/ultra" element={<UltraHub />} />
+            <Route path="/hubs/:hubCode" element={<HubDetail />} />
             <Route path="/projects" element={<Projects />} />
+            <Route path="/projects/:projectId" element={<ProjectDetail />} />
             <Route path="/habits" element={<Habits />} />
+            <Route path="/habits/:habitId" element={<HabitDetail />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/logs" element={<Logs />} />
             <Route path="/automation" element={<Automation />} />
@@ -53,7 +59,6 @@ const App = () => (
             <Route path="/profile" element={<Profile />} />
             <Route path="/security" element={<Security />} />
             <Route path="/admin" element={<Admin />} />
-            <Route path="/hubs/:hubCode" element={<div className="p-6"><h1 className="text-2xl">Hub Detail - Coming Soon</h1></div>} />
             <Route path="/reports" element={<div className="p-6"><h1 className="text-2xl">Reports - Coming Soon</h1></div>} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
