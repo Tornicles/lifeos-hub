@@ -153,6 +153,75 @@ export type Database = {
           },
         ]
       }
+      automation_action_queue: {
+        Row: {
+          action_payload: Json
+          action_type: string
+          created_at: string | null
+          error_message: string | null
+          executed_at: string | null
+          id: number
+          max_retries: number | null
+          priority: number | null
+          retry_count: number | null
+          rule_id: number | null
+          scheduled_for: string | null
+          status: string | null
+          tenant_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          action_payload: Json
+          action_type: string
+          created_at?: string | null
+          error_message?: string | null
+          executed_at?: string | null
+          id?: number
+          max_retries?: number | null
+          priority?: number | null
+          retry_count?: number | null
+          rule_id?: number | null
+          scheduled_for?: string | null
+          status?: string | null
+          tenant_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          action_payload?: Json
+          action_type?: string
+          created_at?: string | null
+          error_message?: string | null
+          executed_at?: string | null
+          id?: number
+          max_retries?: number | null
+          priority?: number | null
+          retry_count?: number | null
+          rule_id?: number | null
+          scheduled_for?: string | null
+          status?: string | null
+          tenant_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_action_queue_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "automation_rules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_action_queue_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       automation_context_cache: {
         Row: {
           cache_key: string
@@ -245,6 +314,57 @@ export type Database = {
           },
         ]
       }
+      automation_logs: {
+        Row: {
+          context_data: Json | null
+          created_at: string | null
+          event_type: string
+          id: number
+          message: string
+          rule_id: number | null
+          severity: string | null
+          tenant_id: string | null
+          user_id: string
+        }
+        Insert: {
+          context_data?: Json | null
+          created_at?: string | null
+          event_type: string
+          id?: number
+          message: string
+          rule_id?: number | null
+          severity?: string | null
+          tenant_id?: string | null
+          user_id: string
+        }
+        Update: {
+          context_data?: Json | null
+          created_at?: string | null
+          event_type?: string
+          id?: number
+          message?: string
+          rule_id?: number | null
+          severity?: string | null
+          tenant_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_logs_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "automation_rules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       automation_rule_actions: {
         Row: {
           action_payload: Json | null
@@ -327,38 +447,94 @@ export type Database = {
           action_value: string | null
           condition_type: string
           condition_value: number | null
+          conflict_group: string | null
           created_at: string | null
           description: string | null
           id: number
           is_active: boolean | null
           name: string
+          priority: number | null
+          requires_user_confirmation: boolean | null
           updated_at: string | null
+          version: number | null
         }
         Insert: {
           action_target: string
           action_value?: string | null
           condition_type: string
           condition_value?: number | null
+          conflict_group?: string | null
           created_at?: string | null
           description?: string | null
           id?: number
           is_active?: boolean | null
           name: string
+          priority?: number | null
+          requires_user_confirmation?: boolean | null
           updated_at?: string | null
+          version?: number | null
         }
         Update: {
           action_target?: string
           action_value?: string | null
           condition_type?: string
           condition_value?: number | null
+          conflict_group?: string | null
           created_at?: string | null
           description?: string | null
           id?: number
           is_active?: boolean | null
           name?: string
+          priority?: number | null
+          requires_user_confirmation?: boolean | null
           updated_at?: string | null
+          version?: number | null
         }
         Relationships: []
+      }
+      automation_trigger_events: {
+        Row: {
+          created_at: string | null
+          id: number
+          processed: boolean | null
+          tenant_id: string | null
+          trigger_data: Json | null
+          trigger_source: string
+          trigger_type: string
+          triggered_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          processed?: boolean | null
+          tenant_id?: string | null
+          trigger_data?: Json | null
+          trigger_source: string
+          trigger_type: string
+          triggered_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          processed?: boolean | null
+          tenant_id?: string | null
+          trigger_data?: Json | null
+          trigger_source?: string
+          trigger_type?: string
+          triggered_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_trigger_events_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       calendar_entries: {
         Row: {
@@ -1129,6 +1305,56 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_automation_settings: {
+        Row: {
+          automation_enabled: boolean | null
+          created_at: string | null
+          enabled_categories: Json | null
+          id: number
+          max_daily_actions: number | null
+          notification_preferences: Json | null
+          priority_override: string | null
+          quiet_hours: Json | null
+          tenant_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          automation_enabled?: boolean | null
+          created_at?: string | null
+          enabled_categories?: Json | null
+          id?: number
+          max_daily_actions?: number | null
+          notification_preferences?: Json | null
+          priority_override?: string | null
+          quiet_hours?: Json | null
+          tenant_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          automation_enabled?: boolean | null
+          created_at?: string | null
+          enabled_categories?: Json | null
+          id?: number
+          max_daily_actions?: number | null
+          notification_preferences?: Json | null
+          priority_override?: string | null
+          quiet_hours?: Json | null
+          tenant_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_automation_settings_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
         ]
