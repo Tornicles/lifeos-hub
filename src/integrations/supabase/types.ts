@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          changed_fields: string[] | null
+          created_at: string
+          id: string
+          ip_address: unknown
+          new_values: Json | null
+          old_values: Json | null
+          operation: string
+          record_id: string
+          table_name: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          changed_fields?: string[] | null
+          created_at?: string
+          id?: string
+          ip_address?: unknown
+          new_values?: Json | null
+          old_values?: Json | null
+          operation: string
+          record_id: string
+          table_name: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          changed_fields?: string[] | null
+          created_at?: string
+          id?: string
+          ip_address?: unknown
+          new_values?: Json | null
+          old_values?: Json | null
+          operation?: string
+          record_id?: string
+          table_name?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       auto_actions: {
         Row: {
           action_date: string
@@ -597,6 +639,51 @@ export type Database = {
           },
         ]
       }
+      security_settings: {
+        Row: {
+          account_locked_until: string | null
+          created_at: string
+          id: string
+          last_failed_login: string | null
+          login_attempts: number
+          mfa_enabled: boolean
+          mfa_secret: string | null
+          password_changed_at: string | null
+          session_timeout_minutes: number
+          trusted_ips: unknown[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_locked_until?: string | null
+          created_at?: string
+          id?: string
+          last_failed_login?: string | null
+          login_attempts?: number
+          mfa_enabled?: boolean
+          mfa_secret?: string | null
+          password_changed_at?: string | null
+          session_timeout_minutes?: number
+          trusted_ips?: unknown[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_locked_until?: string | null
+          created_at?: string
+          id?: string
+          last_failed_login?: string | null
+          login_attempts?: number
+          mfa_enabled?: boolean
+          mfa_secret?: string | null
+          password_changed_at?: string | null
+          session_timeout_minutes?: number
+          trusted_ips?: unknown[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       state_warnings: {
         Row: {
           created_at: string | null
@@ -834,15 +921,59 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          assigned_at: string
+          assigned_by: string | null
+          expires_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by?: string | null
+          expires_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string | null
+          expires_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_owner: { Args: { _user_id: string }; Returns: boolean }
+      log_security_event: {
+        Args: {
+          p_details: Json
+          p_event_type: string
+          p_ip_address?: unknown
+          p_user_agent?: string
+          p_user_id: string
+        }
+        Returns: string
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "owner" | "member" | "viewer" | "guest"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -969,6 +1100,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["owner", "member", "viewer", "guest"],
+    },
   },
 } as const

@@ -16,6 +16,7 @@ import {
   BarChart3,
   Zap,
   Settings,
+  Shield,
   ChevronRight,
   Sparkles,
   Sliders,
@@ -69,6 +70,7 @@ const systemItems = [
   { title: "Automation", url: "/automation", icon: Zap },
   { title: "Rule Builder", url: "/automation-rules", icon: Sliders },
   { title: "Insights", url: "/insights", icon: Sparkles },
+  { title: "Security", url: "/security", icon: Shield },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 
