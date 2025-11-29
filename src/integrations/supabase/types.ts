@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_settings: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          setting_key: string
+          setting_value: Json
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          setting_key: string
+          setting_value: Json
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          setting_key?: string
+          setting_value?: Json
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           changed_fields: string[] | null
@@ -1132,7 +1162,29 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      admin_metrics_overview: {
+        Row: {
+          active_hubs: number | null
+          active_users: number | null
+          avg_ultra_score: number | null
+          logs_today: number | null
+          total_logs: number | null
+        }
+        Relationships: []
+      }
+      admin_user_stats: {
+        Row: {
+          enterprise_subscribers: number | null
+          new_users_month: number | null
+          new_users_today: number | null
+          new_users_week: number | null
+          pro_subscribers: number | null
+          starter_subscribers: number | null
+          total_tenants: number | null
+          total_users: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_user_tenant_role: {
@@ -1154,6 +1206,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_owner: { Args: { _user_id: string }; Returns: boolean }
       is_tenant_admin: {
         Args: { _tenant_id: string; _user_id: string }
@@ -1175,7 +1228,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "owner" | "member" | "viewer" | "guest"
+      app_role: "owner" | "member" | "viewer" | "guest" | "admin"
       membership_role: "owner" | "admin" | "member" | "viewer"
       membership_status: "pending" | "active" | "revoked"
       subscription_plan: "free" | "starter" | "pro" | "enterprise"
@@ -1306,7 +1359,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["owner", "member", "viewer", "guest"],
+      app_role: ["owner", "member", "viewer", "guest", "admin"],
       membership_role: ["owner", "admin", "member", "viewer"],
       membership_status: ["pending", "active", "revoked"],
       subscription_plan: ["free", "starter", "pro", "enterprise"],

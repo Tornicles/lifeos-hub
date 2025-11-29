@@ -20,10 +20,12 @@ import {
   ChevronRight,
   Sparkles,
   Sliders,
-  Activity
+  Activity,
+  ShieldCheck
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
+import { useAdminAccess } from "@/hooks/useAdminAccess";
 import {
   Sidebar,
   SidebarContent,
@@ -74,10 +76,15 @@ const systemItems = [
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 
+const adminItems = [
+  { title: "Admin Panel", url: "/admin", icon: ShieldCheck },
+];
+
 export function AppSidebar() {
   const { open } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
+  const { isAdmin } = useAdminAccess();
 
   const isActive = (path: string) => currentPath === path || currentPath.startsWith(path + '/');
 
@@ -192,6 +199,36 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* Admin (only visible to admins) */}
+        {isAdmin && (
+          <SidebarGroup>
+            <SidebarGroupLabel>
+              <div className="flex items-center gap-2">
+                <Shield className="h-3 w-3" />
+                Admin
+              </div>
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {adminItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                      <NavLink 
+                        to={item.url}
+                        className="flex items-center gap-3"
+                        activeClassName="bg-destructive/10 text-destructive font-medium"
+                      >
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.title}</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       <SidebarFooter className="border-t border-border p-4">
