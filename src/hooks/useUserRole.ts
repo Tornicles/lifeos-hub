@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
-export type AppRole = 'owner' | 'member' | 'viewer' | 'guest';
+export type AppRole = 'owner' | 'admin' | 'member' | 'viewer' | 'guest';
 
 export interface UserRole {
   id: string;
@@ -70,8 +70,8 @@ export const useHighestRole = (): {
     return { role: null, isLoading };
   }
   
-  // Role hierarchy: owner > member > viewer > guest
-  const roleHierarchy: AppRole[] = ['owner', 'member', 'viewer', 'guest'];
+  // Role hierarchy: owner > admin > member > viewer > guest
+  const roleHierarchy: AppRole[] = ['owner', 'admin', 'member', 'viewer', 'guest'];
   
   for (const hierarchyRole of roleHierarchy) {
     if (roles.some(r => r.role === hierarchyRole)) {
