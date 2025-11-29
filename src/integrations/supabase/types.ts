@@ -1089,7 +1089,6 @@ export type Database = {
           last_failed_login: string | null
           login_attempts: number
           mfa_enabled: boolean
-          mfa_secret: string | null
           password_changed_at: string | null
           session_timeout_minutes: number
           trusted_ips: unknown[] | null
@@ -1103,7 +1102,6 @@ export type Database = {
           last_failed_login?: string | null
           login_attempts?: number
           mfa_enabled?: boolean
-          mfa_secret?: string | null
           password_changed_at?: string | null
           session_timeout_minutes?: number
           trusted_ips?: unknown[] | null
@@ -1117,7 +1115,6 @@ export type Database = {
           last_failed_login?: string | null
           login_attempts?: number
           mfa_enabled?: boolean
-          mfa_secret?: string | null
           password_changed_at?: string | null
           session_timeout_minutes?: number
           trusted_ips?: unknown[] | null

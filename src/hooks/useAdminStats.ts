@@ -29,10 +29,18 @@ export const useAdminUserStats = () => {
         .select('*')
         .single();
       
-      if (error) throw error;
+      if (error) {
+        // If RLS blocks access, return null instead of throwing
+        if (error.code === 'PGRST116') {
+          console.warn('Admin access required for user stats');
+          return null;
+        }
+        throw error;
+      }
       return data as AdminUserStats;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: false, // Don't retry if access is denied
   });
 };
 
@@ -45,9 +53,17 @@ export const useAdminMetricsOverview = () => {
         .select('*')
         .single();
       
-      if (error) throw error;
+      if (error) {
+        // If RLS blocks access, return null instead of throwing
+        if (error.code === 'PGRST116') {
+          console.warn('Admin access required for metrics overview');
+          return null;
+        }
+        throw error;
+      }
       return data as AdminMetricsOverview;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: false, // Don't retry if access is denied
   });
 };
