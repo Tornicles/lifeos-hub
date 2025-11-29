@@ -75,10 +75,14 @@ export default function Settings() {
               <Label className="text-sm text-muted-foreground">User ID</Label>
               <p className="text-xs font-mono text-muted-foreground">{user?.id || "Loading..."}</p>
             </div>
-            <div>
-              <Label className="text-sm text-muted-foreground">Role</Label>
-              <p className="text-sm font-medium">Owner</p>
-            </div>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => navigate('/profile')}
+            >
+              <User className="w-4 h-4 mr-2" />
+              Manage Profile
+            </Button>
           </CardContent>
         </Card>
 
