@@ -3,89 +3,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { Plus, Flame, Calendar as CalendarIcon, TrendingUp } from "lucide-react";
-import { toast } from "sonner";
+import { Plus, Flame, Calendar as CalendarIcon } from "lucide-react";
+import { useHabits, useHabitCheckin } from "@/hooks/useHabits";
 
 export default function Habits() {
-  const queryClient = useQueryClient();
   const today = new Date().toISOString().split('T')[0];
-
-  const { data: habits, isLoading } = useQuery({
-    queryKey: ['habits'],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
-
-      const { data, error } = await supabase
-        .from('habits')
-        .select('*, habit_checkins(*)')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  const checkInMutation = useMutation({
-    mutationFn: async ({ habitId, done }: { habitId: number; done: boolean }) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
-
-      if (done) {
-        // Create check-in
-        const { error } = await supabase
-          .from('habit_checkins')
-          .upsert({
-            habit_id: habitId,
-            date: today,
-            done: true,
-          }, {
-            onConflict: 'habit_id,date',
-          });
-
-        if (error) throw error;
-
-        // Update habit streak
-        const { data: habit } = await supabase
-          .from('habits')
-          .select('streak, last_checkin')
-          .eq('id', habitId)
-          .single();
-
-        if (habit) {
-          const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-          const newStreak = habit.last_checkin === yesterday ? (habit.streak || 0) + 1 : 1;
-
-          await supabase
-            .from('habits')
-            .update({
-              streak: newStreak,
-              last_checkin: today,
-            })
-            .eq('id', habitId);
-        }
-      } else {
-        // Delete check-in
-        const { error } = await supabase
-          .from('habit_checkins')
-          .delete()
-          .eq('habit_id', habitId)
-          .eq('date', today);
-
-        if (error) throw error;
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['habits'] });
-      toast.success("Habit updated");
-    },
-    onError: () => {
-      toast.error("Failed to update habit");
-    },
-  });
+  
+  const { data: habits, isLoading } = useHabits();
+  const checkInMutation = useHabitCheckin();
 
   const isCheckedToday = (habit: any) => {
     return habit.habit_checkins?.some((c: any) => c.date === today && c.done);
@@ -197,6 +122,7 @@ export default function Habits() {
                       onCheckedChange={(checked) => {
                         checkInMutation.mutate({
                           habitId: habit.id,
+                          date: today,
                           done: !!checked,
                         });
                       }}

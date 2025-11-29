@@ -27,9 +27,13 @@ export const useNotifications = () => {
   const { data: notifications, isLoading } = useQuery({
     queryKey: ['notifications'],
     queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
       const { data, error } = await supabase
         .from('notifications')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(50);
 
@@ -41,9 +45,13 @@ export const useNotifications = () => {
   const { data: unreadCount } = useQuery({
     queryKey: ['notifications-unread-count'],
     queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
       const { count, error } = await supabase
         .from('notifications')
         .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
         .eq('is_read', false);
 
       if (error) throw error;

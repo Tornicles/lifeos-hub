@@ -6,7 +6,6 @@ type FlowType = 'log_created' | 'habit_checkin' | 'project_updated' | 'calendar_
 
 interface DataFlowParams {
   flow_type: FlowType;
-  user_id: string;
   data: Record<string, any>;
 }
 
@@ -15,9 +14,10 @@ export const useDataFlow = () => {
   const queryClient = useQueryClient();
 
   const processFlow = useMutation({
-    mutationFn: async ({ flow_type, user_id, data }: DataFlowParams) => {
+    mutationFn: async ({ flow_type, data }: DataFlowParams) => {
+      // User ID is extracted from auth in the edge function
       const { data: result, error } = await supabase.functions.invoke('data-flow-processor', {
-        body: { flow_type, user_id, data }
+        body: { flow_type, data }
       });
       
       if (error) throw error;
