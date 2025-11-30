@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Flame, Calendar as CalendarIcon } from "lucide-react";
 import { useHabits, useHabitCheckin } from "@/hooks/useHabits";
+import { CreateHabitDialog } from "@/components/habits/CreateHabitDialog";
 
 export default function Habits() {
   const today = new Date().toISOString().split('T')[0];
@@ -47,10 +48,7 @@ export default function Habits() {
             Build consistency, one day at a time
           </p>
         </div>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          New Habit
-        </Button>
+        <CreateHabitDialog />
       </div>
 
       {/* Stats */}
@@ -185,10 +183,7 @@ export default function Habits() {
             <p className="text-muted-foreground mb-4">
               Create your first habit to start building consistency
             </p>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Create Habit
-            </Button>
+            <CreateHabitDialog />
           </CardContent>
         </Card>
       )}
