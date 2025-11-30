@@ -1,18 +1,22 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Validation schemas
+const FlowSchema = z.object({
+  flow_type: z.enum(['log_created', 'habit_checkin', 'project_updated', 'calendar_event']),
+  data: z.record(z.any()),
+});
+
 /**
  * Data Flow Processor - Central orchestrator for all cross-module data flows
  * 
- * Handles:
- * - Log → Hub Score → Ultra Score
- * - Habit Check-in → Automation Triggers  
- * - Project Updates → Hub Scores
- * - Calendar Events → Time Blocking Intelligence
+ * SECURITY: Requires JWT authentication. User ID extracted from JWT token.
+ * NO client-supplied user_id accepted.
  */
 
 Deno.serve(async (req) => {
@@ -26,9 +30,51 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const { flow_type, user_id, data } = await req.json();
+    // SECURITY: Extract user from JWT token
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Missing authorization header' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid or expired token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const user_id = user.id;
+
+    // Parse and validate request body
+    const rawBody = await req.json();
+    
+    // Payload size check (prevent DoS)
+    if (JSON.stringify(rawBody).length > 20000) {
+      return new Response(
+        JSON.stringify({ error: 'Payload too large' }),
+        { status: 413, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const body = FlowSchema.parse(rawBody);
+    const { flow_type, data } = body;
 
     console.log('Processing data flow:', flow_type, 'for user:', user_id);
+
+    // Audit log
+    await supabase.from('audit_logs').insert({
+      user_id,
+      table_name: 'data_flow',
+      record_id: flow_type,
+      operation: 'EXECUTE',
+      new_values: { flow_type, data_keys: Object.keys(data) },
+    });
 
     let result;
 
@@ -61,12 +107,12 @@ Deno.serve(async (req) => {
 
         // Trigger Ultra Score recalculation
         await supabase.functions.invoke('calculate-ultra-score', {
-          body: { user_id }
+          headers: { Authorization: authHeader }
         });
 
         // Trigger notification check
         await supabase.functions.invoke('notification-generator', {
-          body: { user_id }
+          headers: { Authorization: authHeader }
         });
 
         result = { hub_score_updated: avgScore, ultra_score_triggered: true };
@@ -96,7 +142,9 @@ Deno.serve(async (req) => {
         }
 
         // Trigger automation evaluation
-        await supabase.functions.invoke('evaluate-automation');
+        await supabase.functions.invoke('evaluate-automation', {
+          headers: { Authorization: authHeader }
+        });
 
         result = { notification_created: streak >= 7 || streak <= 2 };
         break;
@@ -139,7 +187,7 @@ Deno.serve(async (req) => {
 
           // Trigger Ultra Score update
           await supabase.functions.invoke('calculate-ultra-score', {
-            body: { user_id }
+            headers: { Authorization: authHeader }
           });
         }
 
@@ -148,6 +196,7 @@ Deno.serve(async (req) => {
           .from('projects')
           .select('*, tasks(*)')
           .eq('id', project_id)
+          .eq('user_id', user_id) // SECURITY: Verify ownership
           .single();
 
         const overdueTasks = project?.tasks?.filter((t: any) => 
@@ -213,8 +262,16 @@ Deno.serve(async (req) => {
     );
   } catch (error) {
     console.error('Error processing data flow:', error);
+    
+    if (error instanceof z.ZodError) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid request format', details: error.errors }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
+      JSON.stringify({ error: 'Internal server error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
