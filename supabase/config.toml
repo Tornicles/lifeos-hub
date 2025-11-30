@@ -3,6 +3,9 @@ project_id = "ggaonvyheaxrbobmxism"
 [functions.automation-trigger]
 verify_jwt = true
 
+[functions.data-flow-processor]
+verify_jwt = true
+
 [functions.calculate-ultra-score]
 verify_jwt = true
 
