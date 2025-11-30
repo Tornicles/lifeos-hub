@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Plus, Calendar, Flag, Clock } from "lucide-react";
+import { CreateProjectDialog } from "@/components/projects/CreateProjectDialog";
 
 export default function Projects() {
   const [view, setView] = useState<'board' | 'list'>('board');
@@ -63,10 +64,7 @@ export default function Projects() {
             Scrum-style project management
           </p>
         </div>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          New Project
-        </Button>
+        <CreateProjectDialog />
       </div>
 
       {/* View Tabs */}
@@ -217,10 +215,7 @@ export default function Projects() {
                     <p className="text-muted-foreground mb-4">
                       Create your first project to start tracking tasks
                     </p>
-                    <Button>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Create Project
-                    </Button>
+                    <CreateProjectDialog />
                   </CardContent>
                 </Card>
               )}
