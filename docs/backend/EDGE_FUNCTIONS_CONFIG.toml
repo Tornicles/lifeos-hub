@@ -1,0 +1,109 @@
+# ============================================================================
+# LIFEOS v36 - SUPABASE EDGE FUNCTIONS CONFIGURATION
+# ============================================================================
+# This file configures all edge functions with JWT verification enabled
+# for security. All functions require authentication unless explicitly
+# marked with verify_jwt = false (which should be rare).
+# ============================================================================
+
+project_id = "ggaonvyheaxrbobmxism"
+
+# ============================================================================
+# AUTOMATION ENGINE FUNCTIONS
+# ============================================================================
+
+[functions.automation-trigger]
+verify_jwt = true
+
+[functions.automation-evaluator]
+verify_jwt = true
+
+[functions.automation-processor]
+verify_jwt = true
+
+[functions.automation-conflict-resolver]
+verify_jwt = true
+
+[functions.automation-rebalance]
+verify_jwt = true
+
+[functions.evaluate-automation]
+verify_jwt = true
+
+# ============================================================================
+# DATA FLOW & ORCHESTRATION FUNCTIONS
+# ============================================================================
+
+[functions.data-flow-processor]
+verify_jwt = true
+
+# ============================================================================
+# CALCULATION & SCORING FUNCTIONS
+# ============================================================================
+
+[functions.calculate-ultra-score]
+verify_jwt = true
+
+# ============================================================================
+# AI & INSIGHTS FUNCTIONS
+# ============================================================================
+
+[functions.ai-insights-engine]
+verify_jwt = true
+
+[functions.generate-daily-insight]
+verify_jwt = true
+
+[functions.generate-weekly-review]
+verify_jwt = true
+
+[functions.generate-monthly-insights]
+verify_jwt = true
+
+# ============================================================================
+# CALENDAR & PLANNING FUNCTIONS
+# ============================================================================
+
+[functions.calendar-autofill]
+verify_jwt = true
+
+# ============================================================================
+# NOTIFICATION FUNCTIONS
+# ============================================================================
+
+[functions.notification-generator]
+verify_jwt = true
+
+[functions.notification-processor]
+verify_jwt = true
+
+# ============================================================================
+# SYSTEM & MAINTENANCE FUNCTIONS
+# ============================================================================
+
+[functions.system-validate]
+verify_jwt = true
+
+# ============================================================================
+# TENANT MANAGEMENT FUNCTIONS
+# ============================================================================
+
+[functions.tenant-operations]
+verify_jwt = true
+
+# ============================================================================
+# SECURE EXAMPLE (FOR REFERENCE)
+# ============================================================================
+
+[functions.secure-example]
+verify_jwt = true
+
+# ============================================================================
+# NOTES
+# ============================================================================
+# - All functions have verify_jwt = true for security
+# - Edge functions automatically extract user_id from JWT
+# - No function should trust client-supplied user_id
+# - All functions validate input with Zod schemas
+# - All functions check tenant membership before data access
+# ============================================================================
