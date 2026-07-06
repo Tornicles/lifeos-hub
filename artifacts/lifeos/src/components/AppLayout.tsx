@@ -5,10 +5,12 @@ import { Activity } from "lucide-react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { TopNav } from "@/components/TopNav";
+import { useOnboardingProfile } from "@/hooks/useOnboarding";
 
 const AppLayout = () => {
   const navigate = useNavigate();
   const { isLoaded, isSignedIn } = useAuth();
+  const { data: profile, isLoading: profileLoading } = useOnboardingProfile();
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
@@ -16,7 +18,16 @@ const AppLayout = () => {
     }
   }, [isLoaded, isSignedIn, navigate]);
 
-  if (!isLoaded || !isSignedIn) {
+  // Onboarding gate: any signed-in user who hasn't finished onboarding is
+  // forced to /onboarding regardless of the route they requested. This never
+  // fires again once onboardingCompletedAt is set.
+  useEffect(() => {
+    if (isLoaded && isSignedIn && profile && !profile.onboardingCompletedAt) {
+      navigate("/onboarding", { replace: true });
+    }
+  }, [isLoaded, isSignedIn, profile, navigate]);
+
+  if (!isLoaded || !isSignedIn || profileLoading || (profile && !profile.onboardingCompletedAt)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

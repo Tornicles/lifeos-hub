@@ -7,6 +7,12 @@ export const profilesTable = pgTable("profiles", {
   id: text("id").primaryKey(),
   fullName: text("full_name").notNull(),
   role: text("role").default("member"),
+  accountType: text("account_type"),
+  financialGoal: text("financial_goal"),
+  knowledgeLevel: text("knowledge_level"),
+  dailyLearningMinutes: integer("daily_learning_minutes"),
+  remindersEnabled: boolean("reminders_enabled").notNull().default(false),
+  onboardingCompletedAt: timestamp("onboarding_completed_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });

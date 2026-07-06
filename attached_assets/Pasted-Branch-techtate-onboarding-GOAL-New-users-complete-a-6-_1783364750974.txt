@@ -1,0 +1,52 @@
+Branch: techtate-onboarding
+
+GOAL
+New users complete a 6-step onboarding flow before seeing any dashboard. 
+Existing users bypass it entirely and never see it again.
+
+DATA MODEL
+Add these columns to public.profiles if they don't exist: financial_goal TEXT, 
+knowledge_level TEXT, daily_learning_minutes INTEGER, reminders_enabled 
+BOOLEAN DEFAULT FALSE, onboarding_completed_at TIMESTAMPTZ. Use 
+onboarding_completed_at IS NULL as the gate condition, not a guess based on 
+other fields — this avoids false positives if a user has partial data.
+
+FLOW (6 screens, each with a progress indicator showing "Step X of 6")
+1. Welcome — app name, one-line value prop, "Get Started" button. No data collected.
+2. Individual or Couple — two large tappable cards, single-select, required to proceed
+3. Financial goal — single-select from: Save money, Get out of debt, Learn 
+   investing, Learn business, Budget better, Build wealth, Grow together. 
+   Required to proceed.
+4. Knowledge level — single-select: Beginner, Intermediate, Advanced. Required.
+5. Daily learning time — single-select: 5, 10, 15, 20 minutes. Required.
+6. Enable daily reminders — toggle with one sentence explaining what it does 
+   (e.g. "We'll remind you once a day to keep your streak going"). Not 
+   required to be enabled, but the screen itself requires an explicit choice 
+   (on or off) before the Finish button activates — don't default this silently.
+
+On Finish: write all fields to profiles in one update call, set 
+onboarding_completed_at = now(), redirect to /dashboard.
+
+UI/UX REQUIREMENTS
+- Back button on every step except step 1
+- Selections persist if the user goes back and forward (don't reset state per screen)
+- If the user closes the app mid-onboarding and returns, resume at the first 
+  incomplete step, not step 1 — check which profile fields are already set
+- Mobile-first: this will run inside a PWA on a phone screen. Buttons must be 
+  full-width and thumb-reachable (bottom third of screen), text readable 
+  without zoom, no horizontal scrolling at 375px width
+- Use the existing button/card/form components already in the codebase — 
+  do not introduce new styling patterns
+
+ROUTING GATE
+In App.tsx or wherever auth state is checked post-login, add a redirect: if 
+profiles.onboarding_completed_at IS NULL, force /onboarding regardless of what 
+route was requested (except /auth, /password-reset). Once complete, this gate 
+never fires again for that user.
+
+OUTPUT
+- Files created/changed
+- New profiles columns added (confirm exact names/types)
+- Confirm resume-from-incomplete-step logic works (describe how you tested it)
+- Confirm the routing gate correctly blocks all routes for incomplete users
+- Any errors

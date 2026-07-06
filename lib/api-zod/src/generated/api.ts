@@ -21,6 +21,12 @@ export const GetMyProfileResponse = zod.object({
   "id": zod.string(),
   "fullName": zod.string(),
   "role": zod.string().nullish(),
+  "accountType": zod.string().nullish(),
+  "financialGoal": zod.string().nullish(),
+  "knowledgeLevel": zod.string().nullish(),
+  "dailyLearningMinutes": zod.number().nullish(),
+  "remindersEnabled": zod.boolean(),
+  "onboardingCompletedAt": zod.coerce.date().nullish(),
   "createdAt": zod.coerce.date().optional(),
   "updatedAt": zod.coerce.date().optional()
 })
@@ -28,13 +34,25 @@ export const GetMyProfileResponse = zod.object({
 
 export const UpdateMyProfileBody = zod.object({
   "fullName": zod.string().optional(),
-  "role": zod.string().optional()
+  "role": zod.string().optional(),
+  "accountType": zod.string().optional(),
+  "financialGoal": zod.string().optional(),
+  "knowledgeLevel": zod.string().optional(),
+  "dailyLearningMinutes": zod.number().optional(),
+  "remindersEnabled": zod.boolean().optional(),
+  "onboardingCompletedAt": zod.coerce.date().optional()
 })
 
 export const UpdateMyProfileResponse = zod.object({
   "id": zod.string(),
   "fullName": zod.string(),
   "role": zod.string().nullish(),
+  "accountType": zod.string().nullish(),
+  "financialGoal": zod.string().nullish(),
+  "knowledgeLevel": zod.string().nullish(),
+  "dailyLearningMinutes": zod.number().nullish(),
+  "remindersEnabled": zod.boolean(),
+  "onboardingCompletedAt": zod.coerce.date().nullish(),
   "createdAt": zod.coerce.date().optional(),
   "updatedAt": zod.coerce.date().optional()
 })

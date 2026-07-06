@@ -11,6 +11,17 @@ export interface Profile {
   fullName: string;
   /** @nullable */
   role?: string | null;
+  /** @nullable */
+  accountType?: string | null;
+  /** @nullable */
+  financialGoal?: string | null;
+  /** @nullable */
+  knowledgeLevel?: string | null;
+  /** @nullable */
+  dailyLearningMinutes?: number | null;
+  remindersEnabled: boolean;
+  /** @nullable */
+  onboardingCompletedAt?: Date | null;
   createdAt?: Date;
   updatedAt?: Date;
 }

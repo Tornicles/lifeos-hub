@@ -1830,11 +1830,17 @@ components:
     # ---------- Profile ----------
     Profile:
       type: object
-      required: [id, fullName]
+      required: [id, fullName, remindersEnabled]
       properties:
         id: { type: string }
         fullName: { type: string }
         role: { type: ["string", "null"] }
+        accountType: { type: ["string", "null"] }
+        financialGoal: { type: ["string", "null"] }
+        knowledgeLevel: { type: ["string", "null"] }
+        dailyLearningMinutes: { type: ["integer", "null"] }
+        remindersEnabled: { type: boolean }
+        onboardingCompletedAt: { type: ["string", "null"], format: date-time }
         createdAt: { type: "string", format: date-time }
         updatedAt: { type: "string", format: date-time }
     ProfileUpdate:
@@ -1842,6 +1848,12 @@ components:
       properties:
         fullName: { type: string }
         role: { type: string }
+        accountType: { type: string }
+        financialGoal: { type: string }
+        knowledgeLevel: { type: string }
+        dailyLearningMinutes: { type: integer }
+        remindersEnabled: { type: boolean }
+        onboardingCompletedAt: { type: "string", format: date-time }
 
     UserRole:
       type: object

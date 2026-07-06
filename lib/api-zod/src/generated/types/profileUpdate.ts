@@ -9,4 +9,10 @@
 export interface ProfileUpdate {
   fullName?: string;
   role?: string;
+  accountType?: string;
+  financialGoal?: string;
+  knowledgeLevel?: string;
+  dailyLearningMinutes?: number;
+  remindersEnabled?: boolean;
+  onboardingCompletedAt?: Date;
 }

@@ -14,6 +14,17 @@ export interface Profile {
   fullName: string;
   /** @nullable */
   role?: string | null;
+  /** @nullable */
+  accountType?: string | null;
+  /** @nullable */
+  financialGoal?: string | null;
+  /** @nullable */
+  knowledgeLevel?: string | null;
+  /** @nullable */
+  dailyLearningMinutes?: number | null;
+  remindersEnabled: boolean;
+  /** @nullable */
+  onboardingCompletedAt?: string | null;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -21,6 +32,12 @@ export interface Profile {
 export interface ProfileUpdate {
   fullName?: string;
   role?: string;
+  accountType?: string;
+  financialGoal?: string;
+  knowledgeLevel?: string;
+  dailyLearningMinutes?: number;
+  remindersEnabled?: boolean;
+  onboardingCompletedAt?: string;
 }
 
 export type UserRoleRole = typeof UserRoleRole[keyof typeof UserRoleRole];
