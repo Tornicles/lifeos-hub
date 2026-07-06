@@ -1,0 +1,54 @@
+This project is being converted from "LifeOS Hub" into a new product called "Tech-Tate." 
+Do NOT touch the database schema, migrations, or Supabase tables in this pass — 
+schema changes come in a separate step. This pass is code, UI text, and navigation only.
+
+1. REBRAND
+- Replace all visible instances of "LifeOS" / "LifeOS Hub" with "Tech-Tate" across the app: 
+  page titles, headers, footer, meta tags, favicon references, package.json name field, 
+  and any README/config text that's user-facing.
+- Rename "Command Center" to "Home" everywhere it appears in UI text, route names, and component names.
+- Rename "Finance Hub" to "Finance."
+- Rename "Academy" to "Learn."
+- Rename "Insights" to "AI Coach."
+- Rename "Calendar" to "Bills & Financial Calendar."
+- Rename "Reports" to "Progress."
+- Rename "Admin Panel" to "Tech-Tate Admin."
+
+2. REMOVE FROM NAVIGATION AND ROUTING
+Remove these from the sidebar, bottom nav, routes, and any menu/dropdown — remove the 
+nav links and page routes, but do NOT delete the underlying reusable UI components 
+(cards, charts, form inputs) if they're generic and could be reused elsewhere:
+- Ultra Hub and all "Ultra Score" / "System State" / "Priority Zone" screens and language
+- Automation Rules, Automation Diagnostics, Automation Settings pages
+- Projects page/section
+- Habits page (keep the underlying habit/streak tracking logic and data calls intact — 
+  just remove it as a standalone user-facing page for now, since streaks will be 
+  re-surfaced inside the Quiz/Learn flow later)
+- Logs page
+- Health hub, Work hub, Personal Development hub, Mindset hub
+- Household hub as a top-level nav item (do not delete any underlying shared components)
+
+3. NAVIGATION SHELL — REBUILD TO MATCH THIS STRUCTURE
+Bottom mobile tabs (5, in this order): Home, Finance, Learn, Quiz, Profile
+Left/side menu (in this order): Invite Partner, Bible & Stewardship, Notifications, Help & Support
+Profile dropdown (in this order): My Profile, Subscription, Privacy, Sign Out
+
+Note: "Quiz" as a bottom tab and "Bible & Stewardship" and "Invite Partner" as menu items 
+don't have pages yet — for this pass, create placeholder pages for them (simple "Coming Soon" 
+screens) so navigation doesn't break. Full functionality for these comes in later prompts.
+
+4. KEEP UNCHANGED (do not modify structure or logic, only rebrand any visible text)
+- Auth pages (login/signup/session handling)
+- Admin panel base layout and permission structure (just rename per #1)
+- Shared UI component library (buttons, inputs, modals, etc.)
+- Dashboard card system (the generic card component used across dashboards)
+- Notification system (backend logic and UI)
+- Profile/settings page structure
+- AI Coach card component (rename label only per #1)
+- Calendar base component (rename label only per #1)
+- Charts/reporting components
+
+5. VERIFY
+After changes, confirm the app builds and runs with no broken routes or dead links 
+from the removed pages. List any places where a removed page was linked from elsewhere 
+in the app so those can be fixed.
