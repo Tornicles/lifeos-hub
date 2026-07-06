@@ -12,4 +12,5 @@ export interface SavingsGoalInput {
   targetAmount: string;
   currentAmount?: string;
   targetDate?: Date;
+  isShared?: boolean;
 }

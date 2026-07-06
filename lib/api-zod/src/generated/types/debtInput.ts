@@ -9,8 +9,13 @@
 export interface DebtInput {
   /** @minLength 1 */
   name: string;
+  originalAmount: string;
   balance: string;
   interestRate?: string;
   minimumPayment?: string;
+  /**
+     * @minimum 1
+     * @maximum 31
+     */
   dueDay?: number;
 }

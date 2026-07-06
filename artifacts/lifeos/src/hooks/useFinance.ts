@@ -5,9 +5,9 @@ import {
   useListIncome, useCreateIncome, useDeleteIncome, getListIncomeQueryKey,
   useListExpenses, useCreateExpense, useDeleteExpense, getListExpensesQueryKey,
   useListSavingsGoals, useCreateSavingsGoal, useUpdateSavingsGoal, useDeleteSavingsGoal, getListSavingsGoalsQueryKey,
-  useListDebts, useCreateDebt, useDeleteDebt, getListDebtsQueryKey,
+  useListDebts, useCreateDebt, useUpdateDebt, useDeleteDebt, getListDebtsQueryKey,
   useListInvestmentEntries as useListInvestments, useCreateInvestmentEntry as useCreateInvestment, useDeleteInvestmentEntry as useDeleteInvestment, getListInvestmentEntriesQueryKey as getListInvestmentsQueryKey,
-  type BudgetInput, type IncomeInput, type ExpenseInput, type SavingsGoalInput, type SavingsGoalUpdate, type DebtInput, type InvestmentEntryInput,
+  type BudgetInput, type IncomeInput, type ExpenseInput, type SavingsGoalInput, type SavingsGoalUpdate, type DebtInput, type DebtUpdate, type InvestmentEntryInput,
 } from '@workspace/api-client-react';
 
 function onMutationResult(queryClient: ReturnType<typeof useQueryClient>, queryKey: readonly unknown[], successMsg: string, errorMsg: string) {
@@ -157,6 +157,15 @@ export const useAddDebt = () => {
     ...mutation,
     mutate: (data: DebtInput) =>
       mutation.mutate({ data }, onMutationResult(queryClient, getListDebtsQueryKey(), 'Debt added', 'Failed to add debt')),
+  };
+};
+export const useUpdateDebtBalance = () => {
+  const queryClient = useQueryClient();
+  const mutation = useUpdateDebt();
+  return {
+    ...mutation,
+    mutate: ({ id, ...data }: DebtUpdate & { id: string }) =>
+      mutation.mutate({ id, data }, onMutationResult(queryClient, getListDebtsQueryKey(), 'Debt updated', 'Failed to update debt')),
   };
 };
 export const useRemoveDebt = () => {

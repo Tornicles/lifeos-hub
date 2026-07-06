@@ -2189,7 +2189,7 @@ components:
 
     SavingsGoal:
       type: object
-      required: [id, userId, name, targetAmount, currentAmount]
+      required: [id, userId, name, targetAmount, currentAmount, isShared]
       properties:
         id: { type: string, format: uuid }
         userId: { type: string }
@@ -2197,6 +2197,7 @@ components:
         targetAmount: { type: string }
         currentAmount: { type: string }
         targetDate: { type: ["string", "null"], format: date }
+        isShared: { type: boolean }
         createdAt: { type: string, format: date-time }
         updatedAt: { type: string, format: date-time }
     SavingsGoalInput:
@@ -2207,6 +2208,7 @@ components:
         targetAmount: { type: string }
         currentAmount: { type: string }
         targetDate: { type: string, format: date }
+        isShared: { type: boolean }
     SavingsGoalUpdate:
       type: object
       properties:
@@ -2214,14 +2216,16 @@ components:
         targetAmount: { type: string }
         currentAmount: { type: string }
         targetDate: { type: ["string", "null"], format: date }
+        isShared: { type: boolean }
 
     Debt:
       type: object
-      required: [id, userId, name, balance]
+      required: [id, userId, name, originalAmount, balance]
       properties:
         id: { type: string, format: uuid }
         userId: { type: string }
         name: { type: string }
+        originalAmount: { type: string }
         balance: { type: string }
         interestRate: { type: ["string", "null"] }
         minimumPayment: { type: ["string", "null"] }
@@ -2230,21 +2234,23 @@ components:
         updatedAt: { type: string, format: date-time }
     DebtInput:
       type: object
-      required: [name, balance]
+      required: [name, originalAmount, balance]
       properties:
         name: { type: string, minLength: 1 }
+        originalAmount: { type: string }
         balance: { type: string }
         interestRate: { type: string }
         minimumPayment: { type: string }
-        dueDay: { type: integer }
+        dueDay: { type: integer, minimum: 1, maximum: 31 }
     DebtUpdate:
       type: object
       properties:
         name: { type: string }
+        originalAmount: { type: string }
         balance: { type: string }
         interestRate: { type: ["string", "null"] }
         minimumPayment: { type: ["string", "null"] }
-        dueDay: { type: ["integer", "null"] }
+        dueDay: { type: ["integer", "null"], minimum: 1, maximum: 31 }
 
     InvestmentEntry:
       type: object

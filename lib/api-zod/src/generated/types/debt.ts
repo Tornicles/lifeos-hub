@@ -10,6 +10,7 @@ export interface Debt {
   id: string;
   userId: string;
   name: string;
+  originalAmount: string;
   balance: string;
   /** @nullable */
   interestRate?: string | null;

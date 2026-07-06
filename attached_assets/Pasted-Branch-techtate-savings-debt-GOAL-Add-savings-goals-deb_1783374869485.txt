@@ -1,0 +1,54 @@
+Branch: techtate-savings-debt
+
+GOAL
+Add savings goals, debt tracking, and an emergency fund view to the Finance 
+tab, matching the visual and interaction patterns established in Prompt 4.
+
+SAVINGS GOALS (savings_goals table)
+- List view: card per goal showing name, progress bar (current_amount / 
+  target_amount as %), target_date if set, and a "days remaining" calculation 
+  if target_date is set
+- Add/edit form: name (required), target_amount (required, >0), 
+  current_amount (defaults to 0), target_date (optional date picker), 
+  is_shared (toggle — leave functionally inert for now since couples isn't 
+  built yet, but show the toggle so the UI doesn't need rework later)
+- "Add contribution" quick action on each goal card: a small inline input to 
+  add an amount to current_amount without opening the full edit form — this 
+  should be a common enough action to deserve a shortcut
+- Empty state and loading state matching Prompt 4's pattern
+
+DEBT TRACKER (debts table)
+- List view: card per debt showing name, current_balance, interest_rate, 
+  minimum_payment, due_day
+- Add/edit form: name (required), original_amount (required, >0), 
+  current_balance (required, >=0), interest_rate (optional, %), 
+  minimum_payment (optional), due_day (optional, 1-31 validated)
+- Payoff strategy view: implement the "avalanche" method (highest 
+  interest_rate first) as a sorted list showing payoff order — label this 
+  clearly as "Suggested payoff order (highest interest first)" so the user 
+  understands the logic, don't just show a silently-sorted list
+- "Log a payment" quick action: reduces current_balance by an entered amount, 
+  writes nothing elsewhere for now (a payment history table is out of scope 
+  for this pass)
+
+EMERGENCY FUND
+Build this as a computed view, not a new table. Calculate average monthly 
+expenses from the last 3 months of the expenses table. Show: current 
+emergency-fund savings (this can be a savings_goals row where the user has 
+named it something like "Emergency Fund" — search for this by name match, 
+case-insensitive, OR let the user explicitly designate one savings goal as 
+their emergency fund via a flag/setting — pick whichever is simpler to 
+implement correctly and state which you chose), months of coverage 
+(designated fund amount / average monthly expense), and a simple visual gauge 
+toward the standard 3-6 month target.
+
+MOBILE
+Same requirements as Prompt 4 — full-width forms, bottom-sheet modals, numeric 
+keyboards on numeric fields.
+
+OUTPUT
+- Files created/changed
+- Which emergency-fund designation approach was used
+- Confirm quick-contribution and quick-payment actions update balances live
+- Confirm payoff-order sorting is correct and clearly labeled
+- Any errors

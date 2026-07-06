@@ -503,6 +503,7 @@ export interface SavingsGoal {
   currentAmount: string;
   /** @nullable */
   targetDate?: string | null;
+  isShared: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -513,6 +514,7 @@ export interface SavingsGoalInput {
   targetAmount: string;
   currentAmount?: string;
   targetDate?: string;
+  isShared?: boolean;
 }
 
 export interface SavingsGoalUpdate {
@@ -521,12 +523,14 @@ export interface SavingsGoalUpdate {
   currentAmount?: string;
   /** @nullable */
   targetDate?: string | null;
+  isShared?: boolean;
 }
 
 export interface Debt {
   id: string;
   userId: string;
   name: string;
+  originalAmount: string;
   balance: string;
   /** @nullable */
   interestRate?: string | null;
@@ -541,20 +545,30 @@ export interface Debt {
 export interface DebtInput {
   /** @minLength 1 */
   name: string;
+  originalAmount: string;
   balance: string;
   interestRate?: string;
   minimumPayment?: string;
+  /**
+     * @minimum 1
+     * @maximum 31
+     */
   dueDay?: number;
 }
 
 export interface DebtUpdate {
   name?: string;
+  originalAmount?: string;
   balance?: string;
   /** @nullable */
   interestRate?: string | null;
   /** @nullable */
   minimumPayment?: string | null;
-  /** @nullable */
+  /**
+     * @minimum 1
+     * @maximum 31
+     * @nullable
+     */
   dueDay?: number | null;
 }
 

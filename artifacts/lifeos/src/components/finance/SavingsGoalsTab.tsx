@@ -5,99 +5,233 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
 import { Plus, Trash2, PiggyBank } from "lucide-react";
 import { useSavingsGoals, useAddSavingsGoal, useUpdateSavingsGoalProgress, useRemoveSavingsGoal } from "@/hooks/useFinance";
+import { ResponsiveFormModal } from "@/components/finance/ResponsiveFormModal";
+
+interface FormState {
+  name: string;
+  targetAmount: string;
+  currentAmount: string;
+  targetDate: string;
+  isShared: boolean;
+}
+
+const emptyForm: FormState = {
+  name: "",
+  targetAmount: "",
+  currentAmount: "",
+  targetDate: "",
+  isShared: false,
+};
+
+function daysRemaining(targetDate: string | null | undefined): number | null {
+  if (!targetDate) return null;
+  const target = new Date(`${targetDate}T00:00:00`);
+  if (Number.isNaN(target.getTime())) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const diffMs = target.getTime() - today.getTime();
+  return Math.round(diffMs / (1000 * 60 * 60 * 24));
+}
 
 export function SavingsGoalsTab() {
-  const { data: goals, isLoading } = useSavingsGoals();
+  const { data: goals, isLoading, isError } = useSavingsGoals();
   const addMutation = useAddSavingsGoal();
   const updateMutation = useUpdateSavingsGoalProgress();
   const removeMutation = useRemoveSavingsGoal();
+
   const [open, setOpen] = useState(false);
-  const [name, setName] = useState("");
-  const [targetAmount, setTargetAmount] = useState("");
-  const [targetDate, setTargetDate] = useState("");
+  const [form, setForm] = useState<FormState>(emptyForm);
+  const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
+  const [contributionInputs, setContributionInputs] = useState<Record<string, string>>({});
 
-  const handleSubmit = (e: React.FormEvent) => {
+  function resetForm() {
+    setForm(emptyForm);
+    setErrors({});
+  }
+
+  function setField<K extends keyof FormState>(key: K, value: FormState[K]) {
+    setForm((prev) => ({ ...prev, [key]: value }));
+    setErrors((prev) => ({ ...prev, [key]: undefined }));
+  }
+
+  function validate() {
+    const next: typeof errors = {};
+    if (!form.name.trim()) next.name = "Name is required";
+    const targetNum = Number(form.targetAmount);
+    if (!form.targetAmount.trim() || Number.isNaN(targetNum) || targetNum <= 0) {
+      next.targetAmount = "Target amount must be a positive number";
+    }
+    if (form.currentAmount.trim()) {
+      const currentNum = Number(form.currentAmount);
+      if (Number.isNaN(currentNum) || currentNum < 0) {
+        next.currentAmount = "Current amount must be zero or greater";
+      }
+    }
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  }
+
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    addMutation.mutate({ name, targetAmount, targetDate: targetDate || undefined });
-    setName("");
-    setTargetAmount("");
-    setTargetDate("");
+    if (!validate()) return;
+    addMutation.mutate({
+      name: form.name.trim(),
+      targetAmount: form.targetAmount,
+      currentAmount: form.currentAmount.trim() || undefined,
+      targetDate: form.targetDate.trim() || undefined,
+      isShared: form.isShared,
+    });
+    resetForm();
     setOpen(false);
-  };
+  }
 
-  const addContribution = (id: string, currentAmount: string) => {
-    const amountStr = window.prompt("How much did you add to this goal?");
-    if (!amountStr) return;
-    const amount = Number(amountStr);
-    if (Number.isNaN(amount) || amount <= 0) return;
+  function addContribution(id: string, currentAmount: string) {
+    const raw = contributionInputs[id];
+    const amount = Number(raw);
+    if (!raw || Number.isNaN(amount) || amount <= 0) return;
     const newAmount = (Number(currentAmount) + amount).toFixed(2);
     updateMutation.mutate({ id, currentAmount: newAmount });
-  };
+    setContributionInputs((prev) => ({ ...prev, [id]: "" }));
+  }
 
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
+        <ResponsiveFormModal
+          open={open}
+          onOpenChange={(next) => {
+            setOpen(next);
+            if (!next) resetForm();
+          }}
+          title="Create Savings Goal"
+          trigger={
             <Button className="gap-2">
               <Plus className="h-4 w-4" />
               New Goal
             </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create Savings Goal</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="goal-name">Name *</Label>
-                <Input id="goal-name" placeholder="e.g., Emergency Fund" value={name} onChange={(e) => setName(e.target.value)} required />
+          }
+        >
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="goal-name">Name *</Label>
+              <Input id="goal-name" placeholder="e.g., Emergency Fund" value={form.name} onChange={(e) => setField("name", e.target.value)} />
+              {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="goal-target">Target Amount *</Label>
+              <Input
+                id="goal-target"
+                type="number"
+                inputMode="decimal"
+                step="0.01"
+                placeholder="5000.00"
+                value={form.targetAmount}
+                onChange={(e) => setField("targetAmount", e.target.value)}
+              />
+              {errors.targetAmount && <p className="text-sm text-destructive">{errors.targetAmount}</p>}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="goal-current">Current Amount (optional, defaults to 0)</Label>
+              <Input
+                id="goal-current"
+                type="number"
+                inputMode="decimal"
+                step="0.01"
+                placeholder="0.00"
+                value={form.currentAmount}
+                onChange={(e) => setField("currentAmount", e.target.value)}
+              />
+              {errors.currentAmount && <p className="text-sm text-destructive">{errors.currentAmount}</p>}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="goal-date">Target Date (optional)</Label>
+              <Input id="goal-date" type="date" value={form.targetDate} onChange={(e) => setField("targetDate", e.target.value)} />
+            </div>
+            <div className="flex items-center justify-between rounded-md border p-3">
+              <div>
+                <Label htmlFor="goal-shared">Shared goal</Label>
+                <p className="text-xs text-muted-foreground">Share this goal with a partner (coming soon)</p>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="goal-target">Target Amount *</Label>
-                <Input id="goal-target" type="number" step="0.01" placeholder="5000.00" value={targetAmount} onChange={(e) => setTargetAmount(e.target.value)} required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="goal-date">Target Date (optional)</Label>
-                <Input id="goal-date" type="date" value={targetDate} onChange={(e) => setTargetDate(e.target.value)} />
-              </div>
-              <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-                <Button type="submit" disabled={addMutation.isPending}>{addMutation.isPending ? "Creating..." : "Create Goal"}</Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+              <Switch id="goal-shared" checked={form.isShared} onCheckedChange={(checked) => setField("isShared", checked)} />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={addMutation.isPending}>
+                {addMutation.isPending ? "Creating..." : "Create Goal"}
+              </Button>
+            </div>
+          </form>
+        </ResponsiveFormModal>
       </div>
 
       {isLoading ? (
-        <div className="space-y-3">{[1, 2].map((i) => <Skeleton key={i} className="h-24" />)}</div>
+        <div className="grid gap-3 md:grid-cols-2">
+          {[1, 2].map((i) => (
+            <Card key={i}>
+              <CardContent className="p-4 space-y-3">
+                <Skeleton className="h-5 w-1/3" />
+                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-2 w-full" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : isError ? (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+            <p className="text-muted-foreground">Couldn't load savings goals right now. Please try again.</p>
+          </CardContent>
+        </Card>
       ) : goals && goals.length > 0 ? (
         <div className="grid gap-3 md:grid-cols-2">
           {goals.map((goal) => {
             const pct = Math.min(100, Math.round((Number(goal.currentAmount) / Number(goal.targetAmount)) * 100));
+            const remaining = daysRemaining(goal.targetDate);
             return (
               <Card key={goal.id}>
                 <CardContent className="p-4 space-y-3">
                   <div className="flex items-start justify-between">
                     <div>
-                      <div className="font-semibold">{goal.name}</div>
+                      <div className="font-semibold flex items-center gap-2">
+                        {goal.name}
+                        {goal.isShared && (
+                          <span className="text-xs rounded-full bg-muted px-2 py-0.5 text-muted-foreground">Shared</span>
+                        )}
+                      </div>
                       <div className="text-sm text-muted-foreground">
                         ${Number(goal.currentAmount).toFixed(2)} of ${Number(goal.targetAmount).toFixed(2)}
                       </div>
+                      {remaining !== null && (
+                        <div className="text-xs text-muted-foreground mt-0.5">
+                          {remaining > 0 ? `${remaining} days remaining` : remaining === 0 ? "Due today" : `${Math.abs(remaining)} days past target date`}
+                        </div>
+                      )}
                     </div>
                     <Button variant="ghost" size="icon" onClick={() => removeMutation.mutate(goal.id)}>
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </div>
                   <Progress value={pct} />
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">{pct}% complete</span>
-                    <Button variant="outline" size="sm" onClick={() => addContribution(goal.id, goal.currentAmount)}>
-                      Add Contribution
+                  <div className="flex items-center justify-between text-sm text-muted-foreground">
+                    <span>{pct}% complete</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="number"
+                      inputMode="decimal"
+                      step="0.01"
+                      placeholder="Contribution amount"
+                      className="h-8"
+                      value={contributionInputs[goal.id] ?? ""}
+                      onChange={(e) => setContributionInputs((prev) => ({ ...prev, [goal.id]: e.target.value }))}
+                    />
+                    <Button size="sm" variant="outline" onClick={() => addContribution(goal.id, goal.currentAmount)}>
+                      Add
                     </Button>
                   </div>
                 </CardContent>
@@ -107,9 +241,13 @@ export function SavingsGoalsTab() {
         </div>
       ) : (
         <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-            <PiggyBank className="h-10 w-10 text-muted-foreground mb-3" />
+          <CardContent className="flex flex-col items-center justify-center py-12 text-center gap-3">
+            <PiggyBank className="h-10 w-10 text-muted-foreground" />
             <p className="text-muted-foreground">No savings goals yet. Set one to start tracking progress.</p>
+            <Button className="gap-2" onClick={() => setOpen(true)}>
+              <Plus className="h-4 w-4" />
+              Create your first goal
+            </Button>
           </CardContent>
         </Card>
       )}

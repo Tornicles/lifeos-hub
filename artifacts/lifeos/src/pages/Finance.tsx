@@ -7,6 +7,7 @@ import { IncomeTab } from "@/components/finance/IncomeTab";
 import { ExpensesTab } from "@/components/finance/ExpensesTab";
 import { SavingsGoalsTab } from "@/components/finance/SavingsGoalsTab";
 import { DebtsTab } from "@/components/finance/DebtsTab";
+import { EmergencyFundTab } from "@/components/finance/EmergencyFundTab";
 import { useIncome, useExpenses, useDebts } from "@/hooks/useFinance";
 
 function currentMonthKey() {
@@ -82,12 +83,14 @@ export default function Finance() {
           <TabsTrigger value="expenses">Expenses</TabsTrigger>
           <TabsTrigger value="savings">Savings Goals</TabsTrigger>
           <TabsTrigger value="debts">Debts</TabsTrigger>
+          <TabsTrigger value="emergency">Emergency Fund</TabsTrigger>
         </TabsList>
         <TabsContent value="budgets"><BudgetsTab /></TabsContent>
         <TabsContent value="income"><IncomeTab /></TabsContent>
         <TabsContent value="expenses"><ExpensesTab /></TabsContent>
         <TabsContent value="savings"><SavingsGoalsTab /></TabsContent>
         <TabsContent value="debts"><DebtsTab /></TabsContent>
+        <TabsContent value="emergency"><EmergencyFundTab /></TabsContent>
       </Tabs>
     </div>
   );

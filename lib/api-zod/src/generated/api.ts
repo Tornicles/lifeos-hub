@@ -771,6 +771,7 @@ export const ListSavingsGoalsResponseItem = zod.object({
   "targetAmount": zod.string(),
   "currentAmount": zod.string(),
   "targetDate": zod.coerce.date().nullish(),
+  "isShared": zod.boolean(),
   "createdAt": zod.coerce.date().optional(),
   "updatedAt": zod.coerce.date().optional()
 })
@@ -784,7 +785,8 @@ export const CreateSavingsGoalBody = zod.object({
   "name": zod.string().min(1),
   "targetAmount": zod.string(),
   "currentAmount": zod.string().optional(),
-  "targetDate": zod.coerce.date().optional()
+  "targetDate": zod.coerce.date().optional(),
+  "isShared": zod.boolean().optional()
 })
 
 export const CreateSavingsGoalResponse = zod.object({
@@ -794,6 +796,7 @@ export const CreateSavingsGoalResponse = zod.object({
   "targetAmount": zod.string(),
   "currentAmount": zod.string(),
   "targetDate": zod.coerce.date().nullish(),
+  "isShared": zod.boolean(),
   "createdAt": zod.coerce.date().optional(),
   "updatedAt": zod.coerce.date().optional()
 })
@@ -807,7 +810,8 @@ export const UpdateSavingsGoalBody = zod.object({
   "name": zod.string().optional(),
   "targetAmount": zod.string().optional(),
   "currentAmount": zod.string().optional(),
-  "targetDate": zod.coerce.date().nullish()
+  "targetDate": zod.coerce.date().nullish(),
+  "isShared": zod.boolean().optional()
 })
 
 export const UpdateSavingsGoalResponse = zod.object({
@@ -817,6 +821,7 @@ export const UpdateSavingsGoalResponse = zod.object({
   "targetAmount": zod.string(),
   "currentAmount": zod.string(),
   "targetDate": zod.coerce.date().nullish(),
+  "isShared": zod.boolean(),
   "createdAt": zod.coerce.date().optional(),
   "updatedAt": zod.coerce.date().optional()
 })
@@ -833,6 +838,7 @@ export const ListDebtsResponseItem = zod.object({
   "id": zod.string().uuid(),
   "userId": zod.string(),
   "name": zod.string(),
+  "originalAmount": zod.string(),
   "balance": zod.string(),
   "interestRate": zod.string().nullish(),
   "minimumPayment": zod.string().nullish(),
@@ -844,20 +850,24 @@ export const ListDebtsResponse = zod.array(ListDebtsResponseItem)
 
 
 
+export const createDebtBodyDueDayMax = 31;
+
 
 
 export const CreateDebtBody = zod.object({
   "name": zod.string().min(1),
+  "originalAmount": zod.string(),
   "balance": zod.string(),
   "interestRate": zod.string().optional(),
   "minimumPayment": zod.string().optional(),
-  "dueDay": zod.number().optional()
+  "dueDay": zod.number().min(1).max(createDebtBodyDueDayMax).optional()
 })
 
 export const CreateDebtResponse = zod.object({
   "id": zod.string().uuid(),
   "userId": zod.string(),
   "name": zod.string(),
+  "originalAmount": zod.string(),
   "balance": zod.string(),
   "interestRate": zod.string().nullish(),
   "minimumPayment": zod.string().nullish(),
@@ -871,18 +881,24 @@ export const UpdateDebtParams = zod.object({
   "id": zod.coerce.string().uuid()
 })
 
+export const updateDebtBodyDueDayMax = 31;
+
+
+
 export const UpdateDebtBody = zod.object({
   "name": zod.string().optional(),
+  "originalAmount": zod.string().optional(),
   "balance": zod.string().optional(),
   "interestRate": zod.string().nullish(),
   "minimumPayment": zod.string().nullish(),
-  "dueDay": zod.number().nullish()
+  "dueDay": zod.number().min(1).max(updateDebtBodyDueDayMax).nullish()
 })
 
 export const UpdateDebtResponse = zod.object({
   "id": zod.string().uuid(),
   "userId": zod.string(),
   "name": zod.string(),
+  "originalAmount": zod.string(),
   "balance": zod.string(),
   "interestRate": zod.string().nullish(),
   "minimumPayment": zod.string().nullish(),

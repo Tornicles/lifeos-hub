@@ -8,11 +8,16 @@
 
 export interface DebtUpdate {
   name?: string;
+  originalAmount?: string;
   balance?: string;
   /** @nullable */
   interestRate?: string | null;
   /** @nullable */
   minimumPayment?: string | null;
-  /** @nullable */
+  /**
+     * @minimum 1
+     * @maximum 31
+     * @nullable
+     */
   dueDay?: number | null;
 }

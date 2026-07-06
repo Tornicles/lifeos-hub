@@ -14,6 +14,7 @@ export interface SavingsGoal {
   currentAmount: string;
   /** @nullable */
   targetDate?: Date | null;
+  isShared: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
