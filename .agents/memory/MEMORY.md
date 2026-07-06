@@ -1,0 +1,1 @@
+- [Clerk testClerkAuth harness limitation](clerk-testclerkauth-e2e-limitation.md) — programmatic Clerk sign-in in `runTest` can silently fail to establish a browser session even with fully canonical Clerk wiring; verify backend auth directly via Clerk Backend API + curl as a substitute.

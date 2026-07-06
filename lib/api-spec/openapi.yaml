@@ -10,6 +10,20 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: profile
+  - name: tenants
+  - name: hubs
+  - name: logs
+  - name: metrics
+  - name: habits
+  - name: projects
+  - name: tasks
+  - name: calendar
+  - name: system-state
+  - name: notifications
+  - name: automation
+  - name: insights
+  - name: admin
 paths:
   /healthz:
     get:
@@ -24,6 +38,1160 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ---------- Profile ----------
+  /profile:
+    get:
+      operationId: getMyProfile
+      tags: [profile]
+      responses:
+        "200":
+          description: Current user profile
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Profile" }
+    patch:
+      operationId: updateMyProfile
+      tags: [profile]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ProfileUpdate" }
+      responses:
+        "200":
+          description: Updated profile
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Profile" }
+
+  /profile/roles:
+    get:
+      operationId: getMyRoles
+      tags: [profile]
+      responses:
+        "200":
+          description: List of roles
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/UserRole" }
+
+  /profile/security-settings:
+    get:
+      operationId: getMySecuritySettings
+      tags: [profile]
+      responses:
+        "200":
+          description: Security settings
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SecuritySettings" }
+    patch:
+      operationId: updateMySecuritySettings
+      tags: [profile]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SecuritySettingsUpdate" }
+      responses:
+        "200":
+          description: Updated security settings
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SecuritySettings" }
+
+  # ---------- Tenants ----------
+  /tenants:
+    get:
+      operationId: listTenants
+      tags: [tenants]
+      responses:
+        "200":
+          description: Tenants the current user belongs to
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Tenant" }
+    post:
+      operationId: createTenant
+      tags: [tenants]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TenantInput" }
+      responses:
+        "201":
+          description: Created tenant
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Tenant" }
+
+  /tenants/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      operationId: getTenant
+      tags: [tenants]
+      responses:
+        "200":
+          description: Tenant
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Tenant" }
+    patch:
+      operationId: updateTenant
+      tags: [tenants]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TenantUpdate" }
+      responses:
+        "200":
+          description: Updated tenant
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Tenant" }
+    delete:
+      operationId: deleteTenant
+      tags: [tenants]
+      responses:
+        "204":
+          description: Deleted
+
+  /tenants/{tenantId}/memberships:
+    parameters:
+      - name: tenantId
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      operationId: listMemberships
+      tags: [tenants]
+      responses:
+        "200":
+          description: Memberships for tenant
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Membership" }
+    post:
+      operationId: createMembership
+      tags: [tenants]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MembershipInput" }
+      responses:
+        "201":
+          description: Created membership
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Membership" }
+
+  /memberships/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      operationId: updateMembership
+      tags: [tenants]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MembershipUpdate" }
+      responses:
+        "200":
+          description: Updated membership
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Membership" }
+    delete:
+      operationId: deleteMembership
+      tags: [tenants]
+      responses:
+        "204":
+          description: Deleted
+
+  # ---------- Hubs / Domains (global read-only reference data) ----------
+  /hubs:
+    get:
+      operationId: listHubs
+      tags: [hubs]
+      responses:
+        "200":
+          description: List of hubs
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Hub" }
+
+  /ultra-domains:
+    get:
+      operationId: listUltraDomains
+      tags: [hubs]
+      responses:
+        "200":
+          description: List of ultra domains
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/UltraDomain" }
+
+  # ---------- Logs ----------
+  /logs:
+    get:
+      operationId: listLogs
+      tags: [logs]
+      parameters:
+        - name: tenantId
+          in: query
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: List of logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Log" }
+    post:
+      operationId: createLog
+      tags: [logs]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LogInput" }
+      responses:
+        "201":
+          description: Created log
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Log" }
+
+  /logs/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: integer }
+    patch:
+      operationId: updateLog
+      tags: [logs]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LogUpdate" }
+      responses:
+        "200":
+          description: Updated log
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Log" }
+    delete:
+      operationId: deleteLog
+      tags: [logs]
+      responses:
+        "204":
+          description: Deleted
+
+  # ---------- Metrics ----------
+  /metrics:
+    get:
+      operationId: listMetrics
+      tags: [metrics]
+      parameters:
+        - name: tenantId
+          in: query
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: List of metrics
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Metric" }
+    post:
+      operationId: createMetric
+      tags: [metrics]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MetricInput" }
+      responses:
+        "201":
+          description: Created metric
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Metric" }
+
+  /metrics/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: integer }
+    delete:
+      operationId: deleteMetric
+      tags: [metrics]
+      responses:
+        "204":
+          description: Deleted
+
+  /ultra-metrics:
+    get:
+      operationId: listUltraMetrics
+      tags: [metrics]
+      parameters:
+        - name: tenantId
+          in: query
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: List of ultra metrics
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/UltraMetric" }
+    post:
+      operationId: createUltraMetric
+      tags: [metrics]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UltraMetricInput" }
+      responses:
+        "201":
+          description: Created ultra metric
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UltraMetric" }
+
+  # ---------- Habits ----------
+  /habits:
+    get:
+      operationId: listHabits
+      tags: [habits]
+      parameters:
+        - name: tenantId
+          in: query
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: List of habits
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Habit" }
+    post:
+      operationId: createHabit
+      tags: [habits]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/HabitInput" }
+      responses:
+        "201":
+          description: Created habit
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Habit" }
+
+  /habits/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: integer }
+    patch:
+      operationId: updateHabit
+      tags: [habits]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/HabitUpdate" }
+      responses:
+        "200":
+          description: Updated habit
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Habit" }
+    delete:
+      operationId: deleteHabit
+      tags: [habits]
+      responses:
+        "204":
+          description: Deleted
+
+  /habits/{habitId}/checkins:
+    parameters:
+      - name: habitId
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      operationId: listHabitCheckins
+      tags: [habits]
+      responses:
+        "200":
+          description: List of checkins
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/HabitCheckin" }
+    post:
+      operationId: createHabitCheckin
+      tags: [habits]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/HabitCheckinInput" }
+      responses:
+        "201":
+          description: Created checkin
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/HabitCheckin" }
+
+  # ---------- Projects & Tasks ----------
+  /projects:
+    get:
+      operationId: listProjects
+      tags: [projects]
+      parameters:
+        - name: tenantId
+          in: query
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: List of projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Project" }
+    post:
+      operationId: createProject
+      tags: [projects]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ProjectInput" }
+      responses:
+        "201":
+          description: Created project
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Project" }
+
+  /projects/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      operationId: getProject
+      tags: [projects]
+      responses:
+        "200":
+          description: Project
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Project" }
+    patch:
+      operationId: updateProject
+      tags: [projects]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ProjectUpdate" }
+      responses:
+        "200":
+          description: Updated project
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Project" }
+    delete:
+      operationId: deleteProject
+      tags: [projects]
+      responses:
+        "204":
+          description: Deleted
+
+  /projects/{projectId}/tasks:
+    parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      operationId: listTasks
+      tags: [tasks]
+      responses:
+        "200":
+          description: List of tasks
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Task" }
+    post:
+      operationId: createTask
+      tags: [tasks]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TaskInput" }
+      responses:
+        "201":
+          description: Created task
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Task" }
+
+  /tasks/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: integer }
+    patch:
+      operationId: updateTask
+      tags: [tasks]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TaskUpdate" }
+      responses:
+        "200":
+          description: Updated task
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Task" }
+    delete:
+      operationId: deleteTask
+      tags: [tasks]
+      responses:
+        "204":
+          description: Deleted
+
+  # ---------- Calendar ----------
+  /calendar-entries:
+    get:
+      operationId: listCalendarEntries
+      tags: [calendar]
+      parameters:
+        - name: tenantId
+          in: query
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: List of calendar entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/CalendarEntry" }
+    post:
+      operationId: createCalendarEntry
+      tags: [calendar]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CalendarEntryInput" }
+      responses:
+        "201":
+          description: Created calendar entry
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CalendarEntry" }
+
+  /calendar-entries/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: integer }
+    patch:
+      operationId: updateCalendarEntry
+      tags: [calendar]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CalendarEntryUpdate" }
+      responses:
+        "200":
+          description: Updated calendar entry
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CalendarEntry" }
+    delete:
+      operationId: deleteCalendarEntry
+      tags: [calendar]
+      responses:
+        "204":
+          description: Deleted
+
+  /calendar/autofill:
+    post:
+      operationId: autofillCalendar
+      tags: [calendar]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CalendarAutofillInput" }
+      responses:
+        "200":
+          description: Autofill result
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CalendarAutofillResult" }
+
+  # ---------- System state ----------
+  /system-state:
+    get:
+      operationId: listSystemState
+      tags: [system-state]
+      parameters:
+        - name: tenantId
+          in: query
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Daily system state history
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/SystemStateDaily" }
+
+  /system-state/warnings:
+    get:
+      operationId: listStateWarnings
+      tags: [system-state]
+      responses:
+        "200":
+          description: List of state warnings
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/StateWarning" }
+
+  /system-state/warnings/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: integer }
+    patch:
+      operationId: dismissStateWarning
+      tags: [system-state]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/StateWarningUpdate" }
+      responses:
+        "200":
+          description: Updated warning
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/StateWarning" }
+
+  /system/validate:
+    post:
+      operationId: validateSystem
+      tags: [system-state]
+      responses:
+        "200":
+          description: Validation report
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SystemValidationResult" }
+
+  /ultra-score/calculate:
+    post:
+      operationId: calculateUltraScore
+      tags: [system-state]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UltraScoreCalculateInput" }
+      responses:
+        "200":
+          description: Calculated ultra score result
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SystemStateDaily" }
+
+  # ---------- Notifications ----------
+  /notifications:
+    get:
+      operationId: listNotifications
+      tags: [notifications]
+      responses:
+        "200":
+          description: List of notifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Notification" }
+
+  /notifications/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      operationId: updateNotification
+      tags: [notifications]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/NotificationUpdate" }
+      responses:
+        "200":
+          description: Updated notification
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Notification" }
+    delete:
+      operationId: deleteNotification
+      tags: [notifications]
+      responses:
+        "204":
+          description: Deleted
+
+  /notifications/preferences:
+    get:
+      operationId: getNotificationPreferences
+      tags: [notifications]
+      responses:
+        "200":
+          description: Notification preferences
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/NotificationPreferences" }
+    patch:
+      operationId: updateNotificationPreferences
+      tags: [notifications]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/NotificationPreferencesUpdate" }
+      responses:
+        "200":
+          description: Updated preferences
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/NotificationPreferences" }
+
+  /notifications/generate:
+    post:
+      operationId: generateNotifications
+      tags: [notifications]
+      responses:
+        "200":
+          description: Generated notifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Notification" }
+
+  /notifications/process:
+    post:
+      operationId: processNotifications
+      tags: [notifications]
+      responses:
+        "200":
+          description: Processing result
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ProcessResult" }
+
+  # ---------- Automation ----------
+  /automation/rules:
+    get:
+      operationId: listAutomationRules
+      tags: [automation]
+      responses:
+        "200":
+          description: List of automation rules
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AutomationRule" }
+    post:
+      operationId: createAutomationRule
+      tags: [automation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AutomationRuleInput" }
+      responses:
+        "201":
+          description: Created automation rule
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AutomationRule" }
+
+  /automation/rules/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: integer }
+    patch:
+      operationId: updateAutomationRule
+      tags: [automation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AutomationRuleUpdate" }
+      responses:
+        "200":
+          description: Updated automation rule
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AutomationRule" }
+    delete:
+      operationId: deleteAutomationRule
+      tags: [automation]
+      responses:
+        "204":
+          description: Deleted
+
+  /automation/settings:
+    get:
+      operationId: getAutomationSettings
+      tags: [automation]
+      responses:
+        "200":
+          description: User automation settings
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserAutomationSettings" }
+    patch:
+      operationId: updateAutomationSettings
+      tags: [automation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UserAutomationSettingsUpdate" }
+      responses:
+        "200":
+          description: Updated settings
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserAutomationSettings" }
+
+  /automation/trigger-events:
+    get:
+      operationId: listAutomationTriggerEvents
+      tags: [automation]
+      responses:
+        "200":
+          description: List of trigger events
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AutomationTriggerEvent" }
+    post:
+      operationId: createAutomationTriggerEvent
+      tags: [automation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AutomationTriggerEventInput" }
+      responses:
+        "201":
+          description: Created trigger event
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AutomationTriggerEvent" }
+
+  /automation/queue:
+    get:
+      operationId: listAutomationQueue
+      tags: [automation]
+      responses:
+        "200":
+          description: Action queue
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AutomationActionQueue" }
+
+  /automation/logs:
+    get:
+      operationId: listAutomationLogs
+      tags: [automation]
+      responses:
+        "200":
+          description: Automation logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AutomationLog" }
+
+  /automation/executions:
+    get:
+      operationId: listAutomationExecutions
+      tags: [automation]
+      responses:
+        "200":
+          description: Automation executions
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AutomationExecution" }
+
+  /automation/auto-actions:
+    get:
+      operationId: listAutoActions
+      tags: [automation]
+      responses:
+        "200":
+          description: Auto actions
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AutoAction" }
+
+  /automation/auto-actions/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: integer }
+    patch:
+      operationId: updateAutoAction
+      tags: [automation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AutoActionUpdate" }
+      responses:
+        "200":
+          description: Updated auto action
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AutoAction" }
+
+  /automation/evaluate:
+    post:
+      operationId: evaluateAutomation
+      tags: [automation]
+      responses:
+        "200":
+          description: Evaluation result
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AutomationEvaluationResult" }
+
+  /automation/trigger:
+    post:
+      operationId: triggerAutomation
+      tags: [automation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AutomationTriggerInput" }
+      responses:
+        "200":
+          description: Trigger result
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ProcessResult" }
+
+  /automation/process:
+    post:
+      operationId: processAutomationQueue
+      tags: [automation]
+      responses:
+        "200":
+          description: Queue processing result
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ProcessResult" }
+
+  /automation/resolve-conflicts:
+    post:
+      operationId: resolveAutomationConflicts
+      tags: [automation]
+      responses:
+        "200":
+          description: Conflict resolution result
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ProcessResult" }
+
+  /data-flow/process:
+    post:
+      operationId: processDataFlow
+      tags: [automation]
+      responses:
+        "200":
+          description: Data flow processing result
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ProcessResult" }
+
+  # ---------- Insights ----------
+  /insights/daily:
+    post:
+      operationId: generateDailyInsight
+      tags: [insights]
+      responses:
+        "200":
+          description: Daily insight
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Insight" }
+
+  /insights/weekly:
+    post:
+      operationId: generateWeeklyInsight
+      tags: [insights]
+      responses:
+        "200":
+          description: Weekly insight
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Insight" }
+
+  /insights/monthly:
+    post:
+      operationId: generateMonthlyInsight
+      tags: [insights]
+      responses:
+        "200":
+          description: Monthly insight
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Insight" }
+
+  /insights/ai:
+    post:
+      operationId: generateAiInsight
+      tags: [insights]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AiInsightInput" }
+      responses:
+        "200":
+          description: AI-generated insight
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Insight" }
+
+  # ---------- Admin ----------
+  /admin/settings:
+    get:
+      operationId: listAdminSettings
+      tags: [admin]
+      responses:
+        "200":
+          description: Admin settings
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AdminSetting" }
+    post:
+      operationId: upsertAdminSetting
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AdminSettingInput" }
+      responses:
+        "200":
+          description: Upserted setting
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminSetting" }
+
+  /admin/audit-logs:
+    get:
+      operationId: listAuditLogs
+      tags: [admin]
+      responses:
+        "200":
+          description: Audit logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/AuditLog" }
+
+  /admin/stats:
+    get:
+      operationId: getAdminStats
+      tags: [admin]
+      responses:
+        "200":
+          description: Admin overview stats
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminStats" }
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +1202,728 @@ components:
       required:
         - status
 
+    # ---------- Profile ----------
+    Profile:
+      type: object
+      required: [id, fullName]
+      properties:
+        id: { type: string }
+        fullName: { type: string }
+        role: { type: ["string", "null"] }
+        createdAt: { type: "string", format: date-time }
+        updatedAt: { type: "string", format: date-time }
+    ProfileUpdate:
+      type: object
+      properties:
+        fullName: { type: string }
+        role: { type: string }
+
+    UserRole:
+      type: object
+      required: [id, userId, role]
+      properties:
+        id: { type: string }
+        userId: { type: string }
+        role: { type: string, enum: [owner, member, viewer, guest, admin] }
+        assignedAt: { type: string, format: date-time }
+        assignedBy: { type: ["string", "null"] }
+        expiresAt: { type: ["string", "null"], format: date-time }
+
+    SecuritySettings:
+      type: object
+      required: [id, userId]
+      properties:
+        id: { type: string }
+        userId: { type: string }
+        mfaEnabled: { type: boolean }
+        loginAttempts: { type: integer }
+        lastFailedLogin: { type: ["string", "null"], format: date-time }
+        accountLockedUntil: { type: ["string", "null"], format: date-time }
+        passwordChangedAt: { type: ["string", "null"], format: date-time }
+        sessionTimeoutMinutes: { type: integer }
+    SecuritySettingsUpdate:
+      type: object
+      properties:
+        mfaEnabled: { type: boolean }
+        sessionTimeoutMinutes: { type: integer }
+
+    # ---------- Tenants ----------
+    Tenant:
+      type: object
+      required: [id, name, slug, plan]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        slug: { type: string }
+        plan: { type: string, enum: [free, starter, pro, enterprise] }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    TenantInput:
+      type: object
+      required: [name, slug]
+      properties:
+        name: { type: string, minLength: 1 }
+        slug: { type: string, minLength: 1 }
+        plan: { type: string, enum: [free, starter, pro, enterprise] }
+    TenantUpdate:
+      type: object
+      properties:
+        name: { type: string }
+        slug: { type: string }
+        plan: { type: string, enum: [free, starter, pro, enterprise] }
+
+    Membership:
+      type: object
+      required: [id, tenantId, userId, role, status]
+      properties:
+        id: { type: string, format: uuid }
+        tenantId: { type: string, format: uuid }
+        userId: { type: string }
+        role: { type: string, enum: [owner, admin, member, viewer] }
+        status: { type: string, enum: [pending, active, revoked] }
+        invitedBy: { type: ["string", "null"] }
+        invitedEmail: { type: ["string", "null"] }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    MembershipInput:
+      type: object
+      required: [userId]
+      properties:
+        userId: { type: string }
+        role: { type: string, enum: [owner, admin, member, viewer] }
+        status: { type: string, enum: [pending, active, revoked] }
+        invitedEmail: { type: string }
+    MembershipUpdate:
+      type: object
+      properties:
+        role: { type: string, enum: [owner, admin, member, viewer] }
+        status: { type: string, enum: [pending, active, revoked] }
+
+    # ---------- Hubs ----------
+    Hub:
+      type: object
+      required: [id, name, code]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        code: { type: string }
+        category: { type: ["string", "null"] }
+        isActive: { type: boolean }
+        createdAt: { type: string, format: date-time }
+
+    UltraDomain:
+      type: object
+      required: [id, name, code]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        code: { type: string }
+        description: { type: ["string", "null"] }
+        createdAt: { type: string, format: date-time }
+
+    # ---------- Logs ----------
+    Log:
+      type: object
+      required: [id, userId, logDate]
+      properties:
+        id: { type: integer }
+        userId: { type: string }
+        tenantId: { type: ["string", "null"], format: uuid }
+        hubId: { type: ["integer", "null"] }
+        logDate: { type: string, format: date }
+        metric: { type: ["string", "null"] }
+        value: { type: ["number", "null"] }
+        source: { type: string }
+        notes: { type: ["string", "null"] }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    LogInput:
+      type: object
+      required: [logDate]
+      properties:
+        tenantId: { type: string, format: uuid }
+        hubId: { type: integer }
+        logDate: { type: string, format: date }
+        metric: { type: string }
+        value: { type: number }
+        source: { type: string }
+        notes: { type: string }
+    LogUpdate:
+      type: object
+      properties:
+        metric: { type: string }
+        value: { type: number }
+        notes: { type: string }
+
+    # ---------- Metrics ----------
+    Metric:
+      type: object
+      required: [id, userId, name, value, metricDate]
+      properties:
+        id: { type: integer }
+        userId: { type: string }
+        tenantId: { type: ["string", "null"], format: uuid }
+        hubId: { type: ["integer", "null"] }
+        name: { type: string }
+        value: { type: number }
+        metricDate: { type: string, format: date }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    MetricInput:
+      type: object
+      required: [name, value, metricDate]
+      properties:
+        tenantId: { type: string, format: uuid }
+        hubId: { type: integer }
+        name: { type: string, minLength: 1 }
+        value: { type: number }
+        metricDate: { type: string, format: date }
+
+    UltraMetric:
+      type: object
+      required: [id, userId, name, value, metricDate]
+      properties:
+        id: { type: integer }
+        userId: { type: string }
+        tenantId: { type: ["string", "null"], format: uuid }
+        domainId: { type: ["integer", "null"] }
+        name: { type: string }
+        value: { type: number }
+        metricDate: { type: string, format: date }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    UltraMetricInput:
+      type: object
+      required: [name, value, metricDate]
+      properties:
+        tenantId: { type: string, format: uuid }
+        domainId: { type: integer }
+        name: { type: string, minLength: 1 }
+        value: { type: number }
+        metricDate: { type: string, format: date }
+
+    # ---------- Habits ----------
+    Habit:
+      type: object
+      required: [id, userId, name]
+      properties:
+        id: { type: integer }
+        userId: { type: string }
+        tenantId: { type: ["string", "null"], format: uuid }
+        name: { type: string }
+        description: { type: ["string", "null"] }
+        streak: { type: integer }
+        lastCheckin: { type: ["string", "null"], format: date }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    HabitInput:
+      type: object
+      required: [name]
+      properties:
+        tenantId: { type: string, format: uuid }
+        name: { type: string, minLength: 1 }
+        description: { type: string }
+    HabitUpdate:
+      type: object
+      properties:
+        name: { type: string }
+        description: { type: string }
+        streak: { type: integer }
+        lastCheckin: { type: string, format: date }
+
+    HabitCheckin:
+      type: object
+      required: [id, habitId, date]
+      properties:
+        id: { type: integer }
+        habitId: { type: integer }
+        date: { type: string, format: date }
+        done: { type: boolean }
+        createdAt: { type: string, format: date-time }
+    HabitCheckinInput:
+      type: object
+      required: [date]
+      properties:
+        date: { type: string, format: date }
+        done: { type: boolean }
+
+    # ---------- Projects / Tasks ----------
+    Project:
+      type: object
+      required: [id, userId, title]
+      properties:
+        id: { type: integer }
+        userId: { type: string }
+        tenantId: { type: ["string", "null"], format: uuid }
+        hubId: { type: ["integer", "null"] }
+        title: { type: string }
+        status: { type: string }
+        priority: { type: ["string", "null"] }
+        sprint: { type: ["string", "null"] }
+        notes: { type: ["string", "null"] }
+        dueDate: { type: ["string", "null"], format: date }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    ProjectInput:
+      type: object
+      required: [title]
+      properties:
+        tenantId: { type: string, format: uuid }
+        hubId: { type: integer }
+        title: { type: string, minLength: 1 }
+        status: { type: string }
+        priority: { type: string }
+        sprint: { type: string }
+        notes: { type: string }
+        dueDate: { type: string, format: date }
+    ProjectUpdate:
+      type: object
+      properties:
+        title: { type: string }
+        status: { type: string }
+        priority: { type: string }
+        sprint: { type: string }
+        notes: { type: string }
+        dueDate: { type: string, format: date }
+
+    Task:
+      type: object
+      required: [id, projectId, title]
+      properties:
+        id: { type: integer }
+        projectId: { type: integer }
+        title: { type: string }
+        description: { type: ["string", "null"] }
+        status: { type: string }
+        priority: { type: ["string", "null"] }
+        importance: { type: ["integer", "null"] }
+        dueDate: { type: ["string", "null"], format: date }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    TaskInput:
+      type: object
+      required: [title]
+      properties:
+        title: { type: string, minLength: 1 }
+        description: { type: string }
+        status: { type: string }
+        priority: { type: string }
+        importance: { type: integer }
+        dueDate: { type: string, format: date }
+    TaskUpdate:
+      type: object
+      properties:
+        title: { type: string }
+        description: { type: string }
+        status: { type: string }
+        priority: { type: string }
+        importance: { type: integer }
+        dueDate: { type: string, format: date }
+
+    # ---------- Calendar ----------
+    CalendarEntry:
+      type: object
+      required: [id, userId, title, date]
+      properties:
+        id: { type: integer }
+        userId: { type: string }
+        tenantId: { type: ["string", "null"], format: uuid }
+        hubId: { type: ["integer", "null"] }
+        title: { type: string }
+        description: { type: ["string", "null"] }
+        date: { type: string, format: date }
+        startTime: { type: ["string", "null"] }
+        endTime: { type: ["string", "null"] }
+        focusDomain: { type: ["string", "null"] }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    CalendarEntryInput:
+      type: object
+      required: [title, date]
+      properties:
+        tenantId: { type: string, format: uuid }
+        hubId: { type: integer }
+        title: { type: string, minLength: 1 }
+        description: { type: string }
+        date: { type: string, format: date }
+        startTime: { type: string }
+        endTime: { type: string }
+        focusDomain: { type: string }
+    CalendarEntryUpdate:
+      type: object
+      properties:
+        title: { type: string }
+        description: { type: string }
+        date: { type: string, format: date }
+        startTime: { type: string }
+        endTime: { type: string }
+        focusDomain: { type: string }
+
+    CalendarAutofillInput:
+      type: object
+      required: [weekStart]
+      properties:
+        weekStart: { type: string, format: date }
+        tenantId: { type: string, format: uuid }
+    CalendarAutofillResult:
+      type: object
+      required: [created]
+      properties:
+        created:
+          type: array
+          items: { $ref: "#/components/schemas/CalendarEntry" }
+
+    # ---------- System state ----------
+    SystemStateDaily:
+      type: object
+      required: [id, userId, stateDate, ultraScore, state]
+      properties:
+        id: { type: integer }
+        userId: { type: string }
+        tenantId: { type: ["string", "null"], format: uuid }
+        stateDate: { type: string, format: date }
+        ultraScore: { type: number }
+        state: { type: string }
+        priorityZone: { type: ["string", "null"] }
+        strongestHubId: { type: ["integer", "null"] }
+        weakestHubId: { type: ["integer", "null"] }
+        stateReasons: {}
+        createdAt: { type: string, format: date-time }
+
+    StateWarning:
+      type: object
+      required: [id, userId, warningType, warningText]
+      properties:
+        id: { type: integer }
+        userId: { type: string }
+        tenantId: { type: ["string", "null"], format: uuid }
+        warningType: { type: string }
+        warningText: { type: string }
+        severity: { type: ["string", "null"] }
+        relatedHubId: { type: ["integer", "null"] }
+        relatedProjectId: { type: ["integer", "null"] }
+        relatedHabitId: { type: ["integer", "null"] }
+        dismissed: { type: boolean }
+        dismissedAt: { type: ["string", "null"], format: date-time }
+        createdAt: { type: string, format: date-time }
+    StateWarningUpdate:
+      type: object
+      properties:
+        dismissed: { type: boolean }
+
+    UltraScoreCalculateInput:
+      type: object
+      properties:
+        tenantId: { type: string, format: uuid }
+        stateDate: { type: string, format: date }
+
+    SystemValidationResult:
+      type: object
+      required: [valid, issues]
+      properties:
+        valid: { type: boolean }
+        issues:
+          type: array
+          items: { type: string }
+
+    # ---------- Notifications ----------
+    Notification:
+      type: object
+      required: [id, userId, type, title, message, severity]
+      properties:
+        id: { type: string, format: uuid }
+        userId: { type: string }
+        tenantId: { type: ["string", "null"], format: uuid }
+        type: { type: string }
+        title: { type: string }
+        message: { type: string }
+        severity: { type: string }
+        metadata: {}
+        relatedEntityType: { type: ["string", "null"] }
+        relatedEntityId: { type: ["string", "null"] }
+        isRead: { type: boolean }
+        readAt: { type: ["string", "null"], format: date-time }
+        isResolved: { type: boolean }
+        resolvedAt: { type: ["string", "null"], format: date-time }
+        createdAt: { type: string, format: date-time }
+    NotificationUpdate:
+      type: object
+      properties:
+        isRead: { type: boolean }
+        isResolved: { type: boolean }
+
+    NotificationPreferences:
+      type: object
+      required: [id, userId]
+      properties:
+        id: { type: string, format: uuid }
+        userId: { type: string }
+        tenantId: { type: ["string", "null"], format: uuid }
+        habitRemindersEnabled: { type: boolean }
+        calendarAlertsEnabled: { type: boolean }
+        performanceAlertsEnabled: { type: boolean }
+        projectAlertsEnabled: { type: boolean }
+        lifeEventAlertsEnabled: { type: boolean }
+        weeklyReportsEnabled: { type: boolean }
+        monthlyReportsEnabled: { type: boolean }
+        intensityLevel: { type: ["string", "null"] }
+        maxNotificationsPerHour: { type: ["integer", "null"] }
+        quietHoursStart: { type: ["string", "null"] }
+        quietHoursEnd: { type: ["string", "null"] }
+    NotificationPreferencesUpdate:
+      type: object
+      properties:
+        habitRemindersEnabled: { type: boolean }
+        calendarAlertsEnabled: { type: boolean }
+        performanceAlertsEnabled: { type: boolean }
+        projectAlertsEnabled: { type: boolean }
+        lifeEventAlertsEnabled: { type: boolean }
+        weeklyReportsEnabled: { type: boolean }
+        monthlyReportsEnabled: { type: boolean }
+        intensityLevel: { type: string }
+        maxNotificationsPerHour: { type: integer }
+        quietHoursStart: { type: string }
+        quietHoursEnd: { type: string }
+
+    ProcessResult:
+      type: object
+      required: [processed]
+      properties:
+        processed: { type: integer }
+        details: {}
+
+    # ---------- Automation ----------
+    AutomationRule:
+      type: object
+      required: [id, name, conditionType, actionTarget]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        description: { type: ["string", "null"] }
+        conditionType: { type: string }
+        conditionValue: { type: ["number", "null"] }
+        actionTarget: { type: string }
+        actionValue: { type: ["string", "null"] }
+        conflictGroup: { type: ["string", "null"] }
+        priority: { type: ["integer", "null"] }
+        isActive: { type: boolean }
+        requiresUserConfirmation: { type: boolean }
+        version: { type: integer }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    AutomationRuleInput:
+      type: object
+      required: [name, conditionType, actionTarget]
+      properties:
+        name: { type: string, minLength: 1 }
+        description: { type: string }
+        conditionType: { type: string }
+        conditionValue: { type: number }
+        actionTarget: { type: string }
+        actionValue: { type: string }
+        conflictGroup: { type: string }
+        priority: { type: integer }
+        isActive: { type: boolean }
+        requiresUserConfirmation: { type: boolean }
+    AutomationRuleUpdate:
+      type: object
+      properties:
+        name: { type: string }
+        description: { type: string }
+        conditionValue: { type: number }
+        actionValue: { type: string }
+        priority: { type: integer }
+        isActive: { type: boolean }
+        requiresUserConfirmation: { type: boolean }
+
+    UserAutomationSettings:
+      type: object
+      required: [id, userId, automationEnabled]
+      properties:
+        id: { type: integer }
+        userId: { type: string }
+        tenantId: { type: ["string", "null"], format: uuid }
+        automationEnabled: { type: boolean }
+        enabledCategories: {}
+        maxDailyActions: { type: ["integer", "null"] }
+        priorityOverride: { type: ["string", "null"] }
+        quietHours: {}
+        notificationPreferences: {}
+    UserAutomationSettingsUpdate:
+      type: object
+      properties:
+        automationEnabled: { type: boolean }
+        enabledCategories: {}
+        maxDailyActions: { type: integer }
+        priorityOverride: { type: string }
+        quietHours: {}
+        notificationPreferences: {}
+
+    AutomationTriggerEvent:
+      type: object
+      required: [id, userId, triggerType, triggerSource]
+      properties:
+        id: { type: integer }
+        userId: { type: string }
+        tenantId: { type: ["string", "null"], format: uuid }
+        triggerType: { type: string }
+        triggerSource: { type: string }
+        triggerData: {}
+        processed: { type: boolean }
+        triggeredAt: { type: string, format: date-time }
+        createdAt: { type: string, format: date-time }
+    AutomationTriggerEventInput:
+      type: object
+      required: [triggerType, triggerSource]
+      properties:
+        triggerType: { type: string }
+        triggerSource: { type: string }
+        triggerData: {}
+
+    AutomationActionQueue:
+      type: object
+      required: [id, userId, actionType, status]
+      properties:
+        id: { type: integer }
+        userId: { type: string }
+        tenantId: { type: ["string", "null"], format: uuid }
+        ruleId: { type: ["integer", "null"] }
+        actionType: { type: string }
+        actionPayload: {}
+        priority: { type: ["integer", "null"] }
+        status: { type: string }
+        scheduledFor: { type: ["string", "null"], format: date-time }
+        executedAt: { type: ["string", "null"], format: date-time }
+        retryCount: { type: integer }
+        maxRetries: { type: integer }
+        errorMessage: { type: ["string", "null"] }
+        createdAt: { type: string, format: date-time }
+
+    AutomationLog:
+      type: object
+      required: [id, userId, eventType, message]
+      properties:
+        id: { type: integer }
+        userId: { type: string }
+        tenantId: { type: ["string", "null"], format: uuid }
+        ruleId: { type: ["integer", "null"] }
+        eventType: { type: string }
+        message: { type: string }
+        severity: { type: ["string", "null"] }
+        contextData: {}
+        createdAt: { type: string, format: date-time }
+
+    AutomationExecution:
+      type: object
+      required: [id, userId, triggerType]
+      properties:
+        id: { type: integer }
+        userId: { type: string }
+        tenantId: { type: ["string", "null"], format: uuid }
+        ruleId: { type: ["integer", "null"] }
+        triggerType: { type: string }
+        conditionsMet: {}
+        actionsExecuted: {}
+        executionResult: { type: ["string", "null"] }
+        executionDate: { type: string, format: date-time }
+        createdAt: { type: string, format: date-time }
+
+    AutoAction:
+      type: object
+      required: [id, userId, actionType, actionText, status]
+      properties:
+        id: { type: integer }
+        userId: { type: string }
+        tenantId: { type: ["string", "null"], format: uuid }
+        hubId: { type: ["integer", "null"] }
+        domainId: { type: ["integer", "null"] }
+        actionType: { type: string }
+        actionText: { type: string }
+        actionDate: { type: string, format: date-time }
+        priority: { type: ["integer", "null"] }
+        status: { type: string }
+        completedAt: { type: ["string", "null"], format: date-time }
+        createdAt: { type: string, format: date-time }
+    AutoActionUpdate:
+      type: object
+      properties:
+        status: { type: string }
+        completedAt: { type: string, format: date-time }
+
+    AutomationEvaluationResult:
+      type: object
+      required: [rulesEvaluated, actionsQueued]
+      properties:
+        rulesEvaluated: { type: integer }
+        actionsQueued: { type: integer }
+
+    AutomationTriggerInput:
+      type: object
+      required: [triggerType]
+      properties:
+        triggerType: { type: string }
+        triggerSource: { type: string }
+        triggerData: {}
+
+    # ---------- Insights ----------
+    Insight:
+      type: object
+      required: [id, userId, period, summary]
+      properties:
+        id: { type: string }
+        userId: { type: string }
+        period: { type: string, enum: [daily, weekly, monthly, ai] }
+        summary: { type: string }
+        details: {}
+        generatedAt: { type: string, format: date-time }
+    AiInsightInput:
+      type: object
+      properties:
+        prompt: { type: string }
+        tenantId: { type: string, format: uuid }
+
+    # ---------- Admin ----------
+    AdminSetting:
+      type: object
+      required: [id, settingKey, settingValue]
+      properties:
+        id: { type: string, format: uuid }
+        settingKey: { type: string }
+        settingValue: {}
+        description: { type: ["string", "null"] }
+        updatedBy: { type: ["string", "null"] }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    AdminSettingInput:
+      type: object
+      required: [settingKey, settingValue]
+      properties:
+        settingKey: { type: string }
+        settingValue: {}
+        description: { type: string }
+
+    AuditLog:
+      type: object
+      required: [id, tableName, operation, recordId]
+      properties:
+        id: { type: string, format: uuid }
+        userId: { type: ["string", "null"] }
+        tableName: { type: string }
+        operation: { type: string }
+        recordId: { type: string }
+        oldValues: {}
+        newValues: {}
+        changedFields:
+          type: ["array", "null"]
+          items: { type: string }
+        userAgent: { type: ["string", "null"] }
+        createdAt: { type: string, format: date-time }
+
+    AdminStats:
+      type: object
+      properties:
+        totalUsers: { type: integer }
+        totalTenants: { type: integer }
+        activeHubs: { type: integer }
+        avgUltraScore: { type: ["number", "null"] }
+        logsToday: { type: integer }

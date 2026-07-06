@@ -1,15 +1,16 @@
-# [Project name]
+# LifeOS
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+A personal life operating system — tracks habits, projects, calendar, and cross-domain "hub" metrics, with a rules-based automation engine that evaluates triggers and queues actions across the user's data.
 
 ## Run & Operate
 
 - `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- `pnpm --filter @workspace/lifeos run dev` — run the LifeOS frontend
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- Required env: `DATABASE_URL` — Postgres connection string; `CLERK_SECRET_KEY` / `CLERK_PUBLISHABLE_KEY` / `VITE_CLERK_PUBLISHABLE_KEY` — Replit-managed Clerk auth
 
 ## Stack
 
@@ -19,18 +20,24 @@ _Replace the heading above with the project's name, and this line with one sente
 - Validation: Zod (`zod/v4`), `drizzle-zod`
 - API codegen: Orval (from OpenAPI spec)
 - Build: esbuild (CJS bundle)
+- Auth: Replit-managed Clerk (`@clerk/react` on the `lifeos` frontend, `@clerk/express` on `api-server`)
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/lifeos` — React + Vite frontend (pages, components, Clerk auth wiring in `src/App.tsx`)
+- `artifacts/api-server` — Express API (`src/routes/*` — one file per domain: projects, habits, calendar, automation, metrics, hubs, notifications, tenants, admin, logs, systemState)
+- `artifacts/api-spec` — OpenAPI spec + Orval-generated hooks/Zod schemas consumed by the frontend
+- DB schema: `packages/db` (Drizzle)
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Migrated from a Lovable.dev/Supabase app to the pnpm-workspace stack: all client-side Supabase calls were replaced with Orval-generated API hooks against the Express API server.
+- Auth moved from Supabase Auth to Replit-managed Clerk; `requireAuth`/`getAuth` middleware on `api-server` gates all `/api/*` routes.
+- All 18 original automation/AI functions (rule evaluation, ultra-score calculation, calendar autofill, notification generation, conflict resolution, etc.) were ported as Express route handlers under `/api/automation/*`, `/api/system/*`, `/api/calendar/autofill`, etc.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- Dashboard, Habits, Projects (with tasks), Calendar (with AI autofill), Logs, cross-domain "Ultra Hub" metrics, and an Automation engine (rules, trigger events, queue, execution history, conflict resolution) with supporting Settings/Notifications/Admin/Security pages.
 
 ## User preferences
 
@@ -38,7 +45,7 @@ _Populate as you build — explicit user instructions worth remembering across s
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- The `runTest` tool's `testClerkAuth` programmatic sign-in did not establish an authenticated session for this app in this environment despite the Clerk wiring matching the canonical pattern exactly (verified via full diff against the `clerk-auth` skill). Backend auth + business logic were instead verified directly via Clerk's Backend API (mint a real session JWT) + `curl` against `api-server`. See `.agents/memory/clerk-testclerkauth-e2e-limitation.md`.
 
 ## Pointers
 

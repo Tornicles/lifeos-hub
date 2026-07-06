@@ -1,0 +1,267 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* LifeOS Design System - Productivity Focus */
+    
+    /* Core Colors - Deep Blues and Vibrant Accents */
+    --background: 220 20% 98%;
+    --foreground: 220 20% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 10%;
+
+    /* Primary - Deep Blue #1F4E79 from Excel v30 */
+    --primary: 207 60% 30%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 207 60% 25%;
+
+    /* Secondary - Slate */
+    --secondary: 220 15% 94%;
+    --secondary-foreground: 220 20% 20%;
+
+    /* Muted - Light Gray #F3F3F3 from Excel v30 */
+    --muted: 0 0% 95%;
+    --muted-foreground: 220 10% 45%;
+
+    /* Accent - Gold #FFC000 from Excel v30 */
+    --accent: 45 100% 50%;
+    --accent-foreground: 207 24% 16%;
+
+    /* Success - Green #7FBA00 from Excel v30 */
+    --success: 82 100% 36%;
+    --success-foreground: 0 0% 100%;
+
+    /* Warning - Amber */
+    --warning: 40 95% 55%;
+    --warning-foreground: 0 0% 100%;
+
+    /* Destructive - Red #E81123 from Excel v30 */
+    --destructive: 355 82% 49%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Ultra Score Colors */
+    --ultra-danger: 355 82% 49%;
+    --ultra-urgency: 40 95% 55%;
+    --ultra-stable: 207 60% 30%;
+    --ultra-affluent: 82 100% 36%;
+    --ultra-peak: 45 100% 50%;
+
+    /* Borders & Inputs */
+    --border: 220 15% 90%;
+    --input: 220 15% 90%;
+    --ring: 207 60% 30%;
+
+    --radius: 0.75rem;
+
+    /* Gradients using Excel v30 colors */
+    --gradient-primary: linear-gradient(135deg, hsl(207 60% 30%) 0%, hsl(45 100% 50%) 100%);
+    --gradient-ultra: linear-gradient(135deg, hsl(270 80% 60%) 0%, hsl(207 60% 30%) 50%, hsl(45 100% 50%) 100%);
+    --gradient-success: linear-gradient(135deg, hsl(82 100% 36%) 0%, hsl(207 60% 40%) 100%);
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(220 20% 10% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(220 20% 10% / 0.1), 0 2px 4px -2px hsl(220 20% 10% / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(220 20% 10% / 0.1), 0 4px 6px -4px hsl(220 20% 10% / 0.1);
+    --shadow-xl: 0 20px 25px -5px hsl(220 20% 10% / 0.1), 0 8px 10px -6px hsl(220 20% 10% / 0.1);
+    
+    /* Animations */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Sidebar */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 207 24% 16%;
+    --sidebar-primary: 207 60% 30%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 95%;
+    --sidebar-accent-foreground: 207 24% 16%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-ring: 207 60% 30%;
+  }
+
+  .dark {
+    /* Dark Mode - Deep Navy with Bright Accents */
+    --background: 220 25% 8%;
+    --foreground: 220 15% 95%;
+
+    --card: 220 25% 10%;
+    --card-foreground: 220 15% 95%;
+
+    --popover: 220 25% 10%;
+    --popover-foreground: 220 15% 95%;
+
+    /* Primary - Deep Blue (adjusted for dark mode) */
+    --primary: 207 60% 50%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 207 60% 45%;
+
+    --secondary: 220 20% 15%;
+    --secondary-foreground: 220 15% 90%;
+
+    --muted: 220 20% 12%;
+    --muted-foreground: 220 10% 60%;
+
+    /* Accent - Gold (brighter for dark mode) */
+    --accent: 45 100% 55%;
+    --accent-foreground: 207 24% 10%;
+
+    /* Success - Green (brighter for dark mode) */
+    --success: 82 100% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 40 95% 60%;
+    --warning-foreground: 0 0% 100%;
+
+    /* Destructive - Red (brighter for dark mode) */
+    --destructive: 355 82% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Ultra Score Colors for dark mode */
+    --ultra-danger: 355 82% 55%;
+    --ultra-urgency: 40 95% 60%;
+    --ultra-stable: 207 60% 50%;
+    --ultra-affluent: 82 100% 45%;
+    --ultra-peak: 45 100% 55%;
+
+    --border: 220 20% 18%;
+    --input: 220 20% 18%;
+    --ring: 207 60% 50%;
+
+    /* Gradients for dark mode */
+    --gradient-primary: linear-gradient(135deg, hsl(207 60% 50%) 0%, hsl(45 100% 55%) 100%);
+    --gradient-ultra: linear-gradient(135deg, hsl(270 80% 65%) 0%, hsl(207 60% 50%) 50%, hsl(45 100% 55%) 100%);
+    --gradient-success: linear-gradient(135deg, hsl(82 100% 45%) 0%, hsl(207 60% 50%) 100%);
+
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.3);
+    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.4), 0 2px 4px -2px hsl(0 0% 0% / 0.3);
+    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.5), 0 4px 6px -4px hsl(0 0% 0% / 0.4);
+    --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.6), 0 8px 10px -6px hsl(0 0% 0% / 0.5);
+
+    --sidebar-background: 207 24% 8%;
+    --sidebar-foreground: 220 15% 90%;
+    --sidebar-primary: 207 60% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 20% 12%;
+    --sidebar-accent-foreground: 220 15% 90%;
+    --sidebar-border: 207 24% 14%;
+    --sidebar-ring: 207 60% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-muted;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/30;
+  }
+}
+
+@layer utilities {
+  /* Gradient utilities */
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+
+  .gradient-ultra {
+    background: var(--gradient-ultra);
+  }
+
+  .gradient-success {
+    background: var(--gradient-success);
+  }
+
+  /* Shadow utilities */
+  .shadow-lifeos-sm {
+    box-shadow: var(--shadow-sm);
+  }
+
+  .shadow-lifeos-md {
+    box-shadow: var(--shadow-md);
+  }
+
+  .shadow-lifeos-lg {
+    box-shadow: var(--shadow-lg);
+  }
+
+  .shadow-lifeos-xl {
+    box-shadow: var(--shadow-xl);
+  }
+
+  /* Animation utilities */
+  .transition-lifeos-fast {
+    transition: var(--transition-fast);
+  }
+
+  .transition-lifeos {
+    transition: var(--transition-base);
+  }
+
+  .transition-lifeos-slow {
+    transition: var(--transition-slow);
+  }
+
+  /* Ultra score color utilities */
+  .ultra-danger {
+    color: hsl(var(--ultra-danger));
+  }
+
+  .ultra-urgency {
+    color: hsl(var(--ultra-urgency));
+  }
+
+  .ultra-stable {
+    color: hsl(var(--ultra-stable));
+  }
+
+  .ultra-affluent {
+    color: hsl(var(--ultra-affluent));
+  }
+
+  .bg-ultra-danger {
+    background-color: hsl(var(--ultra-danger));
+  }
+
+  .bg-ultra-urgency {
+    background-color: hsl(var(--ultra-urgency));
+  }
+
+  .bg-ultra-stable {
+    background-color: hsl(var(--ultra-stable));
+  }
+
+  .bg-ultra-affluent {
+    background-color: hsl(var(--ultra-affluent));
+  }
+}
