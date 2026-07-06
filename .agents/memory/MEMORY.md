@@ -1,1 +1,2 @@
 - [Clerk testClerkAuth harness limitation](clerk-testclerkauth-e2e-limitation.md) — programmatic Clerk sign-in in `runTest` can silently fail to establish a browser session even with fully canonical Clerk wiring; verify backend auth directly via Clerk Backend API + curl as a substitute.
+- [Clerk Expo/React version mismatch](clerk-expo-react-version-mismatch.md) — `@clerk/expo` 2.x pulls in an incompatible `@clerk/react`/`@clerk/shared` combo that crashes `ClerkProvider` on web platform; keep it aligned with the major version used by sibling web apps.
