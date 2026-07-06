@@ -46,8 +46,12 @@ router.post("/couples/:id/partner-links", async (req, res): Promise<void> => {
     return;
   }
   const inviteCode = randomBytes(6).toString("hex");
-  const [row] = await withUserContext(req.userId!, (tx) =>
-    tx
+  const row = await withUserContext(req.userId!, async (tx) => {
+    const [couple] = await tx.select().from(couplesTable).where(eq(couplesTable.id, params.data.id));
+    if (!couple || couple.userAId !== req.userId) {
+      return null;
+    }
+    const [inserted] = await tx
       .insert(partnerLinksTable)
       .values({
         coupleId: params.data.id,
@@ -55,8 +59,13 @@ router.post("/couples/:id/partner-links", async (req, res): Promise<void> => {
         inviteEmail: parsed.data.inviteEmail,
         inviteCode,
       })
-      .returning(),
-  );
+      .returning();
+    return inserted;
+  });
+  if (!row) {
+    res.status(404).json({ error: "Couple not found" });
+    return;
+  }
   res.status(201).json(CreatePartnerLinkResponse.parse(row));
 });
 
