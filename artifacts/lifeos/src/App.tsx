@@ -26,6 +26,10 @@ import NotFound from "./pages/NotFound";
 import Notifications from "./pages/Notifications";
 import NotificationSettings from "./pages/NotificationSettings";
 import Analytics from "./pages/Analytics";
+import Finance from "./pages/Finance";
+import Academy from "./pages/Academy";
+import BibleStudy from "./pages/BibleStudy";
+import Couples from "./pages/Couples";
 
 // REQUIRED — copy verbatim. Resolves the key from window.location.hostname so the
 // same build serves multiple Clerk custom domains. Do not inline the env var, leave
@@ -196,6 +200,10 @@ function ClerkProviderWithRoutes() {
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/notification-settings" element={<NotificationSettings />} />
           <Route path="/analytics" element={<Analytics />} />
+          <Route path="/finance" element={<Finance />} />
+          <Route path="/academy" element={<Academy />} />
+          <Route path="/couples" element={<Couples />} />
+          <Route path="/bible" element={<BibleStudy />} />
           <Route
             path="/reports"
             element={
@@ -212,22 +220,7 @@ function ClerkProviderWithRoutes() {
               </div>
             }
           />
-          <Route
-            path="/invite-partner"
-            element={
-              <div className="p-6">
-                <h1 className="text-2xl">Invite Partner - Coming Soon</h1>
-              </div>
-            }
-          />
-          <Route
-            path="/bible"
-            element={
-              <div className="p-6">
-                <h1 className="text-2xl">Bible & Stewardship - Coming Soon</h1>
-              </div>
-            }
-          />
+          <Route path="/invite-partner" element={<Navigate to="/couples" replace />} />
           <Route
             path="/subscription"
             element={

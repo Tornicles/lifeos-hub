@@ -4,7 +4,7 @@ import {
   GraduationCap,
   HelpCircle,
   User,
-  UserPlus,
+  Heart,
   BookOpen,
   Bell,
   HelpingHand,
@@ -32,14 +32,14 @@ import { Badge } from "@/components/ui/badge";
 
 const mainItems = [
   { title: "Home", url: "/dashboard", icon: Home },
-  { title: "Finance", url: "/hubs/finance", icon: DollarSign },
-  { title: "Learn", url: "/hubs/academy", icon: GraduationCap },
+  { title: "Finance", url: "/finance", icon: DollarSign },
+  { title: "Learn", url: "/academy", icon: GraduationCap },
   { title: "Quiz", url: "/quiz", icon: HelpCircle },
   { title: "Profile", url: "/profile", icon: User },
 ];
 
 const secondaryItems = [
-  { title: "Invite Partner", url: "/invite-partner", icon: UserPlus },
+  { title: "Couples", url: "/couples", icon: Heart },
   { title: "Bible & Stewardship", url: "/bible", icon: BookOpen },
   { title: "Notifications", url: "/notifications", icon: Bell },
   { title: "Help & Support", url: "/help", icon: HelpingHand },
