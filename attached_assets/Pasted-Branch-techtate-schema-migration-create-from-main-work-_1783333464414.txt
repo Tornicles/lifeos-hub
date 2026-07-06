@@ -1,0 +1,48 @@
+Branch: techtate-schema-migration (create from main, work only here)
+
+GOAL
+Replace the LifeOS database schema with the Tech-Tate schema, without breaking 
+existing auth or any code that isn't being touched in later prompts.
+
+CONTEXT
+Attached: techtate_schema_rewrite.sql — a complete migration that drops LifeOS-
+only tables (ultra_metrics, ultra_domains, state_warnings, system_state_daily, 
+automation_context_cache, tasks, projects, memberships, tenants, auto_actions), 
+repopulates hubs with 4 rows (Finance, Academy, Bible, Couples), and creates 
+all new Tech-Tate tables (budgets, income, expenses, savings_goals, debts, 
+investment_entries, net_worth_snapshots, bills, topics, lessons, 
+lesson_progress, quizzes, quiz_questions, quiz_attempts, challenges, 
+challenge_completions, xp_events, badges, user_badges, bible_verses, couples, 
+partner_links, couple_discussion_prompts, subscriptions).
+
+NOTE: this migration DROPS calendar_entries. Before running it, check whether 
+Calendar.tsx currently reads from calendar_entries. If it does, MODIFY the 
+migration to keep calendar_entries instead of creating a new bills table — 
+add the bills columns (amount, due_day, is_autopay, category) directly onto 
+calendar_entries instead. Tell me which path you took before proceeding.
+
+STEPS
+1. Run the migration exactly as provided (or modified per the calendar note above)
+2. Regenerate the Supabase TypeScript types file (find the existing generated 
+   types file — likely src/integrations/supabase/types.ts — and regenerate it 
+   against the live schema, don't hand-write types)
+3. Search the codebase for any existing references to dropped tables 
+   (ultra_metrics, ultra_domains, tasks, projects, memberships, tenants) and 
+   list every file that still imports or queries them — do not fix these yet, 
+   just report them, since their pages were already removed from nav in the 
+   previous prompt but their query code may still exist
+4. Confirm RLS is enabled on every new table by querying pg_tables/pg_policies, 
+   not just by re-reading the SQL file
+
+DO NOT
+- Do not modify any .tsx files in this pass
+- Do not delete any page files even if they reference dropped tables
+- Do not change Supabase auth config, project URL, or API keys
+
+OUTPUT (required format)
+- Which calendar_entries approach was used and why
+- Full list of tables created, tables dropped, tables modified
+- Confirmation types file regenerated (paste the new type names for 3 sample tables)
+- List of files still referencing dropped tables (dead code to clean up later)
+- Confirmation RLS is active on all new tables
+- Any migration errors, exact error text if so
