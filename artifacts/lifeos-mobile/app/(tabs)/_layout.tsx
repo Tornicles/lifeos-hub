@@ -22,10 +22,6 @@ function NativeTabLayout() {
         <Icon sf={{ default: "flame", selected: "flame.fill" }} />
         <Label>Habits</Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="projects">
-        <Icon sf={{ default: "checklist", selected: "checklist" }} />
-        <Label>Projects</Label>
-      </NativeTabs.Trigger>
       <NativeTabs.Trigger name="calendar">
         <Icon sf={{ default: "calendar", selected: "calendar" }} />
         <Label>Calendar</Label>
@@ -83,18 +79,6 @@ function ClassicTabLayout() {
           title: "Habits",
           tabBarIcon: ({ color }) =>
             isIOS ? <SymbolView name="flame" tintColor={color} size={24} /> : <Feather name="zap" size={22} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="projects"
-        options={{
-          title: "Projects",
-          tabBarIcon: ({ color }) =>
-            isIOS ? (
-              <SymbolView name="checklist" tintColor={color} size={24} />
-            ) : (
-              <Feather name="check-square" size={22} color={color} />
-            ),
         }}
       />
       <Tabs.Screen

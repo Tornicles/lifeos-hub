@@ -9,13 +9,10 @@ import { Row, ScreenContainer } from "@/components/ui/ScreenContainer";
 import { useColors } from "@/hooks/useColors";
 
 const ITEMS: { icon: React.ComponentProps<typeof Feather>["name"]; label: string; href: string }[] = [
-  { icon: "bar-chart-2", label: "Ultra Hub", href: "/ultra-hub" },
   { icon: "list", label: "Logs", href: "/logs" },
   { icon: "zap", label: "Automation", href: "/automation" },
   { icon: "sliders", label: "Automation Rules", href: "/automation-rules" },
   { icon: "settings", label: "Automation Settings", href: "/automation-settings" },
-  { icon: "activity", label: "States Engine", href: "/states-engine" },
-  { icon: "trending-up", label: "Insights", href: "/insights" },
   { icon: "bell", label: "Notifications", href: "/notifications" },
   { icon: "sliders", label: "Notification Settings", href: "/notification-settings" },
   { icon: "user", label: "Profile", href: "/profile" },
