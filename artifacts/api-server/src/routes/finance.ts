@@ -65,19 +65,49 @@ router.get("/budgets", async (req, res): Promise<void> => {
   res.json(ListBudgetsResponse.parse(rows));
 });
 
+const BUDGET_DUPLICATE_MESSAGE =
+  "You already have a budget for this category this month — edit it instead";
+
+function currentMonthString(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function isUniqueViolation(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  const code = (error as { code?: string }).code;
+  if (code === "23505") return true;
+  const cause = (error as { cause?: unknown }).cause;
+  if (cause && typeof cause === "object" && (cause as { code?: string }).code === "23505") return true;
+  return false;
+}
+
 router.post("/budgets", async (req, res): Promise<void> => {
   const parsed = CreateBudgetBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
-  const [row] = await withUserContext(req.userId!, (tx) =>
-    tx
-      .insert(budgetsTable)
-      .values({ ...parsed.data, userId: req.userId! })
-      .returning(),
-  );
-  res.status(201).json(CreateBudgetResponse.parse(row));
+  try {
+    const [row] = await withUserContext(req.userId!, (tx) =>
+      tx
+        .insert(budgetsTable)
+        .values({
+          ...parsed.data,
+          userId: req.userId!,
+          name: parsed.data.name ?? parsed.data.category,
+          month: parsed.data.month ?? currentMonthString(),
+        })
+        .returning(),
+    );
+    res.status(201).json(CreateBudgetResponse.parse(row));
+  } catch (error) {
+    if (isUniqueViolation(error)) {
+      res.status(409).json({ error: BUDGET_DUPLICATE_MESSAGE, code: "DUPLICATE_BUDGET" });
+      return;
+    }
+    throw error;
+  }
 });
 
 router.patch("/budgets/:id", async (req, res): Promise<void> => {
@@ -87,18 +117,26 @@ router.patch("/budgets/:id", async (req, res): Promise<void> => {
     res.status(400).json({ error: params.success ? parsed.error!.message : params.error.message });
     return;
   }
-  const [row] = await withUserContext(req.userId!, (tx) =>
-    tx
-      .update(budgetsTable)
-      .set(parsed.data)
-      .where(and(eq(budgetsTable.id, params.data.id), eq(budgetsTable.userId, req.userId!)))
-      .returning(),
-  );
-  if (!row) {
-    res.status(404).json({ error: "Budget not found" });
-    return;
+  try {
+    const [row] = await withUserContext(req.userId!, (tx) =>
+      tx
+        .update(budgetsTable)
+        .set(parsed.data)
+        .where(and(eq(budgetsTable.id, params.data.id), eq(budgetsTable.userId, req.userId!)))
+        .returning(),
+    );
+    if (!row) {
+      res.status(404).json({ error: "Budget not found" });
+      return;
+    }
+    res.json(UpdateBudgetResponse.parse(row));
+  } catch (error) {
+    if (isUniqueViolation(error)) {
+      res.status(409).json({ error: BUDGET_DUPLICATE_MESSAGE, code: "DUPLICATE_BUDGET" });
+      return;
+    }
+    throw error;
   }
-  res.json(UpdateBudgetResponse.parse(row));
 });
 
 router.delete("/budgets/:id", async (req, res): Promise<void> => {
@@ -205,6 +243,7 @@ router.post("/expenses", async (req, res): Promise<void> => {
       .values({
         ...parsed.data,
         userId: req.userId!,
+        description: parsed.data.description ?? parsed.data.merchant ?? parsed.data.category,
         expenseDate: toDateOnlyString(parsed.data.expenseDate)!,
       })
       .returning(),

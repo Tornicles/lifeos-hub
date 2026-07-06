@@ -5,6 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { IncomeInputRecurrenceInterval } from './incomeInputRecurrenceInterval';
 
 export interface IncomeInput {
   /** @minLength 1 */
@@ -12,4 +13,7 @@ export interface IncomeInput {
   amount: string;
   frequency?: string;
   receivedDate: Date;
+  isRecurring?: boolean;
+  /** @nullable */
+  recurrenceInterval?: IncomeInputRecurrenceInterval;
 }

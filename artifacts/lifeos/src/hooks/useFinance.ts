@@ -30,8 +30,25 @@ export const useAddBudget = () => {
   const mutation = useCreateBudget();
   return {
     ...mutation,
-    mutate: (data: BudgetInput) =>
-      mutation.mutate({ data }, onMutationResult(queryClient, getListBudgetsQueryKey(), 'Budget added', 'Failed to add budget')),
+    mutate: (data: BudgetInput, opts?: { onSuccess?: () => void; onDuplicate?: (message: string) => void }) =>
+      mutation.mutate(
+        { data },
+        {
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: getListBudgetsQueryKey() });
+            toast.success('Budget added');
+            opts?.onSuccess?.();
+          },
+          onError: (error: any) => {
+            if (error?.status === 409 && opts?.onDuplicate) {
+              opts.onDuplicate(error?.data?.error || 'You already have a budget for this category this month — edit it instead');
+              return;
+            }
+            console.error('Failed to add budget', error);
+            toast.error(error?.data?.error || error?.message || 'Failed to add budget');
+          },
+        },
+      ),
   };
 };
 export const useRemoveBudget = () => {
@@ -73,7 +90,22 @@ export const useAddExpense = () => {
   return {
     ...mutation,
     mutate: (data: ExpenseInput) =>
-      mutation.mutate({ data }, onMutationResult(queryClient, getListExpensesQueryKey(), 'Expense added', 'Failed to add expense')),
+      mutation.mutate(
+        { data },
+        {
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: getListExpensesQueryKey() });
+            if (data.budgetId) {
+              queryClient.invalidateQueries({ queryKey: getListBudgetsQueryKey() });
+            }
+            toast.success('Expense added');
+          },
+          onError: (error: any) => {
+            console.error('Failed to add expense', error);
+            toast.error(error?.data?.error || error?.message || 'Failed to add expense');
+          },
+        },
+      ),
   };
 };
 export const useRemoveExpense = () => {

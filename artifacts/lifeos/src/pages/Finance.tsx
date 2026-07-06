@@ -9,13 +9,22 @@ import { SavingsGoalsTab } from "@/components/finance/SavingsGoalsTab";
 import { DebtsTab } from "@/components/finance/DebtsTab";
 import { useIncome, useExpenses, useDebts } from "@/hooks/useFinance";
 
+function currentMonthKey() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+}
+
 export default function Finance() {
   const { data: income, isLoading: incomeLoading } = useIncome();
   const { data: expenses, isLoading: expensesLoading } = useExpenses();
   const { data: debts, isLoading: debtsLoading } = useDebts();
 
-  const totalIncome = income?.reduce((sum, i) => sum + Number(i.amount), 0) ?? 0;
-  const totalExpenses = expenses?.reduce((sum, e) => sum + Number(e.amount), 0) ?? 0;
+  const monthKey = currentMonthKey();
+  const monthIncome = income?.filter((i) => i.receivedDate?.toString().slice(0, 7) === monthKey) ?? [];
+  const monthExpenses = expenses?.filter((e) => e.expenseDate?.toString().slice(0, 7) === monthKey) ?? [];
+
+  const totalIncome = monthIncome.reduce((sum, i) => sum + Number(i.amount), 0);
+  const totalExpenses = monthExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
   const totalDebt = debts?.reduce((sum, d) => sum + Number(d.balance), 0) ?? 0;
   const net = totalIncome - totalExpenses;
 
@@ -34,7 +43,7 @@ export default function Finance() {
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Total Income</CardTitle>
+            <CardTitle className="text-sm font-medium">Income This Month</CardTitle>
           </CardHeader>
           <CardContent>
             {statsLoading ? <Skeleton className="h-8 w-24" /> : <div className="text-2xl font-bold text-green-600">${totalIncome.toFixed(2)}</div>}
@@ -42,7 +51,7 @@ export default function Finance() {
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
+            <CardTitle className="text-sm font-medium">Expenses This Month</CardTitle>
           </CardHeader>
           <CardContent>
             {statsLoading ? <Skeleton className="h-8 w-24" /> : <div className="text-2xl font-bold text-red-600">${totalExpenses.toFixed(2)}</div>}
@@ -50,7 +59,7 @@ export default function Finance() {
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Net</CardTitle>
+            <CardTitle className="text-sm font-medium">Net This Month</CardTitle>
           </CardHeader>
           <CardContent>
             {statsLoading ? <Skeleton className="h-8 w-24" /> : <div className={`text-2xl font-bold ${net >= 0 ? "text-green-600" : "text-red-600"}`}>${net.toFixed(2)}</div>}

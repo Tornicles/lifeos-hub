@@ -362,21 +362,25 @@ export interface HabitCheckinInput {
 export interface Budget {
   id: string;
   userId: string;
-  name: string;
+  /** @nullable */
+  name?: string | null;
   category: string;
   monthlyLimit: string;
   period: string;
+  month: string;
   createdAt?: string;
   updatedAt?: string;
 }
 
 export interface BudgetInput {
   /** @minLength 1 */
-  name: string;
+  name?: string;
   /** @minLength 1 */
   category: string;
   monthlyLimit: string;
   period?: string;
+  /** @pattern ^[0-9]{4}-[0-9]{2}$ */
+  month?: string;
 }
 
 export interface BudgetUpdate {
@@ -384,6 +388,8 @@ export interface BudgetUpdate {
   category?: string;
   monthlyLimit?: string;
   period?: string;
+  /** @pattern ^[0-9]{4}-[0-9]{2}$ */
+  month?: string;
 }
 
 export interface Income {
@@ -393,9 +399,24 @@ export interface Income {
   amount: string;
   frequency: string;
   receivedDate: string;
+  isRecurring: boolean;
+  /** @nullable */
+  recurrenceInterval?: string | null;
   createdAt?: string;
   updatedAt?: string;
 }
+
+/**
+ * @nullable
+ */
+export type IncomeInputRecurrenceInterval = typeof IncomeInputRecurrenceInterval[keyof typeof IncomeInputRecurrenceInterval] | null;
+
+
+export const IncomeInputRecurrenceInterval = {
+  weekly: 'weekly',
+  biweekly: 'biweekly',
+  monthly: 'monthly',
+} as const;
 
 export interface IncomeInput {
   /** @minLength 1 */
@@ -403,13 +424,31 @@ export interface IncomeInput {
   amount: string;
   frequency?: string;
   receivedDate: string;
+  isRecurring?: boolean;
+  /** @nullable */
+  recurrenceInterval?: IncomeInputRecurrenceInterval;
 }
+
+/**
+ * @nullable
+ */
+export type IncomeUpdateRecurrenceInterval = typeof IncomeUpdateRecurrenceInterval[keyof typeof IncomeUpdateRecurrenceInterval] | null;
+
+
+export const IncomeUpdateRecurrenceInterval = {
+  weekly: 'weekly',
+  biweekly: 'biweekly',
+  monthly: 'monthly',
+} as const;
 
 export interface IncomeUpdate {
   source?: string;
   amount?: string;
   frequency?: string;
   receivedDate?: string;
+  isRecurring?: boolean;
+  /** @nullable */
+  recurrenceInterval?: IncomeUpdateRecurrenceInterval;
 }
 
 export interface Expense {
@@ -417,22 +456,30 @@ export interface Expense {
   userId: string;
   /** @nullable */
   budgetId?: string | null;
-  description: string;
+  /** @nullable */
+  description?: string | null;
   amount: string;
   category: string;
   expenseDate: string;
+  /** @nullable */
+  merchant?: string | null;
+  /** @nullable */
+  notes?: string | null;
   createdAt?: string;
   updatedAt?: string;
 }
 
 export interface ExpenseInput {
-  budgetId?: string;
+  /** @nullable */
+  budgetId?: string | null;
   /** @minLength 1 */
-  description: string;
+  description?: string;
   amount: string;
   /** @minLength 1 */
   category: string;
   expenseDate: string;
+  merchant?: string;
+  notes?: string;
 }
 
 export interface ExpenseUpdate {
@@ -442,6 +489,10 @@ export interface ExpenseUpdate {
   amount?: string;
   category?: string;
   expenseDate?: string;
+  /** @nullable */
+  merchant?: string | null;
+  /** @nullable */
+  notes?: string | null;
 }
 
 export interface SavingsGoal {

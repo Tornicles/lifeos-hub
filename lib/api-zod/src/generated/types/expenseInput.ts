@@ -7,11 +7,14 @@
  */
 
 export interface ExpenseInput {
-  budgetId?: string;
+  /** @nullable */
+  budgetId?: string | null;
   /** @minLength 1 */
-  description: string;
+  description?: string;
   amount: string;
   /** @minLength 1 */
   category: string;
   expenseDate: Date;
+  merchant?: string;
+  notes?: string;
 }

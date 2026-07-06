@@ -8,9 +8,11 @@
 
 export interface BudgetInput {
   /** @minLength 1 */
-  name: string;
+  name?: string;
   /** @minLength 1 */
   category: string;
   monthlyLimit: string;
   period?: string;
+  /** @pattern ^[0-9]{4}-[0-9]{2}$ */
+  month?: string;
 }

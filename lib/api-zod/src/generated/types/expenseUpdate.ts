@@ -13,4 +13,8 @@ export interface ExpenseUpdate {
   amount?: string;
   category?: string;
   expenseDate?: Date;
+  /** @nullable */
+  merchant?: string | null;
+  /** @nullable */
+  notes?: string | null;
 }

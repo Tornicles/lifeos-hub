@@ -11,10 +11,15 @@ export interface Expense {
   userId: string;
   /** @nullable */
   budgetId?: string | null;
-  description: string;
+  /** @nullable */
+  description?: string | null;
   amount: string;
   category: string;
   expenseDate: Date;
+  /** @nullable */
+  merchant?: string | null;
+  /** @nullable */
+  notes?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
 }

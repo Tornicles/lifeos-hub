@@ -2087,24 +2087,26 @@ components:
     # ---------- Finance ----------
     Budget:
       type: object
-      required: [id, userId, name, category, monthlyLimit, period]
+      required: [id, userId, category, monthlyLimit, period, month]
       properties:
         id: { type: string, format: uuid }
         userId: { type: string }
-        name: { type: string }
+        name: { type: ["string", "null"] }
         category: { type: string }
         monthlyLimit: { type: string }
         period: { type: string }
+        month: { type: string }
         createdAt: { type: string, format: date-time }
         updatedAt: { type: string, format: date-time }
     BudgetInput:
       type: object
-      required: [name, category, monthlyLimit]
+      required: [category, monthlyLimit]
       properties:
         name: { type: string, minLength: 1 }
         category: { type: string, minLength: 1 }
         monthlyLimit: { type: string }
         period: { type: string }
+        month: { type: string, pattern: "^[0-9]{4}-[0-9]{2}$" }
     BudgetUpdate:
       type: object
       properties:
@@ -2112,10 +2114,11 @@ components:
         category: { type: string }
         monthlyLimit: { type: string }
         period: { type: string }
+        month: { type: string, pattern: "^[0-9]{4}-[0-9]{2}$" }
 
     Income:
       type: object
-      required: [id, userId, source, amount, frequency, receivedDate]
+      required: [id, userId, source, amount, frequency, receivedDate, isRecurring]
       properties:
         id: { type: string, format: uuid }
         userId: { type: string }
@@ -2123,6 +2126,8 @@ components:
         amount: { type: string }
         frequency: { type: string }
         receivedDate: { type: string, format: date }
+        isRecurring: { type: boolean }
+        recurrenceInterval: { type: ["string", "null"] }
         createdAt: { type: string, format: date-time }
         updatedAt: { type: string, format: date-time }
     IncomeInput:
@@ -2133,6 +2138,8 @@ components:
         amount: { type: string }
         frequency: { type: string }
         receivedDate: { type: string, format: date }
+        isRecurring: { type: boolean }
+        recurrenceInterval: { type: ["string", "null"], enum: ["weekly", "biweekly", "monthly", null] }
     IncomeUpdate:
       type: object
       properties:
@@ -2140,29 +2147,35 @@ components:
         amount: { type: string }
         frequency: { type: string }
         receivedDate: { type: string, format: date }
+        isRecurring: { type: boolean }
+        recurrenceInterval: { type: ["string", "null"], enum: ["weekly", "biweekly", "monthly", null] }
 
     Expense:
       type: object
-      required: [id, userId, description, amount, category, expenseDate]
+      required: [id, userId, amount, category, expenseDate]
       properties:
         id: { type: string, format: uuid }
         userId: { type: string }
         budgetId: { type: ["string", "null"], format: uuid }
-        description: { type: string }
+        description: { type: ["string", "null"] }
         amount: { type: string }
         category: { type: string }
         expenseDate: { type: string, format: date }
+        merchant: { type: ["string", "null"] }
+        notes: { type: ["string", "null"] }
         createdAt: { type: string, format: date-time }
         updatedAt: { type: string, format: date-time }
     ExpenseInput:
       type: object
-      required: [description, amount, category, expenseDate]
+      required: [amount, category, expenseDate]
       properties:
-        budgetId: { type: string, format: uuid }
+        budgetId: { type: ["string", "null"], format: uuid }
         description: { type: string, minLength: 1 }
         amount: { type: string }
         category: { type: string, minLength: 1 }
         expenseDate: { type: string, format: date }
+        merchant: { type: string }
+        notes: { type: string }
     ExpenseUpdate:
       type: object
       properties:
@@ -2171,6 +2184,8 @@ components:
         amount: { type: string }
         category: { type: string }
         expenseDate: { type: string, format: date }
+        merchant: { type: ["string", "null"] }
+        notes: { type: ["string", "null"] }
 
     SavingsGoal:
       type: object

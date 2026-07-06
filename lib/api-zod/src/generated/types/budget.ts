@@ -9,10 +9,12 @@
 export interface Budget {
   id: string;
   userId: string;
-  name: string;
+  /** @nullable */
+  name?: string | null;
   category: string;
   monthlyLimit: string;
   period: string;
+  month: string;
   createdAt?: Date;
   updatedAt?: Date;
 }

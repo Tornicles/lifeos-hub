@@ -5,10 +5,14 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { IncomeUpdateRecurrenceInterval } from './incomeUpdateRecurrenceInterval';
 
 export interface IncomeUpdate {
   source?: string;
   amount?: string;
   frequency?: string;
   receivedDate?: Date;
+  isRecurring?: boolean;
+  /** @nullable */
+  recurrenceInterval?: IncomeUpdateRecurrenceInterval;
 }

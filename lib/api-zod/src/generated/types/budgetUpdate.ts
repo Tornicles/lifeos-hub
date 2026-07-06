@@ -11,4 +11,6 @@ export interface BudgetUpdate {
   category?: string;
   monthlyLimit?: string;
   period?: string;
+  /** @pattern ^[0-9]{4}-[0-9]{2}$ */
+  month?: string;
 }

@@ -1,4 +1,4 @@
-import { date, integer, numeric, pgPolicy, pgTable, serial, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { boolean, date, integer, numeric, pgPolicy, pgTable, serial, text, timestamp, unique, uuid } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { sql } from "drizzle-orm";
 import { z } from "zod/v4";
@@ -17,14 +17,15 @@ export const budgetsTable = pgTable(
   {
     id: uuid("id").defaultRandom().primaryKey(),
     userId: text("user_id").notNull(),
-    name: text("name").notNull(),
+    name: text("name"),
     category: text("category").notNull(),
     monthlyLimit: numeric("monthly_limit", { precision: 12, scale: 2 }).notNull(),
     period: text("period").notNull().default("monthly"),
+    month: text("month").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
   },
-  (table) => [userIsolation()],
+  (table) => [userIsolation(), unique("budgets_user_category_month_unique").on(table.userId, table.category, table.month)],
 ).enableRLS();
 
 export const insertBudgetSchema = createInsertSchema(budgetsTable).omit({ id: true, createdAt: true, updatedAt: true });
@@ -40,6 +41,8 @@ export const incomeTable = pgTable(
     amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
     frequency: text("frequency").notNull().default("monthly"),
     receivedDate: date("received_date", { mode: "string" }).notNull(),
+    isRecurring: boolean("is_recurring").notNull().default(false),
+    recurrenceInterval: text("recurrence_interval"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
   },
@@ -56,10 +59,12 @@ export const expensesTable = pgTable(
     id: uuid("id").defaultRandom().primaryKey(),
     userId: text("user_id").notNull(),
     budgetId: uuid("budget_id").references(() => budgetsTable.id, { onDelete: "set null" }),
-    description: text("description").notNull(),
+    description: text("description"),
     amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
     category: text("category").notNull(),
     expenseDate: date("expense_date", { mode: "string" }).notNull(),
+    merchant: text("merchant"),
+    notes: text("notes"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
   },

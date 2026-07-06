@@ -1,0 +1,67 @@
+Branch: techtate-finance-core
+
+GOAL
+Build the primary Finance tab experience: budgets, income, and expenses, 
+fully functional with create/read/update/delete.
+
+SCREENS
+
+1. Finance tab home (route: wherever "Finance" now points post-nav-rebuild)
+   - Header: current month's total income vs. total expenses vs. net
+   - Budget list: one row per category showing spent-vs-limit as a progress 
+     bar (green under 80%, yellow 80-100%, red over 100% — use existing color 
+     tokens from the design system, don't invent new colors)
+   - Empty state: if no budgets exist yet, show a friendly prompt with a 
+     single "Create your first budget" CTA — do not show an empty table
+   - Loading state: skeleton cards while data fetches, not a blank screen
+
+2. Add/Edit Budget (modal or dedicated screen, match the pattern already used 
+   elsewhere in the app for forms — check how Habits.tsx or Settings.tsx 
+   handles forms and follow that convention)
+   - Fields: category (text input with autocomplete from existing categories 
+     the user has used before), monthly_limit (numeric, must be > 0), month 
+     (defaults to current month)
+   - Validation: monthly_limit required and must be a positive number, show 
+     inline error text under the field, not a toast, if invalid
+   - On duplicate category+month (violates the UNIQUE constraint), catch the 
+     database error and show "You already have a budget for this category 
+     this month — edit it instead" rather than a raw error message
+
+3. Income list + add form
+   - List sorted by received_date descending
+   - Add form: source (text), amount (numeric, required, >0), received_date 
+     (date picker, defaults to today), is_recurring (toggle), 
+     recurrence_interval (only show this dropdown if is_recurring is on: 
+     weekly/biweekly/monthly)
+
+4. Expense list + add form
+   - List sorted by spent_date descending, grouped by category with a 
+     subtotal per category
+   - Add form: category (autocomplete same as budget categories), amount 
+     (numeric, required, >0), spent_date (date picker, defaults to today), 
+     merchant (optional text), notes (optional text), budget_id (optional 
+     dropdown of this month's budgets, so the expense can link to a budget 
+     for the progress bar calculation)
+   - When an expense is added with a budget_id, the corresponding budget's 
+     progress bar on the Finance home screen must update without a full page 
+     reload (use react-query invalidation or equivalent already used 
+     elsewhere in the app)
+
+DATA
+Use the budgets, income, expenses tables exactly as defined in the schema. 
+All queries must respect RLS (auth.uid() = user_id) — do not add a manual 
+user_id filter in the query if RLS already handles it, but do ensure user_id 
+is set correctly on INSERT.
+
+MOBILE
+All forms must work as bottom sheets or full-screen modals on mobile widths, 
+not centered desktop-style dialogs that get cut off. Numeric inputs should 
+trigger the numeric keyboard on mobile (inputmode="decimal").
+
+OUTPUT
+- Files created/changed
+- Confirm empty state, loading state, and error state all render correctly 
+  (describe how each was tested)
+- Confirm the duplicate-budget error is caught and shown as friendly text
+- Confirm budget progress bar updates live when a linked expense is added
+- Any errors

@@ -13,6 +13,9 @@ export interface Income {
   amount: string;
   frequency: string;
   receivedDate: Date;
+  isRecurring: boolean;
+  /** @nullable */
+  recurrenceInterval?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
 }
