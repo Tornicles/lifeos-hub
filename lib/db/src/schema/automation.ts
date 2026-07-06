@@ -1,8 +1,6 @@
-import { boolean, integer, jsonb, pgTable, serial, text, timestamp, uuid, real } from "drizzle-orm/pg-core";
+import { boolean, integer, jsonb, pgTable, serial, text, timestamp, real } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
-import { tenantsTable } from "./tenants";
-import { hubsTable, ultraDomainsTable } from "./hubs";
 
 export const automationRulesTable = pgTable("automation_rules", {
   id: serial("id").primaryKey(),
@@ -54,7 +52,6 @@ export type AutomationRuleAction = typeof automationRuleActionsTable.$inferSelec
 export const automationTriggerEventsTable = pgTable("automation_trigger_events", {
   id: serial("id").primaryKey(),
   userId: text("user_id").notNull(),
-  tenantId: uuid("tenant_id").references(() => tenantsTable.id, { onDelete: "cascade" }),
   triggerType: text("trigger_type").notNull(),
   triggerSource: text("trigger_source").notNull(),
   triggerData: jsonb("trigger_data"),
@@ -69,7 +66,6 @@ export type AutomationTriggerEvent = typeof automationTriggerEventsTable.$inferS
 export const automationActionQueueTable = pgTable("automation_action_queue", {
   id: serial("id").primaryKey(),
   userId: text("user_id").notNull(),
-  tenantId: uuid("tenant_id").references(() => tenantsTable.id, { onDelete: "cascade" }),
   ruleId: integer("rule_id").references(() => automationRulesTable.id),
   actionType: text("action_type").notNull(),
   actionPayload: jsonb("action_payload").notNull(),
@@ -90,7 +86,6 @@ export type AutomationActionQueue = typeof automationActionQueueTable.$inferSele
 export const automationLogsTable = pgTable("automation_logs", {
   id: serial("id").primaryKey(),
   userId: text("user_id").notNull(),
-  tenantId: uuid("tenant_id").references(() => tenantsTable.id, { onDelete: "cascade" }),
   ruleId: integer("rule_id").references(() => automationRulesTable.id),
   eventType: text("event_type").notNull(),
   message: text("message").notNull(),
@@ -105,7 +100,6 @@ export type AutomationLog = typeof automationLogsTable.$inferSelect;
 export const automationExecutionsTable = pgTable("automation_executions", {
   id: serial("id").primaryKey(),
   userId: text("user_id").notNull(),
-  tenantId: uuid("tenant_id").references(() => tenantsTable.id, { onDelete: "cascade" }),
   ruleId: integer("rule_id").references(() => automationRulesTable.id),
   triggerType: text("trigger_type").notNull(),
   conditionsMet: jsonb("conditions_met"),
@@ -118,23 +112,9 @@ export const insertAutomationExecutionSchema = createInsertSchema(automationExec
 export type InsertAutomationExecution = z.infer<typeof insertAutomationExecutionSchema>;
 export type AutomationExecution = typeof automationExecutionsTable.$inferSelect;
 
-export const automationContextCacheTable = pgTable("automation_context_cache", {
-  id: serial("id").primaryKey(),
-  userId: text("user_id").notNull(),
-  tenantId: uuid("tenant_id").references(() => tenantsTable.id, { onDelete: "cascade" }),
-  cacheKey: text("cache_key").notNull(),
-  cacheValue: jsonb("cache_value").notNull(),
-  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
-export const insertAutomationContextCacheSchema = createInsertSchema(automationContextCacheTable).omit({ id: true, createdAt: true });
-export type InsertAutomationContextCache = z.infer<typeof insertAutomationContextCacheSchema>;
-export type AutomationContextCache = typeof automationContextCacheTable.$inferSelect;
-
 export const userAutomationSettingsTable = pgTable("user_automation_settings", {
   id: serial("id").primaryKey(),
   userId: text("user_id").notNull().unique(),
-  tenantId: uuid("tenant_id").references(() => tenantsTable.id, { onDelete: "cascade" }),
   automationEnabled: boolean("automation_enabled").notNull().default(true),
   enabledCategories: jsonb("enabled_categories"),
   maxDailyActions: integer("max_daily_actions").default(20),
@@ -147,21 +127,3 @@ export const userAutomationSettingsTable = pgTable("user_automation_settings", {
 export const insertUserAutomationSettingsSchema = createInsertSchema(userAutomationSettingsTable).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertUserAutomationSettings = z.infer<typeof insertUserAutomationSettingsSchema>;
 export type UserAutomationSettings = typeof userAutomationSettingsTable.$inferSelect;
-
-export const autoActionsTable = pgTable("auto_actions", {
-  id: serial("id").primaryKey(),
-  userId: text("user_id").notNull(),
-  tenantId: uuid("tenant_id").references(() => tenantsTable.id, { onDelete: "cascade" }),
-  hubId: integer("hub_id").references(() => hubsTable.id),
-  domainId: integer("domain_id").references(() => ultraDomainsTable.id),
-  actionType: text("action_type").notNull(),
-  actionText: text("action_text").notNull(),
-  actionDate: timestamp("action_date", { withTimezone: true }).notNull().defaultNow(),
-  priority: integer("priority").default(0),
-  status: text("status").notNull().default("pending"),
-  completedAt: timestamp("completed_at", { withTimezone: true }),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
-export const insertAutoActionSchema = createInsertSchema(autoActionsTable).omit({ id: true, createdAt: true });
-export type InsertAutoAction = z.infer<typeof insertAutoActionSchema>;
-export type AutoAction = typeof autoActionsTable.$inferSelect;

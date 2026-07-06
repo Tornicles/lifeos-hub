@@ -7,19 +7,6 @@ export const subscriptionPlanEnum = pgEnum("subscription_plan", [
   "enterprise",
 ]);
 
-export const membershipRoleEnum = pgEnum("membership_role", [
-  "owner",
-  "admin",
-  "member",
-  "viewer",
-]);
-
-export const membershipStatusEnum = pgEnum("membership_status", [
-  "pending",
-  "active",
-  "revoked",
-]);
-
 export const appRoleEnum = pgEnum("app_role", [
   "owner",
   "member",

@@ -5,7 +5,6 @@ import {
   adminSettingsTable,
   auditLogsTable,
   profilesTable,
-  tenantsTable,
   hubsTable,
   logsTable,
 } from "@workspace/db";
@@ -54,9 +53,6 @@ router.get("/admin/stats", async (_req, res): Promise<void> => {
   const [{ count: totalUsers }] = await db
     .select({ count: sql<number>`count(*)::int` })
     .from(profilesTable);
-  const [{ count: totalTenants }] = await db
-    .select({ count: sql<number>`count(*)::int` })
-    .from(tenantsTable);
   const [{ count: activeHubs }] = await db
     .select({ count: sql<number>`count(*)::int` })
     .from(hubsTable)
@@ -70,7 +66,7 @@ router.get("/admin/stats", async (_req, res): Promise<void> => {
   res.json(
     GetAdminStatsResponse.parse({
       totalUsers,
-      totalTenants,
+      totalTenants: 0,
       activeHubs,
       avgUltraScore: null,
       logsToday,

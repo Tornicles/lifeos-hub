@@ -24,8 +24,6 @@ router.get("/calendar-entries", async (req, res): Promise<void> => {
     return;
   }
   const conditions = [eq(calendarEntriesTable.userId, req.userId!)];
-  if (query.data.tenantId)
-    conditions.push(eq(calendarEntriesTable.tenantId, query.data.tenantId));
   const rows = await db
     .select()
     .from(calendarEntriesTable)
@@ -117,7 +115,6 @@ router.post("/calendar/autofill", async (req, res): Promise<void> => {
         .insert(calendarEntriesTable)
         .values({
           userId: req.userId!,
-          tenantId: parsed.data.tenantId,
           title: habit.name,
           description: `Auto-scheduled habit: ${habit.name}`,
           date: dateStr,

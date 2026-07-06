@@ -27,7 +27,6 @@ router.get("/habits", async (req, res): Promise<void> => {
     return;
   }
   const conditions = [eq(habitsTable.userId, req.userId!)];
-  if (query.data.tenantId) conditions.push(eq(habitsTable.tenantId, query.data.tenantId));
   const rows = await db
     .select()
     .from(habitsTable)

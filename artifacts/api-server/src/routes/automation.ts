@@ -8,8 +8,6 @@ import {
   automationActionQueueTable,
   automationLogsTable,
   automationExecutionsTable,
-  autoActionsTable,
-  ultraMetricsTable,
 } from "@workspace/db";
 import {
   ListAutomationRulesResponse,
@@ -28,10 +26,6 @@ import {
   ListAutomationQueueResponse,
   ListAutomationLogsResponse,
   ListAutomationExecutionsResponse,
-  ListAutoActionsResponse,
-  UpdateAutoActionParams,
-  UpdateAutoActionBody,
-  UpdateAutoActionResponse,
   EvaluateAutomationResponse,
   TriggerAutomationBody,
   TriggerAutomationResponse,
@@ -187,76 +181,26 @@ router.get("/automation/executions", async (req, res): Promise<void> => {
   res.json(ListAutomationExecutionsResponse.parse(rows));
 });
 
-router.get("/automation/auto-actions", async (req, res): Promise<void> => {
-  const rows = await db
-    .select()
-    .from(autoActionsTable)
-    .where(eq(autoActionsTable.userId, req.userId!));
-  res.json(ListAutoActionsResponse.parse(rows));
-});
-
-router.patch("/automation/auto-actions/:id", async (req, res): Promise<void> => {
-  const params = UpdateAutoActionParams.safeParse(req.params);
-  const parsed = UpdateAutoActionBody.safeParse(req.body);
-  if (!params.success || !parsed.success) {
-    res
-      .status(400)
-      .json({ error: params.success ? parsed.error!.message : params.error.message });
-    return;
-  }
-  const values: Record<string, unknown> = { ...parsed.data };
-  if (parsed.data.status === "completed") values.completedAt = new Date();
-
-  const [action] = await db
-    .update(autoActionsTable)
-    .set(values)
-    .where(and(eq(autoActionsTable.id, params.data.id), eq(autoActionsTable.userId, req.userId!)))
-    .returning();
-  if (!action) {
-    res.status(404).json({ error: "Auto action not found" });
-    return;
-  }
-  res.json(UpdateAutoActionResponse.parse(action));
-});
+// NOTE: `/automation/auto-actions` (GET/PATCH) previously read/wrote
+// `auto_actions_table`, which was dropped in the Tech-Tate schema migration.
+// Removed pending a replacement design in a later pass.
 
 // ---------- Automation engine action endpoints ----------
 
+// NOTE: previously evaluated rules against `ultra_metrics_table`, which was
+// dropped in the Tech-Tate schema migration. This now evaluates rules with
+// no metrics data available (always queues 0 actions) pending a replacement
+// metrics source (e.g. the new finance/academy/gamification tables) in a
+// later pass. This directly degrades the Dashboard's "ultra score"/automation
+// evaluate feature.
 router.post("/automation/evaluate", async (req, res): Promise<void> => {
   const rules = await db
     .select()
     .from(automationRulesTable)
     .where(eq(automationRulesTable.isActive, true));
 
-  const metrics = await db
-    .select()
-    .from(ultraMetricsTable)
-    .where(eq(ultraMetricsTable.userId, req.userId!));
-
-  let actionsQueued = 0;
-  for (const rule of rules) {
-    const relevant = metrics.filter((m) => rule.conditionValue != null && m.value <= rule.conditionValue);
-    if (relevant.length > 0) {
-      await db.insert(automationActionQueueTable).values({
-        userId: req.userId!,
-        ruleId: rule.id,
-        actionType: rule.actionTarget,
-        actionPayload: { ruleName: rule.name, matched: relevant.length },
-        priority: rule.priority ?? 0,
-        status: "pending",
-      });
-      await db.insert(automationLogsTable).values({
-        userId: req.userId!,
-        ruleId: rule.id,
-        eventType: "evaluation",
-        message: `Rule "${rule.name}" matched ${relevant.length} metric(s)`,
-        severity: "info",
-      });
-      actionsQueued++;
-    }
-  }
-
   res.json(
-    EvaluateAutomationResponse.parse({ rulesEvaluated: rules.length, actionsQueued }),
+    EvaluateAutomationResponse.parse({ rulesEvaluated: rules.length, actionsQueued: 0 }),
   );
 });
 
@@ -301,15 +245,11 @@ router.post("/automation/process", async (req, res): Promise<void> => {
       .update(automationActionQueueTable)
       .set({ status: "executed", executedAt: new Date() })
       .where(eq(automationActionQueueTable.id, item.id));
-
-    await db.insert(autoActionsTable).values({
-      userId: req.userId!,
-      actionType: item.actionType,
-      actionText: `Automated action: ${item.actionType}`,
-      priority: item.priority,
-      status: "pending",
-    });
   }
+
+  // NOTE: previously also wrote a row to `auto_actions_table` (dropped in the
+  // Tech-Tate schema migration) per processed queue item. That side effect
+  // is gone pending a replacement design in a later pass.
 
   res.json(ProcessAutomationQueueResponse.parse({ processed: pending.length }));
 });

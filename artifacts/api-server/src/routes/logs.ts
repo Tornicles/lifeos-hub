@@ -22,9 +22,6 @@ router.get("/logs", async (req, res): Promise<void> => {
     return;
   }
   const conditions = [eq(logsTable.userId, req.userId!)];
-  if (query.data.tenantId) {
-    conditions.push(eq(logsTable.tenantId, query.data.tenantId));
-  }
   const rows = await db
     .select()
     .from(logsTable)

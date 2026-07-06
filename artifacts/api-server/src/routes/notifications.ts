@@ -4,7 +4,6 @@ import {
   db,
   notificationsTable,
   notificationPreferencesTable,
-  stateWarningsTable,
 } from "@workspace/db";
 import {
   ListNotificationsResponse,
@@ -118,31 +117,12 @@ router.patch("/notifications/preferences", async (req, res): Promise<void> => {
   res.json(UpdateNotificationPreferencesResponse.parse(prefs));
 });
 
-router.post("/notifications/generate", async (req, res): Promise<void> => {
-  const warnings = await db
-    .select()
-    .from(stateWarningsTable)
-    .where(and(eq(stateWarningsTable.userId, req.userId!), eq(stateWarningsTable.dismissed, false)));
-
-  const created = [];
-  for (const warning of warnings) {
-    const [notification] = await db
-      .insert(notificationsTable)
-      .values({
-        userId: req.userId!,
-        tenantId: warning.tenantId,
-        type: warning.warningType,
-        title: "State warning",
-        message: warning.warningText,
-        severity: warning.severity ?? "medium",
-        relatedEntityType: "state_warning",
-        relatedEntityId: String(warning.id),
-      })
-      .returning();
-    created.push(notification);
-  }
-
-  res.json(GenerateNotificationsResponse.parse(created));
+router.post("/notifications/generate", async (_req, res): Promise<void> => {
+  // NOTE: previously generated notifications from `state_warningsTable`,
+  // which was dropped in the Tech-Tate schema migration. This endpoint is
+  // kept for API compatibility but currently returns an empty list pending
+  // a replacement data source in a later pass.
+  res.json(GenerateNotificationsResponse.parse([]));
 });
 
 router.post("/notifications/process", async (req, res): Promise<void> => {

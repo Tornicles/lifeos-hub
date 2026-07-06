@@ -14,15 +14,3 @@ export const hubsTable = pgTable("hubs", {
 export const insertHubSchema = createInsertSchema(hubsTable).omit({ id: true, createdAt: true });
 export type InsertHub = z.infer<typeof insertHubSchema>;
 export type Hub = typeof hubsTable.$inferSelect;
-
-export const ultraDomainsTable = pgTable("ultra_domains", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  code: text("code").notNull().unique(),
-  description: text("description"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
-
-export const insertUltraDomainSchema = createInsertSchema(ultraDomainsTable).omit({ id: true, createdAt: true });
-export type InsertUltraDomain = z.infer<typeof insertUltraDomainSchema>;
-export type UltraDomain = typeof ultraDomainsTable.$inferSelect;

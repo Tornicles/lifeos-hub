@@ -1,12 +1,10 @@
 import { boolean, integer, jsonb, pgTable, text, time, timestamp, uuid } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
-import { tenantsTable } from "./tenants";
 
 export const notificationsTable = pgTable("notifications", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: text("user_id").notNull(),
-  tenantId: uuid("tenant_id").references(() => tenantsTable.id, { onDelete: "cascade" }),
   type: text("type").notNull(),
   title: text("title").notNull(),
   message: text("message").notNull(),
@@ -28,7 +26,6 @@ export type Notification = typeof notificationsTable.$inferSelect;
 export const notificationPreferencesTable = pgTable("notification_preferences", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: text("user_id").notNull().unique(),
-  tenantId: uuid("tenant_id").references(() => tenantsTable.id, { onDelete: "cascade" }),
   habitRemindersEnabled: boolean("habit_reminders_enabled").notNull().default(true),
   calendarAlertsEnabled: boolean("calendar_alerts_enabled").notNull().default(true),
   performanceAlertsEnabled: boolean("performance_alerts_enabled").notNull().default(true),
