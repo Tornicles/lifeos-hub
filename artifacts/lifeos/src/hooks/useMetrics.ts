@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useListMetrics, useListUltraMetrics, useCreateMetric as useCreateMetricApi, getListMetricsQueryKey } from "@workspace/api-client-react";
+import { useListMetrics, useCreateMetric as useCreateMetricApi, getListMetricsQueryKey } from "@workspace/api-client-react";
 import { toast } from 'sonner';
 import { z } from 'zod';
 
@@ -12,16 +12,10 @@ const metricSchema = z.object({
 
 export type MetricInsert = z.infer<typeof metricSchema>;
 
+// NOTE: `filters` (hubId/name/startDate/endDate) is accepted for API
+// compatibility with callers but not yet wired to the backend query params.
 export const useMetrics = (filters?: { hubId?: number; name?: string; startDate?: string; endDate?: string }) => {
-  return useListMetrics({
-    tenantId: undefined, // Or get current tenant
-  });
-};
-
-export const useUltraMetrics = (filters?: { startDate?: string; endDate?: string }) => {
-  return useListUltraMetrics({
-    tenantId: undefined, // Or get current tenant
-  });
+  return useListMetrics();
 };
 
 export const useCreateMetric = () => {

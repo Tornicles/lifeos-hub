@@ -41,7 +41,7 @@ export default function HabitsScreen() {
     if (!name.trim()) return;
     // @ts-ignore
     createHabit.mutate(
-      { data: { name, description, frequency: "daily" } },
+      { data: { name, description } },
       {
         onSuccess: () => {
           setModalVisible(false);
@@ -53,7 +53,7 @@ export default function HabitsScreen() {
     );
   };
 
-  const handleCheckin = (habitId: string) => {
+  const handleCheckin = (habitId: number) => {
     // @ts-ignore
     createCheckin.mutate(
       { habitId, data: { date: todayIso() } },

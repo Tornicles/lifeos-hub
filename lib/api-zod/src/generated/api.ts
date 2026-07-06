@@ -515,6 +515,734 @@ export const CreateHabitCheckinResponse = zod.object({
 })
 
 
+export const ListBudgetsResponseItem = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "name": zod.string(),
+  "category": zod.string(),
+  "monthlyLimit": zod.string(),
+  "period": zod.string(),
+  "createdAt": zod.coerce.date().optional(),
+  "updatedAt": zod.coerce.date().optional()
+})
+export const ListBudgetsResponse = zod.array(ListBudgetsResponseItem)
+
+
+
+
+
+
+export const CreateBudgetBody = zod.object({
+  "name": zod.string().min(1),
+  "category": zod.string().min(1),
+  "monthlyLimit": zod.string(),
+  "period": zod.string().optional()
+})
+
+export const CreateBudgetResponse = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "name": zod.string(),
+  "category": zod.string(),
+  "monthlyLimit": zod.string(),
+  "period": zod.string(),
+  "createdAt": zod.coerce.date().optional(),
+  "updatedAt": zod.coerce.date().optional()
+})
+
+
+export const UpdateBudgetParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const UpdateBudgetBody = zod.object({
+  "name": zod.string().optional(),
+  "category": zod.string().optional(),
+  "monthlyLimit": zod.string().optional(),
+  "period": zod.string().optional()
+})
+
+export const UpdateBudgetResponse = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "name": zod.string(),
+  "category": zod.string(),
+  "monthlyLimit": zod.string(),
+  "period": zod.string(),
+  "createdAt": zod.coerce.date().optional(),
+  "updatedAt": zod.coerce.date().optional()
+})
+
+
+export const DeleteBudgetParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const DeleteBudgetResponse = zod.void()
+
+
+export const ListIncomeResponseItem = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "source": zod.string(),
+  "amount": zod.string(),
+  "frequency": zod.string(),
+  "receivedDate": zod.coerce.date(),
+  "createdAt": zod.coerce.date().optional(),
+  "updatedAt": zod.coerce.date().optional()
+})
+export const ListIncomeResponse = zod.array(ListIncomeResponseItem)
+
+
+
+
+
+export const CreateIncomeBody = zod.object({
+  "source": zod.string().min(1),
+  "amount": zod.string(),
+  "frequency": zod.string().optional(),
+  "receivedDate": zod.coerce.date()
+})
+
+export const CreateIncomeResponse = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "source": zod.string(),
+  "amount": zod.string(),
+  "frequency": zod.string(),
+  "receivedDate": zod.coerce.date(),
+  "createdAt": zod.coerce.date().optional(),
+  "updatedAt": zod.coerce.date().optional()
+})
+
+
+export const UpdateIncomeParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const UpdateIncomeBody = zod.object({
+  "source": zod.string().optional(),
+  "amount": zod.string().optional(),
+  "frequency": zod.string().optional(),
+  "receivedDate": zod.coerce.date().optional()
+})
+
+export const UpdateIncomeResponse = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "source": zod.string(),
+  "amount": zod.string(),
+  "frequency": zod.string(),
+  "receivedDate": zod.coerce.date(),
+  "createdAt": zod.coerce.date().optional(),
+  "updatedAt": zod.coerce.date().optional()
+})
+
+
+export const DeleteIncomeParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const DeleteIncomeResponse = zod.void()
+
+
+export const ListExpensesResponseItem = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "budgetId": zod.string().uuid().nullish(),
+  "description": zod.string(),
+  "amount": zod.string(),
+  "category": zod.string(),
+  "expenseDate": zod.coerce.date(),
+  "createdAt": zod.coerce.date().optional(),
+  "updatedAt": zod.coerce.date().optional()
+})
+export const ListExpensesResponse = zod.array(ListExpensesResponseItem)
+
+
+
+
+
+
+export const CreateExpenseBody = zod.object({
+  "budgetId": zod.string().uuid().optional(),
+  "description": zod.string().min(1),
+  "amount": zod.string(),
+  "category": zod.string().min(1),
+  "expenseDate": zod.coerce.date()
+})
+
+export const CreateExpenseResponse = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "budgetId": zod.string().uuid().nullish(),
+  "description": zod.string(),
+  "amount": zod.string(),
+  "category": zod.string(),
+  "expenseDate": zod.coerce.date(),
+  "createdAt": zod.coerce.date().optional(),
+  "updatedAt": zod.coerce.date().optional()
+})
+
+
+export const UpdateExpenseParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const UpdateExpenseBody = zod.object({
+  "budgetId": zod.string().uuid().nullish(),
+  "description": zod.string().optional(),
+  "amount": zod.string().optional(),
+  "category": zod.string().optional(),
+  "expenseDate": zod.coerce.date().optional()
+})
+
+export const UpdateExpenseResponse = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "budgetId": zod.string().uuid().nullish(),
+  "description": zod.string(),
+  "amount": zod.string(),
+  "category": zod.string(),
+  "expenseDate": zod.coerce.date(),
+  "createdAt": zod.coerce.date().optional(),
+  "updatedAt": zod.coerce.date().optional()
+})
+
+
+export const DeleteExpenseParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const DeleteExpenseResponse = zod.void()
+
+
+export const ListSavingsGoalsResponseItem = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "name": zod.string(),
+  "targetAmount": zod.string(),
+  "currentAmount": zod.string(),
+  "targetDate": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date().optional(),
+  "updatedAt": zod.coerce.date().optional()
+})
+export const ListSavingsGoalsResponse = zod.array(ListSavingsGoalsResponseItem)
+
+
+
+
+
+export const CreateSavingsGoalBody = zod.object({
+  "name": zod.string().min(1),
+  "targetAmount": zod.string(),
+  "currentAmount": zod.string().optional(),
+  "targetDate": zod.coerce.date().optional()
+})
+
+export const CreateSavingsGoalResponse = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "name": zod.string(),
+  "targetAmount": zod.string(),
+  "currentAmount": zod.string(),
+  "targetDate": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date().optional(),
+  "updatedAt": zod.coerce.date().optional()
+})
+
+
+export const UpdateSavingsGoalParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const UpdateSavingsGoalBody = zod.object({
+  "name": zod.string().optional(),
+  "targetAmount": zod.string().optional(),
+  "currentAmount": zod.string().optional(),
+  "targetDate": zod.coerce.date().nullish()
+})
+
+export const UpdateSavingsGoalResponse = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "name": zod.string(),
+  "targetAmount": zod.string(),
+  "currentAmount": zod.string(),
+  "targetDate": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date().optional(),
+  "updatedAt": zod.coerce.date().optional()
+})
+
+
+export const DeleteSavingsGoalParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const DeleteSavingsGoalResponse = zod.void()
+
+
+export const ListDebtsResponseItem = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "name": zod.string(),
+  "balance": zod.string(),
+  "interestRate": zod.string().nullish(),
+  "minimumPayment": zod.string().nullish(),
+  "dueDay": zod.number().nullish(),
+  "createdAt": zod.coerce.date().optional(),
+  "updatedAt": zod.coerce.date().optional()
+})
+export const ListDebtsResponse = zod.array(ListDebtsResponseItem)
+
+
+
+
+
+export const CreateDebtBody = zod.object({
+  "name": zod.string().min(1),
+  "balance": zod.string(),
+  "interestRate": zod.string().optional(),
+  "minimumPayment": zod.string().optional(),
+  "dueDay": zod.number().optional()
+})
+
+export const CreateDebtResponse = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "name": zod.string(),
+  "balance": zod.string(),
+  "interestRate": zod.string().nullish(),
+  "minimumPayment": zod.string().nullish(),
+  "dueDay": zod.number().nullish(),
+  "createdAt": zod.coerce.date().optional(),
+  "updatedAt": zod.coerce.date().optional()
+})
+
+
+export const UpdateDebtParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const UpdateDebtBody = zod.object({
+  "name": zod.string().optional(),
+  "balance": zod.string().optional(),
+  "interestRate": zod.string().nullish(),
+  "minimumPayment": zod.string().nullish(),
+  "dueDay": zod.number().nullish()
+})
+
+export const UpdateDebtResponse = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "name": zod.string(),
+  "balance": zod.string(),
+  "interestRate": zod.string().nullish(),
+  "minimumPayment": zod.string().nullish(),
+  "dueDay": zod.number().nullish(),
+  "createdAt": zod.coerce.date().optional(),
+  "updatedAt": zod.coerce.date().optional()
+})
+
+
+export const DeleteDebtParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const DeleteDebtResponse = zod.void()
+
+
+export const ListInvestmentEntriesResponseItem = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "accountName": zod.string(),
+  "assetType": zod.string(),
+  "amount": zod.string(),
+  "entryDate": zod.coerce.date(),
+  "createdAt": zod.coerce.date().optional()
+})
+export const ListInvestmentEntriesResponse = zod.array(ListInvestmentEntriesResponseItem)
+
+
+
+
+
+
+export const CreateInvestmentEntryBody = zod.object({
+  "accountName": zod.string().min(1),
+  "assetType": zod.string().min(1),
+  "amount": zod.string(),
+  "entryDate": zod.coerce.date()
+})
+
+export const CreateInvestmentEntryResponse = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "accountName": zod.string(),
+  "assetType": zod.string(),
+  "amount": zod.string(),
+  "entryDate": zod.coerce.date(),
+  "createdAt": zod.coerce.date().optional()
+})
+
+
+export const DeleteInvestmentEntryParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const DeleteInvestmentEntryResponse = zod.void()
+
+
+export const ListNetWorthSnapshotsResponseItem = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "snapshotDate": zod.coerce.date(),
+  "totalAssets": zod.string(),
+  "totalLiabilities": zod.string(),
+  "netWorth": zod.string(),
+  "createdAt": zod.coerce.date().optional()
+})
+export const ListNetWorthSnapshotsResponse = zod.array(ListNetWorthSnapshotsResponseItem)
+
+
+export const CreateNetWorthSnapshotBody = zod.object({
+  "snapshotDate": zod.coerce.date(),
+  "totalAssets": zod.string(),
+  "totalLiabilities": zod.string(),
+  "netWorth": zod.string()
+})
+
+export const CreateNetWorthSnapshotResponse = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "snapshotDate": zod.coerce.date(),
+  "totalAssets": zod.string(),
+  "totalLiabilities": zod.string(),
+  "netWorth": zod.string(),
+  "createdAt": zod.coerce.date().optional()
+})
+
+
+export const ListTopicsQueryParams = zod.object({
+  "hubId": zod.coerce.number().optional()
+})
+
+export const ListTopicsResponseItem = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "description": zod.string().nullish(),
+  "hubId": zod.number().nullish(),
+  "sortOrder": zod.number(),
+  "createdAt": zod.coerce.date().optional()
+})
+export const ListTopicsResponse = zod.array(ListTopicsResponseItem)
+
+
+export const ListLessonsParams = zod.object({
+  "topicId": zod.coerce.number()
+})
+
+export const ListLessonsResponseItem = zod.object({
+  "id": zod.number(),
+  "topicId": zod.number(),
+  "title": zod.string(),
+  "content": zod.string().nullish(),
+  "sortOrder": zod.number(),
+  "xpReward": zod.number(),
+  "createdAt": zod.coerce.date().optional()
+})
+export const ListLessonsResponse = zod.array(ListLessonsResponseItem)
+
+
+export const ListLessonProgressResponseItem = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "lessonId": zod.number(),
+  "completed": zod.boolean(),
+  "completedAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date().optional()
+})
+export const ListLessonProgressResponse = zod.array(ListLessonProgressResponseItem)
+
+
+export const CreateLessonProgressBody = zod.object({
+  "lessonId": zod.number(),
+  "completed": zod.boolean().optional()
+})
+
+export const CreateLessonProgressResponse = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "lessonId": zod.number(),
+  "completed": zod.boolean(),
+  "completedAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date().optional()
+})
+
+
+export const GetQuizParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetQuizResponse = zod.object({
+  "id": zod.number(),
+  "topicId": zod.number().nullish(),
+  "lessonId": zod.number().nullish(),
+  "title": zod.string(),
+  "createdAt": zod.coerce.date().optional()
+}).and(zod.object({
+  "questions": zod.array(zod.object({
+  "id": zod.number(),
+  "quizId": zod.number(),
+  "questionText": zod.string(),
+  "options": zod.unknown(),
+  "correctAnswer": zod.string(),
+  "createdAt": zod.coerce.date().optional()
+}))
+}))
+
+
+export const ListQuizAttemptsResponseItem = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "quizId": zod.number(),
+  "score": zod.number(),
+  "totalQuestions": zod.number(),
+  "answers": zod.unknown().optional(),
+  "attemptedAt": zod.coerce.date().optional(),
+  "createdAt": zod.coerce.date().optional()
+})
+export const ListQuizAttemptsResponse = zod.array(ListQuizAttemptsResponseItem)
+
+
+export const CreateQuizAttemptBody = zod.object({
+  "quizId": zod.number(),
+  "score": zod.number(),
+  "totalQuestions": zod.number(),
+  "answers": zod.unknown().optional()
+})
+
+export const CreateQuizAttemptResponse = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "quizId": zod.number(),
+  "score": zod.number(),
+  "totalQuestions": zod.number(),
+  "answers": zod.unknown().optional(),
+  "attemptedAt": zod.coerce.date().optional(),
+  "createdAt": zod.coerce.date().optional()
+})
+
+
+export const ListChallengesResponseItem = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "description": zod.string().nullish(),
+  "xpReward": zod.number(),
+  "category": zod.string().nullish(),
+  "isActive": zod.boolean(),
+  "createdAt": zod.coerce.date().optional()
+})
+export const ListChallengesResponse = zod.array(ListChallengesResponseItem)
+
+
+export const ListChallengeCompletionsResponseItem = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "challengeId": zod.number(),
+  "completedAt": zod.coerce.date(),
+  "createdAt": zod.coerce.date().optional()
+})
+export const ListChallengeCompletionsResponse = zod.array(ListChallengeCompletionsResponseItem)
+
+
+export const CreateChallengeCompletionBody = zod.object({
+  "challengeId": zod.number()
+})
+
+export const CreateChallengeCompletionResponse = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "challengeId": zod.number(),
+  "completedAt": zod.coerce.date(),
+  "createdAt": zod.coerce.date().optional()
+})
+
+
+export const ListXpEventsResponseItem = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "eventType": zod.string(),
+  "xpAmount": zod.number(),
+  "sourceType": zod.string().nullish(),
+  "sourceId": zod.string().nullish(),
+  "createdAt": zod.coerce.date().optional()
+})
+export const ListXpEventsResponse = zod.array(ListXpEventsResponseItem)
+
+
+
+
+
+export const CreateXpEventBody = zod.object({
+  "eventType": zod.string().min(1),
+  "xpAmount": zod.number(),
+  "sourceType": zod.string().optional(),
+  "sourceId": zod.string().optional()
+})
+
+export const CreateXpEventResponse = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "eventType": zod.string(),
+  "xpAmount": zod.number(),
+  "sourceType": zod.string().nullish(),
+  "sourceId": zod.string().nullish(),
+  "createdAt": zod.coerce.date().optional()
+})
+
+
+export const ListBadgesResponseItem = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "description": zod.string().nullish(),
+  "iconName": zod.string().nullish(),
+  "criteria": zod.unknown().optional(),
+  "createdAt": zod.coerce.date().optional()
+})
+export const ListBadgesResponse = zod.array(ListBadgesResponseItem)
+
+
+export const ListUserBadgesResponseItem = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "badgeId": zod.number(),
+  "earnedAt": zod.coerce.date(),
+  "createdAt": zod.coerce.date().optional()
+})
+export const ListUserBadgesResponse = zod.array(ListUserBadgesResponseItem)
+
+
+export const CreateUserBadgeBody = zod.object({
+  "badgeId": zod.number()
+})
+
+export const CreateUserBadgeResponse = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "badgeId": zod.number(),
+  "earnedAt": zod.coerce.date(),
+  "createdAt": zod.coerce.date().optional()
+})
+
+
+export const ListBibleVersesQueryParams = zod.object({
+  "theme": zod.coerce.string().optional()
+})
+
+export const ListBibleVersesResponseItem = zod.object({
+  "id": zod.number(),
+  "reference": zod.string(),
+  "verseText": zod.string(),
+  "translation": zod.string(),
+  "theme": zod.string().nullish(),
+  "createdAt": zod.coerce.date().optional()
+})
+export const ListBibleVersesResponse = zod.array(ListBibleVersesResponseItem)
+
+
+export const ListCouplesResponseItem = zod.object({
+  "id": zod.string().uuid(),
+  "userAId": zod.string(),
+  "userBId": zod.string().nullish(),
+  "status": zod.string(),
+  "createdAt": zod.coerce.date().optional(),
+  "updatedAt": zod.coerce.date().optional()
+})
+export const ListCouplesResponse = zod.array(ListCouplesResponseItem)
+
+
+export const CreateCoupleResponse = zod.object({
+  "id": zod.string().uuid(),
+  "userAId": zod.string(),
+  "userBId": zod.string().nullish(),
+  "status": zod.string(),
+  "createdAt": zod.coerce.date().optional(),
+  "updatedAt": zod.coerce.date().optional()
+})
+
+
+export const CreatePartnerLinkParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const CreatePartnerLinkBody = zod.object({
+  "inviteEmail": zod.string().optional()
+})
+
+export const CreatePartnerLinkResponse = zod.object({
+  "id": zod.string().uuid(),
+  "coupleId": zod.string().uuid(),
+  "invitedBy": zod.string(),
+  "inviteEmail": zod.string().nullish(),
+  "inviteCode": zod.string(),
+  "status": zod.string(),
+  "createdAt": zod.coerce.date().optional(),
+  "expiresAt": zod.coerce.date().nullish()
+})
+
+
+export const AcceptPartnerLinkParams = zod.object({
+  "code": zod.coerce.string()
+})
+
+export const AcceptPartnerLinkResponse = zod.object({
+  "id": zod.string().uuid(),
+  "userAId": zod.string(),
+  "userBId": zod.string().nullish(),
+  "status": zod.string(),
+  "createdAt": zod.coerce.date().optional(),
+  "updatedAt": zod.coerce.date().optional()
+})
+
+
+export const ListCoupleDiscussionPromptsResponseItem = zod.object({
+  "id": zod.number(),
+  "promptText": zod.string(),
+  "category": zod.string().nullish(),
+  "createdAt": zod.coerce.date().optional()
+})
+export const ListCoupleDiscussionPromptsResponse = zod.array(ListCoupleDiscussionPromptsResponseItem)
+
+
+export const GetMySubscriptionResponse = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "plan": zod.enum(['free', 'starter', 'pro', 'enterprise']),
+  "status": zod.string(),
+  "currentPeriodEnd": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date().optional(),
+  "updatedAt": zod.coerce.date().optional()
+})
+
+
+export const UpsertMySubscriptionBody = zod.object({
+  "plan": zod.enum(['free', 'starter', 'pro', 'enterprise']),
+  "status": zod.string().optional(),
+  "currentPeriodEnd": zod.coerce.date().optional()
+})
+
+export const UpsertMySubscriptionResponse = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "plan": zod.enum(['free', 'starter', 'pro', 'enterprise']),
+  "status": zod.string(),
+  "currentPeriodEnd": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date().optional(),
+  "updatedAt": zod.coerce.date().optional()
+})
+
+
 export const ListProjectsQueryParams = zod.object({
   "tenantId": zod.coerce.string().uuid().optional()
 })

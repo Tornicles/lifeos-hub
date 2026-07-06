@@ -12,7 +12,6 @@ import { useToast } from '@/hooks/use-toast';
 export interface Notification {
   id: string;
   user_id: string;
-  tenant_id: string | null;
   type: string;
   severity: 'low' | 'medium' | 'high' | 'critical';
   title: string;

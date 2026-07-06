@@ -1,9 +1,8 @@
-import { useEvaluateAutomation, useGenerateDailyInsight } from "@workspace/api-client-react";
+import { useEvaluateAutomation } from "@workspace/api-client-react";
 import { useRouter } from "expo-router";
 import React, { useEffect } from "react";
 import { Text, View } from "react-native";
 
-import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { LoadingState } from "@/components/ui/EmptyState";
 import { Row, ScreenContainer } from "@/components/ui/ScreenContainer";
@@ -21,12 +20,18 @@ const HUBS = [
   { name: "Mindset", code: "MIN" },
 ];
 
+// NOTE: this screen previously also surfaced an Ultra Score, priority zone,
+// 7-day trend, a Daily Insight summary, and an "AI Action Plan" with focus
+// recommendations. The Tech-Tate schema migration dropped `ultra_metrics_table`
+// and `/automation/evaluate` now only returns `{ rulesEvaluated, actionsQueued }`;
+// there is also no `/automation/generate-daily-insight` backend route (calls
+// would 404). Those sections were removed rather than left rendering
+// undefined data.
 export default function DashboardScreen() {
   const colors = useColors();
   const router = useRouter();
 
   const automationMutation = useEvaluateAutomation();
-  const insightMutation = useGenerateDailyInsight();
 
   const isLoading = automationMutation.isPending && !automationMutation.data;
   const isRefetching = automationMutation.isPending && !!automationMutation.data;
@@ -34,12 +39,9 @@ export default function DashboardScreen() {
 
   useEffect(() => {
     automationMutation.mutate({} as any);
-    insightMutation.mutate({} as any);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // @ts-ignore
-  const insight = insightMutation.data;
   // @ts-ignore
   const auto = automationMutation.data;
 
@@ -62,34 +64,18 @@ export default function DashboardScreen() {
         <>
           <Row style={{ gap: 12 }}>
             <Card style={{ flex: 1 }}>
-              <Text style={{ color: colors.mutedForeground, fontSize: 13, fontFamily: "Inter_500Medium" }}>Ultra Score</Text>
+              <Text style={{ color: colors.mutedForeground, fontSize: 13, fontFamily: "Inter_500Medium" }}>Rules Evaluated</Text>
               <Text style={{ color: colors.foreground, fontSize: 32, fontFamily: "Inter_700Bold", marginTop: 4 }}>
-                {auto?.ultraScore ?? 0}
+                {auto?.rulesEvaluated ?? 0}
               </Text>
-              {auto?.state && <Badge label={auto.state} variant="secondary" />}
             </Card>
             <Card style={{ flex: 1 }}>
-              <Text style={{ color: colors.mutedForeground, fontSize: 13, fontFamily: "Inter_500Medium" }}>Priority Zone</Text>
-              <Text style={{ color: colors.foreground, fontSize: 16, fontFamily: "Inter_600SemiBold", marginTop: 8 }}>
-                {auto?.priorityZone ?? "Balanced"}
-              </Text>
-              <Text style={{ color: colors.mutedForeground, fontSize: 12, marginTop: 8 }}>
-                7-day trend:{" "}
-                <Text style={{ color: (auto?.scoreTrend ?? 0) >= 0 ? colors.success : colors.destructive }}>
-                  {auto?.scoreTrend ? (auto.scoreTrend > 0 ? `+${auto.scoreTrend}` : auto.scoreTrend) : "No change"}
-                </Text>
+              <Text style={{ color: colors.mutedForeground, fontSize: 13, fontFamily: "Inter_500Medium" }}>Actions Queued</Text>
+              <Text style={{ color: colors.foreground, fontSize: 32, fontFamily: "Inter_700Bold", marginTop: 4 }}>
+                {auto?.actionsQueued ?? 0}
               </Text>
             </Card>
           </Row>
-
-          {insight?.summary && (
-            <Card>
-              <Text style={{ fontFamily: "Inter_600SemiBold", fontSize: 15, color: colors.foreground, marginBottom: 6 }}>
-                Daily Insight
-              </Text>
-              <Text style={{ color: colors.foreground, fontSize: 14, lineHeight: 20 }}>{insight.summary}</Text>
-            </Card>
-          )}
 
           <View>
             <Text style={{ fontFamily: "Inter_700Bold", fontSize: 18, color: colors.foreground, marginBottom: 12 }}>Life Hubs</Text>
@@ -107,49 +93,6 @@ export default function DashboardScreen() {
               ))}
             </View>
           </View>
-
-          {auto?.focusRecommendations && (
-            <Card>
-              <Text style={{ fontFamily: "Inter_700Bold", fontSize: 16, color: colors.foreground, marginBottom: 10 }}>
-                AI Action Plan
-              </Text>
-              <Row style={{ marginBottom: 10 }}>
-                <View
-                  style={{
-                    backgroundColor: colors.primary,
-                    borderRadius: colors.radius,
-                    paddingVertical: 8,
-                    paddingHorizontal: 12,
-                    flex: 1,
-                    marginRight: 6,
-                  }}
-                >
-                  <Text style={{ color: colors.primaryForeground, fontSize: 12, fontFamily: "Inter_600SemiBold" }}>
-                    {auto.focusRecommendations.primaryDomain}
-                  </Text>
-                </View>
-                <View
-                  style={{
-                    backgroundColor: colors.secondary,
-                    borderRadius: colors.radius,
-                    paddingVertical: 8,
-                    paddingHorizontal: 12,
-                    flex: 1,
-                    marginLeft: 6,
-                  }}
-                >
-                  <Text style={{ color: colors.secondaryForeground, fontSize: 12, fontFamily: "Inter_600SemiBold" }}>
-                    {auto.focusRecommendations.secondaryDomain}
-                  </Text>
-                </View>
-              </Row>
-              {auto.focusRecommendations.suggestedActions?.map((action: string, idx: number) => (
-                <Text key={idx} style={{ color: colors.foreground, fontSize: 13, marginTop: 6 }}>
-                  {idx + 1}. {action}
-                </Text>
-              ))}
-            </Card>
-          )}
         </>
       )}
     </ScreenContainer>

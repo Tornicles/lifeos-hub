@@ -9,6 +9,12 @@ import calendarRouter from "./calendar";
 import notificationsRouter from "./notifications";
 import automationRouter from "./automation";
 import adminRouter from "./admin";
+import financeRouter from "./finance";
+import academyRouter from "./academy";
+import gamificationRouter from "./gamification";
+import bibleRouter from "./bible";
+import couplesRouter from "./couples";
+import subscriptionsRouter from "./subscriptions";
 import { requireAuth } from "../middlewares/requireAuth";
 import { ensureProfileMiddleware } from "../middlewares/ensureProfile";
 
@@ -27,5 +33,11 @@ router.use(calendarRouter);
 router.use(notificationsRouter);
 router.use(automationRouter);
 router.use(adminRouter);
+router.use(financeRouter);
+router.use(academyRouter);
+router.use(gamificationRouter);
+router.use(bibleRouter);
+router.use(couplesRouter);
+router.use(subscriptionsRouter);
 
 export default router;

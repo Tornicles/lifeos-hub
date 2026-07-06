@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useListLogs, useCreateLog as useCreateLogApi, useUpdateLog as useUpdateLogApi, useDeleteLog as useDeleteLogApi, getListLogsQueryKey, getListMetricsQueryKey, getListUltraMetricsQueryKey } from "@workspace/api-client-react";
+import { useListLogs, useCreateLog as useCreateLogApi, useUpdateLog as useUpdateLogApi, useDeleteLog as useDeleteLogApi, getListLogsQueryKey, getListMetricsQueryKey } from "@workspace/api-client-react";
 import { toast } from 'sonner';
 import { z } from 'zod';
 
@@ -14,10 +14,10 @@ const logSchema = z.object({
 
 export type LogInsert = z.infer<typeof logSchema>;
 
+// NOTE: `filters` (hubId/startDate/endDate) is accepted for API
+// compatibility with callers but not yet wired to the backend query params.
 export const useLogs = (filters?: { hubId?: number; startDate?: string; endDate?: string }) => {
-  return useListLogs({
-    tenantId: undefined, // Or get current tenant
-  });
+  return useListLogs();
 };
 
 export const useCreateLog = () => {
@@ -41,7 +41,6 @@ export const useCreateLog = () => {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: getListLogsQueryKey() });
           queryClient.invalidateQueries({ queryKey: getListMetricsQueryKey() });
-          queryClient.invalidateQueries({ queryKey: getListUltraMetricsQueryKey() });
           queryClient.invalidateQueries({ queryKey: ['automation-engine'] });
           toast.success('Log created successfully');
         },
@@ -66,7 +65,6 @@ export const useCreateLog = () => {
         });
         queryClient.invalidateQueries({ queryKey: getListLogsQueryKey() });
         queryClient.invalidateQueries({ queryKey: getListMetricsQueryKey() });
-        queryClient.invalidateQueries({ queryKey: getListUltraMetricsQueryKey() });
         queryClient.invalidateQueries({ queryKey: ['automation-engine'] });
         toast.success('Log created successfully');
         return result;

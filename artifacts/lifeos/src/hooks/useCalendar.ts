@@ -15,13 +15,10 @@ const calendarEntrySchema = z.object({
 
 export type CalendarEntryInsert = z.infer<typeof calendarEntrySchema>;
 
+// NOTE: `filters` (startDate/endDate) is accepted for API compatibility with
+// callers but not yet wired to the backend query params.
 export const useCalendarEntries = (filters?: { startDate?: string; endDate?: string }) => {
-  return useListCalendarEntries({
-    // The API might not support date range filtering directly in params if not specified in openapi.yaml
-    // but we'll pass them anyway or handle it if necessary.
-    // Based on openapi.yaml, listCalendarEntries takes tenantId. 
-    // We'll just fetch all for now or as the API allows.
-  });
+  return useListCalendarEntries();
 };
 
 export const useCreateCalendarEntry = () => {

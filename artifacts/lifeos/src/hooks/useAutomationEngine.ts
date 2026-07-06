@@ -1,40 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
 import { evaluateAutomation } from "@workspace/api-client-react";
 
+// NOTE: the backend `/api/automation/evaluate` route only returns
+// `{ rulesEvaluated, actionsQueued }` after the Tech-Tate schema migration
+// dropped `ultra_metrics_table` (see api-server/src/routes/automation.ts).
+// The richer ultra-score/priority-hub/focus-recommendation fields this used
+// to return no longer exist server-side; do not add them back here without
+// a real backend computation to back them.
 export interface AutomationResult {
-  ultraScore: number;
-  state: string;
-  baseState: string;
-  stateColor: string;
-  stateIcon: string;
-  stateLevel: 'GREEN' | 'YELLOW' | 'ORANGE' | 'RED';
-  stateReasons: string[];
-  priorityZone: string;
-  priorityHub: { code: string; name: string } | null;
-  priorityScore: number;
-  weakestHub: { code: string; name: string } | null;
-  weakestScore: number;
-  strongestHub: { code: string; name: string } | null;
-  hubsInDanger: number;
-  hubImbalance: number;
-  habitConsistency: number;
-  calendarLoad: number;
-  scoreTrend: number;
-  recentActivity: number;
-  triggeredActions: Array<{
-    rule: string;
-    target: string;
-    value: string;
-    reason: string;
-  }>;
-  focusRecommendations: {
-    primaryDomain: string;
-    secondaryDomain: string;
-    suggestedActions: string[];
-    riskFactors: string[];
-    opportunities: string[];
-  };
-  date: string;
+  rulesEvaluated: number;
+  actionsQueued: number;
 }
 
 export const useAutomationEngine = () => {

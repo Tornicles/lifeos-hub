@@ -479,6 +479,631 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/HabitCheckin" }
 
+  # ---------- Finance ----------
+  /budgets:
+    get:
+      operationId: listBudgets
+      tags: [finance]
+      responses:
+        "200":
+          description: List of budgets
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Budget" } }
+    post:
+      operationId: createBudget
+      tags: [finance]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/BudgetInput" }
+      responses:
+        "201":
+          description: Created budget
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Budget" }
+  /budgets/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      operationId: updateBudget
+      tags: [finance]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/BudgetUpdate" }
+      responses:
+        "200":
+          description: Updated budget
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Budget" }
+    delete:
+      operationId: deleteBudget
+      tags: [finance]
+      responses:
+        "204":
+          description: Deleted
+
+  /income:
+    get:
+      operationId: listIncome
+      tags: [finance]
+      responses:
+        "200":
+          description: List of income entries
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Income" } }
+    post:
+      operationId: createIncome
+      tags: [finance]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/IncomeInput" }
+      responses:
+        "201":
+          description: Created income entry
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Income" }
+  /income/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      operationId: updateIncome
+      tags: [finance]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/IncomeUpdate" }
+      responses:
+        "200":
+          description: Updated income entry
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Income" }
+    delete:
+      operationId: deleteIncome
+      tags: [finance]
+      responses:
+        "204":
+          description: Deleted
+
+  /expenses:
+    get:
+      operationId: listExpenses
+      tags: [finance]
+      responses:
+        "200":
+          description: List of expenses
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Expense" } }
+    post:
+      operationId: createExpense
+      tags: [finance]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ExpenseInput" }
+      responses:
+        "201":
+          description: Created expense
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Expense" }
+  /expenses/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      operationId: updateExpense
+      tags: [finance]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ExpenseUpdate" }
+      responses:
+        "200":
+          description: Updated expense
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Expense" }
+    delete:
+      operationId: deleteExpense
+      tags: [finance]
+      responses:
+        "204":
+          description: Deleted
+
+  /savings-goals:
+    get:
+      operationId: listSavingsGoals
+      tags: [finance]
+      responses:
+        "200":
+          description: List of savings goals
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/SavingsGoal" } }
+    post:
+      operationId: createSavingsGoal
+      tags: [finance]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SavingsGoalInput" }
+      responses:
+        "201":
+          description: Created savings goal
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SavingsGoal" }
+  /savings-goals/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      operationId: updateSavingsGoal
+      tags: [finance]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SavingsGoalUpdate" }
+      responses:
+        "200":
+          description: Updated savings goal
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SavingsGoal" }
+    delete:
+      operationId: deleteSavingsGoal
+      tags: [finance]
+      responses:
+        "204":
+          description: Deleted
+
+  /debts:
+    get:
+      operationId: listDebts
+      tags: [finance]
+      responses:
+        "200":
+          description: List of debts
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Debt" } }
+    post:
+      operationId: createDebt
+      tags: [finance]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/DebtInput" }
+      responses:
+        "201":
+          description: Created debt
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Debt" }
+  /debts/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      operationId: updateDebt
+      tags: [finance]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/DebtUpdate" }
+      responses:
+        "200":
+          description: Updated debt
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Debt" }
+    delete:
+      operationId: deleteDebt
+      tags: [finance]
+      responses:
+        "204":
+          description: Deleted
+
+  /investments:
+    get:
+      operationId: listInvestmentEntries
+      tags: [finance]
+      responses:
+        "200":
+          description: List of investment entries
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/InvestmentEntry" } }
+    post:
+      operationId: createInvestmentEntry
+      tags: [finance]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/InvestmentEntryInput" }
+      responses:
+        "201":
+          description: Created investment entry
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/InvestmentEntry" }
+  /investments/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    delete:
+      operationId: deleteInvestmentEntry
+      tags: [finance]
+      responses:
+        "204":
+          description: Deleted
+
+  /net-worth-snapshots:
+    get:
+      operationId: listNetWorthSnapshots
+      tags: [finance]
+      responses:
+        "200":
+          description: List of net worth snapshots
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/NetWorthSnapshot" } }
+    post:
+      operationId: createNetWorthSnapshot
+      tags: [finance]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/NetWorthSnapshotInput" }
+      responses:
+        "201":
+          description: Created net worth snapshot
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/NetWorthSnapshot" }
+
+  # ---------- Academy ----------
+  /topics:
+    get:
+      operationId: listTopics
+      tags: [academy]
+      parameters:
+        - name: hubId
+          in: query
+          schema: { type: integer }
+      responses:
+        "200":
+          description: List of topics
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Topic" } }
+
+  /topics/{topicId}/lessons:
+    parameters:
+      - name: topicId
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      operationId: listLessons
+      tags: [academy]
+      responses:
+        "200":
+          description: List of lessons
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Lesson" } }
+
+  /lesson-progress:
+    get:
+      operationId: listLessonProgress
+      tags: [academy]
+      responses:
+        "200":
+          description: List of lesson progress records
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/LessonProgress" } }
+    post:
+      operationId: createLessonProgress
+      tags: [academy]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LessonProgressInput" }
+      responses:
+        "201":
+          description: Created/updated lesson progress
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LessonProgress" }
+
+  /quizzes/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      operationId: getQuiz
+      tags: [academy]
+      responses:
+        "200":
+          description: Quiz with questions
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/QuizWithQuestions" }
+
+  /quiz-attempts:
+    get:
+      operationId: listQuizAttempts
+      tags: [academy]
+      responses:
+        "200":
+          description: List of quiz attempts
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/QuizAttempt" } }
+    post:
+      operationId: createQuizAttempt
+      tags: [academy]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/QuizAttemptInput" }
+      responses:
+        "201":
+          description: Created quiz attempt
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/QuizAttempt" }
+
+  # ---------- Gamification ----------
+  /challenges:
+    get:
+      operationId: listChallenges
+      tags: [gamification]
+      responses:
+        "200":
+          description: List of challenges
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Challenge" } }
+
+  /challenge-completions:
+    get:
+      operationId: listChallengeCompletions
+      tags: [gamification]
+      responses:
+        "200":
+          description: List of challenge completions
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/ChallengeCompletion" } }
+    post:
+      operationId: createChallengeCompletion
+      tags: [gamification]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ChallengeCompletionInput" }
+      responses:
+        "201":
+          description: Created challenge completion
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ChallengeCompletion" }
+
+  /xp-events:
+    get:
+      operationId: listXpEvents
+      tags: [gamification]
+      responses:
+        "200":
+          description: List of XP events
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/XpEvent" } }
+    post:
+      operationId: createXpEvent
+      tags: [gamification]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/XpEventInput" }
+      responses:
+        "201":
+          description: Created XP event
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/XpEvent" }
+
+  /badges:
+    get:
+      operationId: listBadges
+      tags: [gamification]
+      responses:
+        "200":
+          description: List of badges
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Badge" } }
+
+  /user-badges:
+    get:
+      operationId: listUserBadges
+      tags: [gamification]
+      responses:
+        "200":
+          description: List of earned badges
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/UserBadge" } }
+    post:
+      operationId: createUserBadge
+      tags: [gamification]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UserBadgeInput" }
+      responses:
+        "201":
+          description: Awarded badge
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserBadge" }
+
+  # ---------- Bible ----------
+  /bible-verses:
+    get:
+      operationId: listBibleVerses
+      tags: [bible]
+      parameters:
+        - name: theme
+          in: query
+          schema: { type: string }
+      responses:
+        "200":
+          description: List of Bible verses
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/BibleVerse" } }
+
+  # ---------- Couples ----------
+  /couples:
+    get:
+      operationId: listCouples
+      tags: [couples]
+      responses:
+        "200":
+          description: List of couples the current user belongs to
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Couple" } }
+    post:
+      operationId: createCouple
+      tags: [couples]
+      responses:
+        "201":
+          description: Created couple
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Couple" }
+
+  /couples/{id}/partner-links:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      operationId: createPartnerLink
+      tags: [couples]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PartnerLinkInput" }
+      responses:
+        "201":
+          description: Created partner invite link
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PartnerLink" }
+
+  /partner-links/{code}/accept:
+    parameters:
+      - name: code
+        in: path
+        required: true
+        schema: { type: string }
+    post:
+      operationId: acceptPartnerLink
+      tags: [couples]
+      responses:
+        "200":
+          description: Accepted partner invite, couple is now linked
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Couple" }
+
+  /couple-discussion-prompts:
+    get:
+      operationId: listCoupleDiscussionPrompts
+      tags: [couples]
+      responses:
+        "200":
+          description: List of discussion prompts
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/CoupleDiscussionPrompt" } }
+
+  # ---------- Subscriptions ----------
+  /subscriptions/me:
+    get:
+      operationId: getMySubscription
+      tags: [subscriptions]
+      responses:
+        "200":
+          description: Current user's subscription
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Subscription" }
+    put:
+      operationId: upsertMySubscription
+      tags: [subscriptions]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SubscriptionInput" }
+      responses:
+        "200":
+          description: Updated subscription
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Subscription" }
+
   # ---------- Projects & Tasks ----------
   /projects:
     get:
@@ -1446,6 +2071,428 @@ components:
       properties:
         date: { type: string, format: date }
         done: { type: boolean }
+
+    # ---------- Finance ----------
+    Budget:
+      type: object
+      required: [id, userId, name, category, monthlyLimit, period]
+      properties:
+        id: { type: string, format: uuid }
+        userId: { type: string }
+        name: { type: string }
+        category: { type: string }
+        monthlyLimit: { type: string }
+        period: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    BudgetInput:
+      type: object
+      required: [name, category, monthlyLimit]
+      properties:
+        name: { type: string, minLength: 1 }
+        category: { type: string, minLength: 1 }
+        monthlyLimit: { type: string }
+        period: { type: string }
+    BudgetUpdate:
+      type: object
+      properties:
+        name: { type: string }
+        category: { type: string }
+        monthlyLimit: { type: string }
+        period: { type: string }
+
+    Income:
+      type: object
+      required: [id, userId, source, amount, frequency, receivedDate]
+      properties:
+        id: { type: string, format: uuid }
+        userId: { type: string }
+        source: { type: string }
+        amount: { type: string }
+        frequency: { type: string }
+        receivedDate: { type: string, format: date }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    IncomeInput:
+      type: object
+      required: [source, amount, receivedDate]
+      properties:
+        source: { type: string, minLength: 1 }
+        amount: { type: string }
+        frequency: { type: string }
+        receivedDate: { type: string, format: date }
+    IncomeUpdate:
+      type: object
+      properties:
+        source: { type: string }
+        amount: { type: string }
+        frequency: { type: string }
+        receivedDate: { type: string, format: date }
+
+    Expense:
+      type: object
+      required: [id, userId, description, amount, category, expenseDate]
+      properties:
+        id: { type: string, format: uuid }
+        userId: { type: string }
+        budgetId: { type: ["string", "null"], format: uuid }
+        description: { type: string }
+        amount: { type: string }
+        category: { type: string }
+        expenseDate: { type: string, format: date }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    ExpenseInput:
+      type: object
+      required: [description, amount, category, expenseDate]
+      properties:
+        budgetId: { type: string, format: uuid }
+        description: { type: string, minLength: 1 }
+        amount: { type: string }
+        category: { type: string, minLength: 1 }
+        expenseDate: { type: string, format: date }
+    ExpenseUpdate:
+      type: object
+      properties:
+        budgetId: { type: ["string", "null"], format: uuid }
+        description: { type: string }
+        amount: { type: string }
+        category: { type: string }
+        expenseDate: { type: string, format: date }
+
+    SavingsGoal:
+      type: object
+      required: [id, userId, name, targetAmount, currentAmount]
+      properties:
+        id: { type: string, format: uuid }
+        userId: { type: string }
+        name: { type: string }
+        targetAmount: { type: string }
+        currentAmount: { type: string }
+        targetDate: { type: ["string", "null"], format: date }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    SavingsGoalInput:
+      type: object
+      required: [name, targetAmount]
+      properties:
+        name: { type: string, minLength: 1 }
+        targetAmount: { type: string }
+        currentAmount: { type: string }
+        targetDate: { type: string, format: date }
+    SavingsGoalUpdate:
+      type: object
+      properties:
+        name: { type: string }
+        targetAmount: { type: string }
+        currentAmount: { type: string }
+        targetDate: { type: ["string", "null"], format: date }
+
+    Debt:
+      type: object
+      required: [id, userId, name, balance]
+      properties:
+        id: { type: string, format: uuid }
+        userId: { type: string }
+        name: { type: string }
+        balance: { type: string }
+        interestRate: { type: ["string", "null"] }
+        minimumPayment: { type: ["string", "null"] }
+        dueDay: { type: ["integer", "null"] }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    DebtInput:
+      type: object
+      required: [name, balance]
+      properties:
+        name: { type: string, minLength: 1 }
+        balance: { type: string }
+        interestRate: { type: string }
+        minimumPayment: { type: string }
+        dueDay: { type: integer }
+    DebtUpdate:
+      type: object
+      properties:
+        name: { type: string }
+        balance: { type: string }
+        interestRate: { type: ["string", "null"] }
+        minimumPayment: { type: ["string", "null"] }
+        dueDay: { type: ["integer", "null"] }
+
+    InvestmentEntry:
+      type: object
+      required: [id, userId, accountName, assetType, amount, entryDate]
+      properties:
+        id: { type: string, format: uuid }
+        userId: { type: string }
+        accountName: { type: string }
+        assetType: { type: string }
+        amount: { type: string }
+        entryDate: { type: string, format: date }
+        createdAt: { type: string, format: date-time }
+    InvestmentEntryInput:
+      type: object
+      required: [accountName, assetType, amount, entryDate]
+      properties:
+        accountName: { type: string, minLength: 1 }
+        assetType: { type: string, minLength: 1 }
+        amount: { type: string }
+        entryDate: { type: string, format: date }
+
+    NetWorthSnapshot:
+      type: object
+      required: [id, userId, snapshotDate, totalAssets, totalLiabilities, netWorth]
+      properties:
+        id: { type: string, format: uuid }
+        userId: { type: string }
+        snapshotDate: { type: string, format: date }
+        totalAssets: { type: string }
+        totalLiabilities: { type: string }
+        netWorth: { type: string }
+        createdAt: { type: string, format: date-time }
+    NetWorthSnapshotInput:
+      type: object
+      required: [snapshotDate, totalAssets, totalLiabilities, netWorth]
+      properties:
+        snapshotDate: { type: string, format: date }
+        totalAssets: { type: string }
+        totalLiabilities: { type: string }
+        netWorth: { type: string }
+
+    # ---------- Academy ----------
+    Topic:
+      type: object
+      required: [id, name, sortOrder]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        description: { type: ["string", "null"] }
+        hubId: { type: ["integer", "null"] }
+        sortOrder: { type: integer }
+        createdAt: { type: string, format: date-time }
+
+    Lesson:
+      type: object
+      required: [id, topicId, title, sortOrder, xpReward]
+      properties:
+        id: { type: integer }
+        topicId: { type: integer }
+        title: { type: string }
+        content: { type: ["string", "null"] }
+        sortOrder: { type: integer }
+        xpReward: { type: integer }
+        createdAt: { type: string, format: date-time }
+
+    LessonProgress:
+      type: object
+      required: [id, userId, lessonId, completed]
+      properties:
+        id: { type: string, format: uuid }
+        userId: { type: string }
+        lessonId: { type: integer }
+        completed: { type: boolean }
+        completedAt: { type: ["string", "null"], format: date-time }
+        createdAt: { type: string, format: date-time }
+    LessonProgressInput:
+      type: object
+      required: [lessonId]
+      properties:
+        lessonId: { type: integer }
+        completed: { type: boolean }
+
+    Quiz:
+      type: object
+      required: [id, title]
+      properties:
+        id: { type: integer }
+        topicId: { type: ["integer", "null"] }
+        lessonId: { type: ["integer", "null"] }
+        title: { type: string }
+        createdAt: { type: string, format: date-time }
+    QuizQuestion:
+      type: object
+      required: [id, quizId, questionText, options, correctAnswer]
+      properties:
+        id: { type: integer }
+        quizId: { type: integer }
+        questionText: { type: string }
+        options: {}
+        correctAnswer: { type: string }
+        createdAt: { type: string, format: date-time }
+    QuizWithQuestions:
+      allOf:
+        - $ref: "#/components/schemas/Quiz"
+        - type: object
+          required: [questions]
+          properties:
+            questions:
+              type: array
+              items: { $ref: "#/components/schemas/QuizQuestion" }
+
+    QuizAttempt:
+      type: object
+      required: [id, userId, quizId, score, totalQuestions]
+      properties:
+        id: { type: string, format: uuid }
+        userId: { type: string }
+        quizId: { type: integer }
+        score: { type: integer }
+        totalQuestions: { type: integer }
+        answers: {}
+        attemptedAt: { type: string, format: date-time }
+        createdAt: { type: string, format: date-time }
+    QuizAttemptInput:
+      type: object
+      required: [quizId, score, totalQuestions]
+      properties:
+        quizId: { type: integer }
+        score: { type: integer }
+        totalQuestions: { type: integer }
+        answers: {}
+
+    # ---------- Gamification ----------
+    Challenge:
+      type: object
+      required: [id, name, xpReward, isActive]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        description: { type: ["string", "null"] }
+        xpReward: { type: integer }
+        category: { type: ["string", "null"] }
+        isActive: { type: boolean }
+        createdAt: { type: string, format: date-time }
+
+    ChallengeCompletion:
+      type: object
+      required: [id, userId, challengeId, completedAt]
+      properties:
+        id: { type: string, format: uuid }
+        userId: { type: string }
+        challengeId: { type: integer }
+        completedAt: { type: string, format: date-time }
+        createdAt: { type: string, format: date-time }
+    ChallengeCompletionInput:
+      type: object
+      required: [challengeId]
+      properties:
+        challengeId: { type: integer }
+
+    XpEvent:
+      type: object
+      required: [id, userId, eventType, xpAmount]
+      properties:
+        id: { type: string, format: uuid }
+        userId: { type: string }
+        eventType: { type: string }
+        xpAmount: { type: integer }
+        sourceType: { type: ["string", "null"] }
+        sourceId: { type: ["string", "null"] }
+        createdAt: { type: string, format: date-time }
+    XpEventInput:
+      type: object
+      required: [eventType, xpAmount]
+      properties:
+        eventType: { type: string, minLength: 1 }
+        xpAmount: { type: integer }
+        sourceType: { type: string }
+        sourceId: { type: string }
+
+    Badge:
+      type: object
+      required: [id, name]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        description: { type: ["string", "null"] }
+        iconName: { type: ["string", "null"] }
+        criteria: {}
+        createdAt: { type: string, format: date-time }
+
+    UserBadge:
+      type: object
+      required: [id, userId, badgeId, earnedAt]
+      properties:
+        id: { type: string, format: uuid }
+        userId: { type: string }
+        badgeId: { type: integer }
+        earnedAt: { type: string, format: date-time }
+        createdAt: { type: string, format: date-time }
+    UserBadgeInput:
+      type: object
+      required: [badgeId]
+      properties:
+        badgeId: { type: integer }
+
+    # ---------- Bible ----------
+    BibleVerse:
+      type: object
+      required: [id, reference, verseText, translation]
+      properties:
+        id: { type: integer }
+        reference: { type: string }
+        verseText: { type: string }
+        translation: { type: string }
+        theme: { type: ["string", "null"] }
+        createdAt: { type: string, format: date-time }
+
+    # ---------- Couples ----------
+    Couple:
+      type: object
+      required: [id, userAId, status]
+      properties:
+        id: { type: string, format: uuid }
+        userAId: { type: string }
+        userBId: { type: ["string", "null"] }
+        status: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    PartnerLink:
+      type: object
+      required: [id, coupleId, invitedBy, inviteCode, status]
+      properties:
+        id: { type: string, format: uuid }
+        coupleId: { type: string, format: uuid }
+        invitedBy: { type: string }
+        inviteEmail: { type: ["string", "null"] }
+        inviteCode: { type: string }
+        status: { type: string }
+        createdAt: { type: string, format: date-time }
+        expiresAt: { type: ["string", "null"], format: date-time }
+    PartnerLinkInput:
+      type: object
+      properties:
+        inviteEmail: { type: string }
+
+    CoupleDiscussionPrompt:
+      type: object
+      required: [id, promptText]
+      properties:
+        id: { type: integer }
+        promptText: { type: string }
+        category: { type: ["string", "null"] }
+        createdAt: { type: string, format: date-time }
+
+    # ---------- Subscriptions ----------
+    Subscription:
+      type: object
+      required: [id, userId, plan, status]
+      properties:
+        id: { type: string, format: uuid }
+        userId: { type: string }
+        plan: { type: string, enum: [free, starter, pro, enterprise] }
+        status: { type: string }
+        currentPeriodEnd: { type: ["string", "null"], format: date-time }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    SubscriptionInput:
+      type: object
+      required: [plan]
+      properties:
+        plan: { type: string, enum: [free, starter, pro, enterprise] }
+        status: { type: string }
+        currentPeriodEnd: { type: string, format: date-time }
 
     # ---------- Projects / Tasks ----------
     Project:

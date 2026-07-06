@@ -25,7 +25,7 @@ export default function LogsScreen() {
     if (!note.trim()) return;
     // @ts-ignore
     createLog.mutate(
-      { data: { description: note, source: "manual" } },
+      { data: { notes: note, source: "manual", logDate: new Date().toISOString().slice(0, 10) } },
       { onSuccess: () => { setNote(""); setModalVisible(false); refetch(); } },
     );
   };
@@ -47,7 +47,7 @@ export default function LogsScreen() {
           logList.map((l) => (
             <Card key={l.id} style={{ marginBottom: 8 }}>
               <Row>
-                <Text style={{ color: colors.foreground, fontSize: 13, flex: 1 }}>{l.description}</Text>
+                <Text style={{ color: colors.foreground, fontSize: 13, flex: 1 }}>{l.notes}</Text>
                 <Badge label={l.source ?? "manual"} variant="outline" />
               </Row>
               <Text style={{ color: colors.mutedForeground, fontSize: 11, marginTop: 6 }}>

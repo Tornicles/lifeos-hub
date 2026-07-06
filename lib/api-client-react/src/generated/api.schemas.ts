@@ -342,6 +342,417 @@ export interface HabitCheckinInput {
   done?: boolean;
 }
 
+export interface Budget {
+  id: string;
+  userId: string;
+  name: string;
+  category: string;
+  monthlyLimit: string;
+  period: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface BudgetInput {
+  /** @minLength 1 */
+  name: string;
+  /** @minLength 1 */
+  category: string;
+  monthlyLimit: string;
+  period?: string;
+}
+
+export interface BudgetUpdate {
+  name?: string;
+  category?: string;
+  monthlyLimit?: string;
+  period?: string;
+}
+
+export interface Income {
+  id: string;
+  userId: string;
+  source: string;
+  amount: string;
+  frequency: string;
+  receivedDate: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface IncomeInput {
+  /** @minLength 1 */
+  source: string;
+  amount: string;
+  frequency?: string;
+  receivedDate: string;
+}
+
+export interface IncomeUpdate {
+  source?: string;
+  amount?: string;
+  frequency?: string;
+  receivedDate?: string;
+}
+
+export interface Expense {
+  id: string;
+  userId: string;
+  /** @nullable */
+  budgetId?: string | null;
+  description: string;
+  amount: string;
+  category: string;
+  expenseDate: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface ExpenseInput {
+  budgetId?: string;
+  /** @minLength 1 */
+  description: string;
+  amount: string;
+  /** @minLength 1 */
+  category: string;
+  expenseDate: string;
+}
+
+export interface ExpenseUpdate {
+  /** @nullable */
+  budgetId?: string | null;
+  description?: string;
+  amount?: string;
+  category?: string;
+  expenseDate?: string;
+}
+
+export interface SavingsGoal {
+  id: string;
+  userId: string;
+  name: string;
+  targetAmount: string;
+  currentAmount: string;
+  /** @nullable */
+  targetDate?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface SavingsGoalInput {
+  /** @minLength 1 */
+  name: string;
+  targetAmount: string;
+  currentAmount?: string;
+  targetDate?: string;
+}
+
+export interface SavingsGoalUpdate {
+  name?: string;
+  targetAmount?: string;
+  currentAmount?: string;
+  /** @nullable */
+  targetDate?: string | null;
+}
+
+export interface Debt {
+  id: string;
+  userId: string;
+  name: string;
+  balance: string;
+  /** @nullable */
+  interestRate?: string | null;
+  /** @nullable */
+  minimumPayment?: string | null;
+  /** @nullable */
+  dueDay?: number | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface DebtInput {
+  /** @minLength 1 */
+  name: string;
+  balance: string;
+  interestRate?: string;
+  minimumPayment?: string;
+  dueDay?: number;
+}
+
+export interface DebtUpdate {
+  name?: string;
+  balance?: string;
+  /** @nullable */
+  interestRate?: string | null;
+  /** @nullable */
+  minimumPayment?: string | null;
+  /** @nullable */
+  dueDay?: number | null;
+}
+
+export interface InvestmentEntry {
+  id: string;
+  userId: string;
+  accountName: string;
+  assetType: string;
+  amount: string;
+  entryDate: string;
+  createdAt?: string;
+}
+
+export interface InvestmentEntryInput {
+  /** @minLength 1 */
+  accountName: string;
+  /** @minLength 1 */
+  assetType: string;
+  amount: string;
+  entryDate: string;
+}
+
+export interface NetWorthSnapshot {
+  id: string;
+  userId: string;
+  snapshotDate: string;
+  totalAssets: string;
+  totalLiabilities: string;
+  netWorth: string;
+  createdAt?: string;
+}
+
+export interface NetWorthSnapshotInput {
+  snapshotDate: string;
+  totalAssets: string;
+  totalLiabilities: string;
+  netWorth: string;
+}
+
+export interface Topic {
+  id: number;
+  name: string;
+  /** @nullable */
+  description?: string | null;
+  /** @nullable */
+  hubId?: number | null;
+  sortOrder: number;
+  createdAt?: string;
+}
+
+export interface Lesson {
+  id: number;
+  topicId: number;
+  title: string;
+  /** @nullable */
+  content?: string | null;
+  sortOrder: number;
+  xpReward: number;
+  createdAt?: string;
+}
+
+export interface LessonProgress {
+  id: string;
+  userId: string;
+  lessonId: number;
+  completed: boolean;
+  /** @nullable */
+  completedAt?: string | null;
+  createdAt?: string;
+}
+
+export interface LessonProgressInput {
+  lessonId: number;
+  completed?: boolean;
+}
+
+export interface Quiz {
+  id: number;
+  /** @nullable */
+  topicId?: number | null;
+  /** @nullable */
+  lessonId?: number | null;
+  title: string;
+  createdAt?: string;
+}
+
+export interface QuizQuestion {
+  id: number;
+  quizId: number;
+  questionText: string;
+  options: unknown;
+  correctAnswer: string;
+  createdAt?: string;
+}
+
+export type QuizWithQuestions = Quiz & {
+  questions: QuizQuestion[];
+};
+
+export interface QuizAttempt {
+  id: string;
+  userId: string;
+  quizId: number;
+  score: number;
+  totalQuestions: number;
+  answers?: unknown;
+  attemptedAt?: string;
+  createdAt?: string;
+}
+
+export interface QuizAttemptInput {
+  quizId: number;
+  score: number;
+  totalQuestions: number;
+  answers?: unknown;
+}
+
+export interface Challenge {
+  id: number;
+  name: string;
+  /** @nullable */
+  description?: string | null;
+  xpReward: number;
+  /** @nullable */
+  category?: string | null;
+  isActive: boolean;
+  createdAt?: string;
+}
+
+export interface ChallengeCompletion {
+  id: string;
+  userId: string;
+  challengeId: number;
+  completedAt: string;
+  createdAt?: string;
+}
+
+export interface ChallengeCompletionInput {
+  challengeId: number;
+}
+
+export interface XpEvent {
+  id: string;
+  userId: string;
+  eventType: string;
+  xpAmount: number;
+  /** @nullable */
+  sourceType?: string | null;
+  /** @nullable */
+  sourceId?: string | null;
+  createdAt?: string;
+}
+
+export interface XpEventInput {
+  /** @minLength 1 */
+  eventType: string;
+  xpAmount: number;
+  sourceType?: string;
+  sourceId?: string;
+}
+
+export interface Badge {
+  id: number;
+  name: string;
+  /** @nullable */
+  description?: string | null;
+  /** @nullable */
+  iconName?: string | null;
+  criteria?: unknown;
+  createdAt?: string;
+}
+
+export interface UserBadge {
+  id: string;
+  userId: string;
+  badgeId: number;
+  earnedAt: string;
+  createdAt?: string;
+}
+
+export interface UserBadgeInput {
+  badgeId: number;
+}
+
+export interface BibleVerse {
+  id: number;
+  reference: string;
+  verseText: string;
+  translation: string;
+  /** @nullable */
+  theme?: string | null;
+  createdAt?: string;
+}
+
+export interface Couple {
+  id: string;
+  userAId: string;
+  /** @nullable */
+  userBId?: string | null;
+  status: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface PartnerLink {
+  id: string;
+  coupleId: string;
+  invitedBy: string;
+  /** @nullable */
+  inviteEmail?: string | null;
+  inviteCode: string;
+  status: string;
+  createdAt?: string;
+  /** @nullable */
+  expiresAt?: string | null;
+}
+
+export interface PartnerLinkInput {
+  inviteEmail?: string;
+}
+
+export interface CoupleDiscussionPrompt {
+  id: number;
+  promptText: string;
+  /** @nullable */
+  category?: string | null;
+  createdAt?: string;
+}
+
+export type SubscriptionPlan = typeof SubscriptionPlan[keyof typeof SubscriptionPlan];
+
+
+export const SubscriptionPlan = {
+  free: 'free',
+  starter: 'starter',
+  pro: 'pro',
+  enterprise: 'enterprise',
+} as const;
+
+export interface Subscription {
+  id: string;
+  userId: string;
+  plan: SubscriptionPlan;
+  status: string;
+  /** @nullable */
+  currentPeriodEnd?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export type SubscriptionInputPlan = typeof SubscriptionInputPlan[keyof typeof SubscriptionInputPlan];
+
+
+export const SubscriptionInputPlan = {
+  free: 'free',
+  starter: 'starter',
+  pro: 'pro',
+  enterprise: 'enterprise',
+} as const;
+
+export interface SubscriptionInput {
+  plan: SubscriptionInputPlan;
+  status?: string;
+  currentPeriodEnd?: string;
+}
+
 export interface Project {
   id: number;
   userId: string;
@@ -853,6 +1264,14 @@ tenantId?: string;
 
 export type ListHabitsParams = {
 tenantId?: string;
+};
+
+export type ListTopicsParams = {
+hubId?: number;
+};
+
+export type ListBibleVersesParams = {
+theme?: string;
 };
 
 export type ListProjectsParams = {

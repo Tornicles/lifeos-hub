@@ -1,17 +1,13 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useUser } from '@clerk/react';
 import { 
   useListMetrics, 
-  useListUltraMetrics, 
   useListHabits, 
   useListLogs,
   useListHubs
 } from '@workspace/api-client-react';
 import {
-  LineChart,
-  Line,
   BarChart,
   Bar,
   XAxis,
@@ -26,14 +22,16 @@ import {
   PolarRadiusAxis,
   Radar,
 } from 'recharts';
-import { TrendingUp, Target, Activity } from 'lucide-react';
+import { TrendingUp, Activity } from 'lucide-react';
 
+// NOTE: this component previously also had a "Trends" tab and an
+// "Ultra Score" correlation stat backed by `useListUltraMetrics()`. The
+// Tech-Tate schema migration dropped `ultra_metrics_table` and there is no
+// `/api/ultra-metrics` route anymore (calls would 404), so that data source
+// was removed rather than left erroring silently.
 export function CrossModuleAnalytics() {
-  const { user } = useUser();
-  
   const { data: hubs } = useListHubs();
   const { data: metrics, isLoading: metricsLoading } = useListMetrics();
-  const { data: ultraMetrics, isLoading: ultraLoading } = useListUltraMetrics();
   const { data: habits, isLoading: habitsLoading } = useListHabits();
   const { data: logs, isLoading: logsLoading } = useListLogs();
 
@@ -62,35 +60,17 @@ export function CrossModuleAnalytics() {
     }));
   })();
 
-  const trendData = (() => {
-    if (!ultraMetrics) return [];
-    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-    
-    return ultraMetrics
-      .filter(m => m.name === 'ULTRA_Score' && new Date(m.metricDate) >= thirtyDaysAgo)
-      .sort((a, b) => new Date(a.metricDate).getTime() - new Date(b.metricDate).getTime())
-      .map(m => ({
-        date: new Date(m.metricDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        score: m.value,
-      }));
-  })();
-
   const habitData = habits?.map(h => ({
     habit: h.name,
     streak: h.streak || 0,
   })) || [];
 
   const correlations = (() => {
-    if (!logs || !ultraMetrics) return null;
+    if (!logs) return null;
 
     const recentLogs = [...logs]
       .sort((a, b) => new Date(b.logDate).getTime() - new Date(a.logDate).getTime())
       .slice(0, 200);
-
-    const recentUltra = ultraMetrics
-      .filter(m => m.name === 'ULTRA_Score')
-      .sort((a, b) => new Date(b.metricDate).getTime() - new Date(a.metricDate).getTime())
-      .slice(0, 30);
 
     const logsByDate: Record<string, number> = {};
     recentLogs.forEach((log) => {
@@ -102,11 +82,10 @@ export function CrossModuleAnalytics() {
     return {
       logging_frequency: recentLogs.length,
       avg_logs_per_day: numDaysWithLogs > 0 ? recentLogs.length / numDaysWithLogs : 0,
-      ultra_score: recentUltra[0]?.value || 0,
     };
   })();
 
-  const isLoading = metricsLoading || ultraLoading || habitsLoading || logsLoading;
+  const isLoading = metricsLoading || habitsLoading || logsLoading;
 
   if (isLoading) {
     return (
@@ -134,15 +113,14 @@ export function CrossModuleAnalytics() {
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="overview">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="hubs">Hub Balance</TabsTrigger>
-            <TabsTrigger value="trends">Trends</TabsTrigger>
             <TabsTrigger value="habits">Habits</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -154,21 +132,6 @@ export function CrossModuleAnalytics() {
                   <p className="text-2xl font-bold">{correlations?.logging_frequency || 0}</p>
                   <p className="text-xs text-muted-foreground mt-1">
                     {correlations?.avg_logs_per_day?.toFixed(1)} logs/day
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium flex items-center gap-2">
-                    <Target className="h-4 w-4" />
-                    Current Ultra Score
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-2xl font-bold">{correlations?.ultra_score || 0}</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Based on all domains
                   </p>
                 </CardContent>
               </Card>
@@ -192,9 +155,8 @@ export function CrossModuleAnalytics() {
             <div className="prose dark:prose-invert max-w-none">
               <h3 className="text-lg font-semibold mb-2">Key Insights</h3>
               <ul className="space-y-1 text-sm text-muted-foreground">
-                <li>Regular logging correlates with higher Ultra Scores</li>
                 <li>Consistent habit tracking improves overall system balance</li>
-                <li>Project completion rates affect Work hub scores directly</li>
+                <li>Regular logging helps surface patterns across hubs</li>
                 <li>Calendar density impacts energy recommendations</li>
               </ul>
             </div>
@@ -209,19 +171,6 @@ export function CrossModuleAnalytics() {
                 <Radar name="Hub Scores" dataKey="score" stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} />
                 <Legend />
               </RadarChart>
-            </ResponsiveContainer>
-          </TabsContent>
-
-          <TabsContent value="trends" className="mt-4">
-            <ResponsiveContainer width="100%" height={400}>
-              <LineChart data={trendData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis domain={[0, 100]} />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="score" stroke="#8884d8" strokeWidth={2} />
-              </LineChart>
             </ResponsiveContainer>
           </TabsContent>
 
