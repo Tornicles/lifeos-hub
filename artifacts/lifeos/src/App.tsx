@@ -30,6 +30,7 @@ import Finance from "./pages/Finance";
 import Academy from "./pages/Academy";
 import BibleStudy from "./pages/BibleStudy";
 import Couples from "./pages/Couples";
+import Gamification from "./pages/Gamification";
 
 // REQUIRED — copy verbatim. Resolves the key from window.location.hostname so the
 // same build serves multiple Clerk custom domains. Do not inline the env var, leave
@@ -204,6 +205,7 @@ function ClerkProviderWithRoutes() {
           <Route path="/academy" element={<Academy />} />
           <Route path="/couples" element={<Couples />} />
           <Route path="/bible" element={<BibleStudy />} />
+          <Route path="/achievements" element={<Gamification />} />
           <Route
             path="/reports"
             element={

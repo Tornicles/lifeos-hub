@@ -10,7 +10,8 @@ import {
   HelpingHand,
   Zap,
   Shield,
-  ShieldCheck
+  ShieldCheck,
+  Trophy
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -39,6 +40,7 @@ const mainItems = [
 ];
 
 const secondaryItems = [
+  { title: "Achievements", url: "/achievements", icon: Trophy },
   { title: "Couples", url: "/couples", icon: Heart },
   { title: "Bible & Stewardship", url: "/bible", icon: BookOpen },
   { title: "Notifications", url: "/notifications", icon: Bell },
