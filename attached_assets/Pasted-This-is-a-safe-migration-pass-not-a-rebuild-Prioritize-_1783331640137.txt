@@ -1,0 +1,97 @@
+This is a safe migration pass, not a rebuild. Prioritize preserving working code 
+over aggressive cleanup. This project is being converted from "LifeOS Hub" into 
+a new product called "Tech-Tate."
+
+Do NOT touch the database schema, migrations, or Supabase tables in this pass — 
+schema changes come in a separate step. This pass is code, UI text, routing, 
+and navigation only.
+
+0. SAFETY RULES
+- Before making any changes, create a new branch called: techtate-rebrand-navigation-pass
+  Do not work directly on main.
+- Do not permanently delete any files in src/pages in this pass, even if their 
+  route is removed. Unused page files can remain temporarily.
+- Do not rename or remove any environment variables. Do not change Supabase 
+  project keys, auth config, or API URLs.
+- Do not refactor unrelated code while cleaning up imports.
+
+1. ROUTES TO REMOVE FROM src/App.tsx
+Remove these Route entries and their corresponding imports from App.tsx 
+(leave the actual page files in src/pages untouched):
+- /ultra (UltraHub.tsx)
+- /projects and /projects/:projectId (Projects.tsx, ProjectDetail.tsx)
+- /habits and /habits/:habitId (Habits.tsx, HabitDetail.tsx)
+- /logs (Logs.tsx)
+- /automation (Automation.tsx)
+- /automation-rules (AutomationRules.tsx)
+- /automation-diagnostics (AutomationDiagnostics.tsx)
+- /automation-settings (AutomationSettings.tsx)
+- /states-engine (StatesEngine.tsx)
+
+Keep /hubs/:hubCode (HubDetail.tsx) — it will be reused for Finance, Learn, and 
+Bible detail views later, just don't link it from Health/Work/Personal 
+Dev/Mindset/Household hub codes in the nav.
+
+2. ROUTES TO RENAME (edit the Route path and any page title/heading text inside 
+   the corresponding file — do not rename the .tsx filenames themselves in this pass)
+- /dashboard (Dashboard.tsx) → keep path, rename visible heading/title text "Command Center" to "Home"
+- /calendar (Calendar.tsx) → keep path, rename visible heading/title text "Calendar" to "Bills & Financial Calendar"
+- /insights (Insights.tsx) → keep path, rename visible heading/title text "Insights" to "AI Coach"
+- /reports placeholder route in App.tsx → rename visible text "Reports" to "Progress"
+- /admin (Admin.tsx) → keep path, rename visible heading/title text "Admin Panel" to "Tech-Tate Admin"
+
+3. NEW PLACEHOLDER ROUTES TO ADD TO App.tsx
+Add these as new Route entries inside the <AppLayout /> route group, each 
+rendering a simple "Coming Soon" page using the same pattern as the existing 
+/reports placeholder in App.tsx:
+- /quiz → "Quiz - Coming Soon"
+- /invite-partner → "Invite Partner - Coming Soon"
+- /bible → "Bible & Stewardship - Coming Soon"
+- /subscription → "Subscription - Coming Soon"
+- /privacy → "Privacy - Coming Soon"
+- /help → "Help & Support - Coming Soon"
+
+4. NAVIGATION — EDIT src/AppSidebar.tsx AND src/TopNav.tsx
+- Remove nav links pointing to: /ultra, /projects, /habits, /logs, /automation, 
+  /automation-rules, /automation-diagnostics, /automation-settings, /states-engine
+- Remove any Health/Work/Personal Development/Mindset/Household hub links 
+  (check HubDetail.tsx or wherever hub codes are enumerated for the nav list)
+- Rebuild the primary navigation (likely rendered as bottom tabs on mobile via 
+  AppLayout.tsx/AppSidebar.tsx) to show exactly these 5 items in this order: 
+  Home (/dashboard), Finance (/hubs/finance or equivalent), Learn 
+  (/hubs/academy or equivalent), Quiz (/quiz), Profile (/profile)
+- Rebuild the secondary/left menu to show exactly these 4 items in this order: 
+  Invite Partner (/invite-partner), Bible & Stewardship (/bible), 
+  Notifications (/notifications), Help & Support (/help)
+- Rebuild the profile dropdown (wherever it's currently rendered, likely 
+  TopNav.tsx) to show exactly these 4 items in this order: My Profile 
+  (/profile), Subscription (/subscription), Privacy (/privacy), Sign Out
+
+5. IMPORT CLEANUP
+After removing the routes in step 1, remove the now-unused imports at the top 
+of App.tsx for UltraHub, Projects, ProjectDetail, Habits, HabitDetail, Logs, 
+Automation, AutomationRules, AutomationDiagnostics, AutomationSettings, 
+StatesEngine. Do not touch any other imports.
+
+6. KEEP FULLY UNCHANGED (structure and logic — text rebrand only where noted above)
+- Auth.tsx, PasswordReset.tsx
+- Admin.tsx layout structure (AdminLayout.tsx) — rename label only
+- All src/components/ui/* (shared component library)
+- Dashboard.tsx's card system
+- Notifications.tsx, NotificationSettings.tsx
+- Profile.tsx, Settings.tsx
+- Security.tsx, Analytics.tsx
+- Insights.tsx's card component structure — rename label only
+- Calendar.tsx's component structure — rename label only
+
+7. FINAL OUTPUT
+At the end, provide a report with these exact sections:
+- Files changed (exact paths)
+- Routes removed from App.tsx
+- Routes renamed (old path/label → new label)
+- Routes added (placeholders)
+- Navigation changes in AppSidebar.tsx and TopNav.tsx
+- Any build errors
+- Any warnings or TODOs
+- Confirmation that branch techtate-rebrand-navigation-pass was created and 
+  all work happened there, not on main

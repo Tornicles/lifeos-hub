@@ -106,12 +106,15 @@ export function TopNav() {
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => navigate("/settings")}>
+              <DropdownMenuItem onClick={() => navigate("/profile")}>
                 <User className="mr-2 h-4 w-4" />
-                Profile
+                My Profile
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate("/settings")}>
-                Settings
+              <DropdownMenuItem onClick={() => navigate("/subscription")}>
+                Subscription
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/privacy")}>
+                Privacy
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout} className="text-destructive">

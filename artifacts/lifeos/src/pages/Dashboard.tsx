@@ -13,7 +13,6 @@ import {
   TrendingUp, 
   TrendingDown,
   Sparkles,
-  Plus,
   DollarSign,
   Heart,
   Briefcase,
@@ -135,10 +134,6 @@ export default function Dashboard() {
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold">Life Hubs</h2>
-          <Button variant="outline" size="sm" onClick={() => navigate("/logs")}>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Log
-          </Button>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {hubs.map((hub) => (

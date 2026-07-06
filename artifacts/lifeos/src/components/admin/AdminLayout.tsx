@@ -56,7 +56,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               <Shield className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold">Admin Panel</h1>
+              <h1 className="text-2xl font-bold">Tech-Tate Admin</h1>
               <p className="text-sm text-muted-foreground">LifeOS System Administration</p>
             </div>
           </div>

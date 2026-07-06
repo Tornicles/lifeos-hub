@@ -61,7 +61,7 @@ export default function Calendar() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-bold mb-2">Calendar & Planner</h1>
+          <h1 className="text-4xl font-bold mb-2">Bills & Financial Calendar</h1>
           <p className="text-muted-foreground text-lg">
             Time blocking and focus scheduling
           </p>

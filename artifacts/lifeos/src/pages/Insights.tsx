@@ -74,7 +74,7 @@ export default function Insights() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">AI Insights</h1>
+        <h1 className="text-3xl font-bold">AI Coach</h1>
         <p className="text-muted-foreground">Weekly and monthly performance analysis</p>
       </div>
 

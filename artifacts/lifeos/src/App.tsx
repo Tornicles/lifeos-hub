@@ -15,19 +15,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import AppLayout from "./components/AppLayout";
 import Dashboard from "./pages/Dashboard";
-import UltraHub from "./pages/UltraHub";
-import Projects from "./pages/Projects";
-import Habits from "./pages/Habits";
 import Calendar from "./pages/Calendar";
-import Logs from "./pages/Logs";
-import Automation from "./pages/Automation";
-import StatesEngine from "./pages/StatesEngine";
-import AutomationRules from "./pages/AutomationRules";
-import AutomationDiagnostics from "./pages/AutomationDiagnostics";
-import AutomationSettings from "./pages/AutomationSettings";
 import HubDetail from "./pages/HubDetail";
-import ProjectDetail from "./pages/ProjectDetail";
-import HabitDetail from "./pages/HabitDetail";
 import Insights from "./pages/Insights";
 import Settings from "./pages/Settings";
 import Security from "./pages/Security";
@@ -197,19 +186,8 @@ function ClerkProviderWithRoutes() {
         <Route path="/sign-up/*" element={<SignUpPage />} />
         <Route element={<AppLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/ultra" element={<UltraHub />} />
           <Route path="/hubs/:hubCode" element={<HubDetail />} />
-          <Route path="/projects" element={<Projects />} />
-          <Route path="/projects/:projectId" element={<ProjectDetail />} />
-          <Route path="/habits" element={<Habits />} />
-          <Route path="/habits/:habitId" element={<HabitDetail />} />
           <Route path="/calendar" element={<Calendar />} />
-          <Route path="/logs" element={<Logs />} />
-          <Route path="/automation" element={<Automation />} />
-          <Route path="/automation-rules" element={<AutomationRules />} />
-          <Route path="/automation-diagnostics" element={<AutomationDiagnostics />} />
-          <Route path="/automation-settings" element={<AutomationSettings />} />
-          <Route path="/states-engine" element={<StatesEngine />} />
           <Route path="/insights" element={<Insights />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/profile" element={<Profile />} />
@@ -222,7 +200,55 @@ function ClerkProviderWithRoutes() {
             path="/reports"
             element={
               <div className="p-6">
-                <h1 className="text-2xl">Reports - Coming Soon</h1>
+                <h1 className="text-2xl">Progress - Coming Soon</h1>
+              </div>
+            }
+          />
+          <Route
+            path="/quiz"
+            element={
+              <div className="p-6">
+                <h1 className="text-2xl">Quiz - Coming Soon</h1>
+              </div>
+            }
+          />
+          <Route
+            path="/invite-partner"
+            element={
+              <div className="p-6">
+                <h1 className="text-2xl">Invite Partner - Coming Soon</h1>
+              </div>
+            }
+          />
+          <Route
+            path="/bible"
+            element={
+              <div className="p-6">
+                <h1 className="text-2xl">Bible & Stewardship - Coming Soon</h1>
+              </div>
+            }
+          />
+          <Route
+            path="/subscription"
+            element={
+              <div className="p-6">
+                <h1 className="text-2xl">Subscription - Coming Soon</h1>
+              </div>
+            }
+          />
+          <Route
+            path="/privacy"
+            element={
+              <div className="p-6">
+                <h1 className="text-2xl">Privacy - Coming Soon</h1>
+              </div>
+            }
+          />
+          <Route
+            path="/help"
+            element={
+              <div className="p-6">
+                <h1 className="text-2xl">Help & Support - Coming Soon</h1>
               </div>
             }
           />

@@ -165,11 +165,11 @@ export default function HubDetail() {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => navigate('/logs')}>
+          <Button variant="outline" disabled>
             <Plus className="mr-2 h-4 w-4" />
             Add Log
           </Button>
-          <Button onClick={() => navigate('/logs')}>
+          <Button disabled>
             <Plus className="mr-2 h-4 w-4" />
             Add Metric
           </Button>
@@ -286,7 +286,7 @@ export default function HubDetail() {
                 <div className="text-center py-12">
                   <BarChart3 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                   <p className="text-muted-foreground mb-4">No metrics yet</p>
-                  <Button variant="outline" onClick={() => navigate('/logs')}>
+                  <Button variant="outline" disabled>
                     <Plus className="mr-2 h-4 w-4" />
                     Add First Metric
                   </Button>
@@ -340,7 +340,7 @@ export default function HubDetail() {
                 <div className="text-center py-12">
                   <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                   <p className="text-muted-foreground mb-4">No logs yet</p>
-                  <Button variant="outline" onClick={() => navigate('/logs')}>
+                  <Button variant="outline" disabled>
                     <Plus className="mr-2 h-4 w-4" />
                     Add First Log
                   </Button>

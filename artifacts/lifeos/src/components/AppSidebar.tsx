@@ -1,26 +1,15 @@
 import { 
-  LayoutDashboard, 
-  Target, 
-  DollarSign, 
-  Heart, 
-  Briefcase, 
-  GraduationCap,
-  Sprout,
   Home,
-  Users,
-  FolderKanban,
-  Brain,
-  Calendar,
-  CheckSquare,
-  FileText,
-  BarChart3,
+  DollarSign, 
+  GraduationCap,
+  HelpCircle,
+  User,
+  UserPlus,
+  BookOpen,
+  Bell,
+  HelpingHand,
   Zap,
-  Settings,
   Shield,
-  ChevronRight,
-  Sparkles,
-  Sliders,
-  Activity,
   ShieldCheck
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
@@ -42,43 +31,22 @@ import {
 import { Badge } from "@/components/ui/badge";
 
 const mainItems = [
-  { title: "Command Center", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Ultra Hub", url: "/ultra", icon: Target },
-];
-
-const hubItems = [
+  { title: "Home", url: "/dashboard", icon: Home },
   { title: "Finance", url: "/hubs/finance", icon: DollarSign },
-  { title: "Health", url: "/hubs/health", icon: Heart },
-  { title: "Work", url: "/hubs/work", icon: Briefcase },
-  { title: "Academy", url: "/hubs/academy", icon: GraduationCap },
-  { title: "Personal Dev", url: "/hubs/personal-dev", icon: Sprout },
-  { title: "Household", url: "/hubs/household", icon: Home },
-  { title: "Relationships", url: "/hubs/relationships", icon: Users },
-  { title: "Projects Hub", url: "/hubs/projects", icon: FolderKanban },
-  { title: "Mindset", url: "/hubs/mindset", icon: Brain },
+  { title: "Learn", url: "/hubs/academy", icon: GraduationCap },
+  { title: "Quiz", url: "/quiz", icon: HelpCircle },
+  { title: "Profile", url: "/profile", icon: User },
 ];
 
-const toolItems = [
-  { title: "Projects", url: "/projects", icon: FolderKanban },
-  { title: "Calendar", url: "/calendar", icon: Calendar },
-  { title: "Habits", url: "/habits", icon: CheckSquare },
-  { title: "Logs", url: "/logs", icon: FileText },
-];
-
-const systemItems = [
-  { title: "States Engine", url: "/states-engine", icon: Brain },
-  { title: "Diagnostics", url: "/automation-diagnostics", icon: Activity },
-  { title: "Reports", url: "/reports", icon: BarChart3 },
-  { title: "Automation", url: "/automation", icon: Zap },
-  { title: "Rule Builder", url: "/automation-rules", icon: Sliders },
-  { title: "Auto Settings", url: "/automation-settings", icon: Settings },
-  { title: "Insights", url: "/insights", icon: Sparkles },
-  { title: "Security", url: "/security", icon: Shield },
-  { title: "Settings", url: "/settings", icon: Settings },
+const secondaryItems = [
+  { title: "Invite Partner", url: "/invite-partner", icon: UserPlus },
+  { title: "Bible & Stewardship", url: "/bible", icon: BookOpen },
+  { title: "Notifications", url: "/notifications", icon: Bell },
+  { title: "Help & Support", url: "/help", icon: HelpingHand },
 ];
 
 const adminItems = [
-  { title: "Admin Panel", url: "/admin", icon: ShieldCheck },
+  { title: "Tech-Tate Admin", url: "/admin", icon: ShieldCheck },
 ];
 
 export function AppSidebar() {
@@ -94,12 +62,11 @@ export function AppSidebar() {
       <SidebarHeader className="border-b border-border p-4">
         <div className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-            <Target className="h-5 w-5 text-white" />
+            <Home className="h-5 w-5 text-white" />
           </div>
           {open && (
             <div>
-              <h2 className="font-bold text-lg">LifeOS</h2>
-              <p className="text-xs text-muted-foreground">Ultra v30</p>
+              <h2 className="font-bold text-lg">Tech-Tate</h2>
             </div>
           )}
         </div>
@@ -129,67 +96,18 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Life Hubs */}
+        {/* Secondary Menu */}
         <SidebarGroup>
-          <SidebarGroupLabel>
-            Life Hubs
-            {open && <ChevronRight className="h-4 w-4 ml-auto" />}
-          </SidebarGroupLabel>
+          <SidebarGroupLabel>More</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {hubItems.map((item) => (
+              {secondaryItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={isActive(item.url)}>
                     <NavLink 
                       to={item.url}
                       className="flex items-center gap-3"
                       activeClassName="bg-accent/10 text-accent font-medium"
-                    >
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Tools */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Tools</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {toolItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                    <NavLink 
-                      to={item.url}
-                      className="flex items-center gap-3"
-                      activeClassName="bg-secondary/50 text-secondary-foreground font-medium"
-                    >
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* System */}
-        <SidebarGroup>
-          <SidebarGroupLabel>System</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {systemItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                    <NavLink 
-                      to={item.url}
-                      className="flex items-center gap-3"
-                      activeClassName="bg-muted text-foreground font-medium"
                     >
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
