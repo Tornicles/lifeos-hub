@@ -918,10 +918,12 @@ export const DeleteDebtResponse = zod.void()
 export const ListInvestmentEntriesResponseItem = zod.object({
   "id": zod.string().uuid(),
   "userId": zod.string(),
-  "accountName": zod.string(),
+  "assetName": zod.string(),
   "assetType": zod.string(),
-  "amount": zod.string(),
+  "amountInvested": zod.string(),
+  "currentValue": zod.string().nullish(),
   "entryDate": zod.coerce.date(),
+  "notes": zod.string().nullish(),
   "createdAt": zod.coerce.date().optional()
 })
 export const ListInvestmentEntriesResponse = zod.array(ListInvestmentEntriesResponseItem)
@@ -932,19 +934,53 @@ export const ListInvestmentEntriesResponse = zod.array(ListInvestmentEntriesResp
 
 
 export const CreateInvestmentEntryBody = zod.object({
-  "accountName": zod.string().min(1),
+  "assetName": zod.string().min(1),
   "assetType": zod.string().min(1),
-  "amount": zod.string(),
-  "entryDate": zod.coerce.date()
+  "amountInvested": zod.string(),
+  "currentValue": zod.string().nullish(),
+  "entryDate": zod.coerce.date().optional(),
+  "notes": zod.string().nullish()
 })
 
 export const CreateInvestmentEntryResponse = zod.object({
   "id": zod.string().uuid(),
   "userId": zod.string(),
-  "accountName": zod.string(),
+  "assetName": zod.string(),
   "assetType": zod.string(),
-  "amount": zod.string(),
+  "amountInvested": zod.string(),
+  "currentValue": zod.string().nullish(),
   "entryDate": zod.coerce.date(),
+  "notes": zod.string().nullish(),
+  "createdAt": zod.coerce.date().optional()
+})
+
+
+export const UpdateInvestmentEntryParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+
+
+
+
+export const UpdateInvestmentEntryBody = zod.object({
+  "assetName": zod.string().min(1).optional(),
+  "assetType": zod.string().min(1).optional(),
+  "amountInvested": zod.string().optional(),
+  "currentValue": zod.string().nullish(),
+  "entryDate": zod.coerce.date().optional(),
+  "notes": zod.string().nullish()
+})
+
+export const UpdateInvestmentEntryResponse = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "assetName": zod.string(),
+  "assetType": zod.string(),
+  "amountInvested": zod.string(),
+  "currentValue": zod.string().nullish(),
+  "entryDate": zod.coerce.date(),
+  "notes": zod.string().nullish(),
   "createdAt": zod.coerce.date().optional()
 })
 
@@ -971,11 +1007,30 @@ export const ListNetWorthSnapshotsResponse = zod.array(ListNetWorthSnapshotsResp
 export const CreateNetWorthSnapshotBody = zod.object({
   "snapshotDate": zod.coerce.date(),
   "totalAssets": zod.string(),
-  "totalLiabilities": zod.string(),
-  "netWorth": zod.string()
+  "totalLiabilities": zod.string()
 })
 
 export const CreateNetWorthSnapshotResponse = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "snapshotDate": zod.coerce.date(),
+  "totalAssets": zod.string(),
+  "totalLiabilities": zod.string(),
+  "netWorth": zod.string(),
+  "createdAt": zod.coerce.date().optional()
+})
+
+
+export const UpdateNetWorthSnapshotParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const UpdateNetWorthSnapshotBody = zod.object({
+  "totalAssets": zod.string().optional(),
+  "totalLiabilities": zod.string().optional()
+})
+
+export const UpdateNetWorthSnapshotResponse = zod.object({
   "id": zod.string().uuid(),
   "userId": zod.string(),
   "snapshotDate": zod.coerce.date(),

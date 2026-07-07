@@ -50,10 +50,16 @@ import {
   ListInvestmentEntriesResponse,
   CreateInvestmentEntryBody,
   CreateInvestmentEntryResponse,
+  UpdateInvestmentEntryParams,
+  UpdateInvestmentEntryBody,
+  UpdateInvestmentEntryResponse,
   DeleteInvestmentEntryParams,
   ListNetWorthSnapshotsResponse,
   CreateNetWorthSnapshotBody,
   CreateNetWorthSnapshotResponse,
+  UpdateNetWorthSnapshotParams,
+  UpdateNetWorthSnapshotBody,
+  UpdateNetWorthSnapshotResponse,
 } from "@workspace/api-zod";
 
 const router: IRouter = Router();
@@ -432,17 +438,39 @@ router.post("/investments", async (req, res): Promise<void> => {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
+  const today = new Date().toISOString().slice(0, 10);
   const [row] = await withUserContext(req.userId!, (tx) =>
     tx
       .insert(investmentEntriesTable)
       .values({
         ...parsed.data,
         userId: req.userId!,
-        entryDate: toDateOnlyString(parsed.data.entryDate)!,
+        entryDate: toDateOnlyString(parsed.data.entryDate) ?? today,
       })
       .returning(),
   );
   res.status(201).json(CreateInvestmentEntryResponse.parse(row));
+});
+
+router.patch("/investments/:id", async (req, res): Promise<void> => {
+  const params = UpdateInvestmentEntryParams.safeParse(req.params);
+  const parsed = UpdateInvestmentEntryBody.safeParse(req.body);
+  if (!params.success || !parsed.success) {
+    res.status(400).json({ error: params.success ? parsed.error!.message : params.error.message });
+    return;
+  }
+  const [row] = await withUserContext(req.userId!, (tx) =>
+    tx
+      .update(investmentEntriesTable)
+      .set({ ...parsed.data, entryDate: toDateOnlyString(parsed.data.entryDate) as string | undefined })
+      .where(and(eq(investmentEntriesTable.id, params.data.id), eq(investmentEntriesTable.userId, req.userId!)))
+      .returning(),
+  );
+  if (!row) {
+    res.status(404).json({ error: "Investment entry not found" });
+    return;
+  }
+  res.json(UpdateInvestmentEntryResponse.parse(row));
 });
 
 router.delete("/investments/:id", async (req, res): Promise<void> => {
@@ -464,6 +492,8 @@ router.delete("/investments/:id", async (req, res): Promise<void> => {
   res.sendStatus(204);
 });
 
+const NET_WORTH_DUPLICATE_MESSAGE = "You already logged today — edit it instead";
+
 router.get("/net-worth-snapshots", async (req, res): Promise<void> => {
   const rows = await withUserContext(req.userId!, (tx) =>
     tx.select().from(netWorthSnapshotsTable).where(eq(netWorthSnapshotsTable.userId, req.userId!)),
@@ -477,17 +507,74 @@ router.post("/net-worth-snapshots", async (req, res): Promise<void> => {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
+  const netWorth = (parseFloat(parsed.data.totalAssets) - parseFloat(parsed.data.totalLiabilities)).toFixed(2);
+  try {
+    const [row] = await withUserContext(req.userId!, (tx) =>
+      tx
+        .insert(netWorthSnapshotsTable)
+        .values({
+          ...parsed.data,
+          userId: req.userId!,
+          snapshotDate: toDateOnlyString(parsed.data.snapshotDate)!,
+          netWorth,
+        })
+        .returning(),
+    );
+    res.status(201).json(CreateNetWorthSnapshotResponse.parse(row));
+  } catch (error) {
+    if (isUniqueViolation(error)) {
+      // Find the existing row so the client can open it for editing
+      const [existing] = await withUserContext(req.userId!, (tx) =>
+        tx
+          .select()
+          .from(netWorthSnapshotsTable)
+          .where(
+            and(
+              eq(netWorthSnapshotsTable.userId, req.userId!),
+              eq(netWorthSnapshotsTable.snapshotDate, toDateOnlyString(parsed.data.snapshotDate)!),
+            ),
+          ),
+      );
+      res.status(409).json({
+        error: NET_WORTH_DUPLICATE_MESSAGE,
+        code: "DUPLICATE_SNAPSHOT",
+        existingId: existing?.id ?? null,
+      });
+      return;
+    }
+    throw error;
+  }
+});
+
+router.patch("/net-worth-snapshots/:id", async (req, res): Promise<void> => {
+  const params = UpdateNetWorthSnapshotParams.safeParse(req.params);
+  const parsed = UpdateNetWorthSnapshotBody.safeParse(req.body);
+  if (!params.success || !parsed.success) {
+    res.status(400).json({ error: params.success ? parsed.error!.message : params.error.message });
+    return;
+  }
+  // Fetch current row to recompute netWorth if only one side changes
+  const [existing] = await withUserContext(req.userId!, (tx) =>
+    tx
+      .select()
+      .from(netWorthSnapshotsTable)
+      .where(and(eq(netWorthSnapshotsTable.id, params.data.id), eq(netWorthSnapshotsTable.userId, req.userId!))),
+  );
+  if (!existing) {
+    res.status(404).json({ error: "Net worth snapshot not found" });
+    return;
+  }
+  const newAssets = parsed.data.totalAssets ?? existing.totalAssets;
+  const newLiabilities = parsed.data.totalLiabilities ?? existing.totalLiabilities;
+  const netWorth = (parseFloat(newAssets) - parseFloat(newLiabilities)).toFixed(2);
   const [row] = await withUserContext(req.userId!, (tx) =>
     tx
-      .insert(netWorthSnapshotsTable)
-      .values({
-        ...parsed.data,
-        userId: req.userId!,
-        snapshotDate: toDateOnlyString(parsed.data.snapshotDate)!,
-      })
+      .update(netWorthSnapshotsTable)
+      .set({ ...parsed.data, netWorth })
+      .where(and(eq(netWorthSnapshotsTable.id, params.data.id), eq(netWorthSnapshotsTable.userId, req.userId!)))
       .returning(),
   );
-  res.status(201).json(CreateNetWorthSnapshotResponse.parse(row));
+  res.json(UpdateNetWorthSnapshotResponse.parse(row));
 });
 
 export default router;

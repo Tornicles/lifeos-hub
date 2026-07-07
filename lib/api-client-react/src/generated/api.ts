@@ -71,6 +71,7 @@ import type {
   Insight,
   InvestmentEntry,
   InvestmentEntryInput,
+  InvestmentEntryUpdate,
   Lesson,
   LessonProgress,
   LessonProgressInput,
@@ -93,6 +94,7 @@ import type {
   MetricInput,
   NetWorthSnapshot,
   NetWorthSnapshotInput,
+  NetWorthSnapshotUpdate,
   Notification,
   NotificationPreferences,
   NotificationPreferencesUpdate,
@@ -3808,6 +3810,71 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       return useMutation(getCreateInvestmentEntryMutationOptions(options));
     }
 
+export const getUpdateInvestmentEntryUrl = (id: string,) => {
+
+
+
+
+  return `/api/investments/${id}`
+}
+
+export const updateInvestmentEntry = async (id: string,
+    investmentEntryUpdate: InvestmentEntryUpdate, options?: RequestInit): Promise<InvestmentEntry> => {
+
+  return customFetch<InvestmentEntry>(getUpdateInvestmentEntryUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(investmentEntryUpdate)
+  }
+);}
+
+
+
+
+export const getUpdateInvestmentEntryMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateInvestmentEntry>>, TError,{id: string;data: BodyType<InvestmentEntryUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateInvestmentEntry>>, TError,{id: string;data: BodyType<InvestmentEntryUpdate>}, TContext> => {
+
+const mutationKey = ['updateInvestmentEntry'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateInvestmentEntry>>, {id: string;data: BodyType<InvestmentEntryUpdate>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateInvestmentEntry(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateInvestmentEntryMutationResult = NonNullable<Awaited<ReturnType<typeof updateInvestmentEntry>>>
+    export type UpdateInvestmentEntryMutationBody = BodyType<InvestmentEntryUpdate>
+    export type UpdateInvestmentEntryMutationError = ErrorType<unknown>
+
+    export const useUpdateInvestmentEntry = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateInvestmentEntry>>, TError,{id: string;data: BodyType<InvestmentEntryUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateInvestmentEntry>>,
+        TError,
+        {id: string;data: BodyType<InvestmentEntryUpdate>},
+        TContext
+      > => {
+      return useMutation(getUpdateInvestmentEntryMutationOptions(options));
+    }
+
 export const getDeleteInvestmentEntryUrl = (id: string,) => {
 
 
@@ -4005,6 +4072,71 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
         TContext
       > => {
       return useMutation(getCreateNetWorthSnapshotMutationOptions(options));
+    }
+
+export const getUpdateNetWorthSnapshotUrl = (id: string,) => {
+
+
+
+
+  return `/api/net-worth-snapshots/${id}`
+}
+
+export const updateNetWorthSnapshot = async (id: string,
+    netWorthSnapshotUpdate: NetWorthSnapshotUpdate, options?: RequestInit): Promise<NetWorthSnapshot> => {
+
+  return customFetch<NetWorthSnapshot>(getUpdateNetWorthSnapshotUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(netWorthSnapshotUpdate)
+  }
+);}
+
+
+
+
+export const getUpdateNetWorthSnapshotMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateNetWorthSnapshot>>, TError,{id: string;data: BodyType<NetWorthSnapshotUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateNetWorthSnapshot>>, TError,{id: string;data: BodyType<NetWorthSnapshotUpdate>}, TContext> => {
+
+const mutationKey = ['updateNetWorthSnapshot'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateNetWorthSnapshot>>, {id: string;data: BodyType<NetWorthSnapshotUpdate>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateNetWorthSnapshot(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateNetWorthSnapshotMutationResult = NonNullable<Awaited<ReturnType<typeof updateNetWorthSnapshot>>>
+    export type UpdateNetWorthSnapshotMutationBody = BodyType<NetWorthSnapshotUpdate>
+    export type UpdateNetWorthSnapshotMutationError = ErrorType<unknown>
+
+    export const useUpdateNetWorthSnapshot = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateNetWorthSnapshot>>, TError,{id: string;data: BodyType<NetWorthSnapshotUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateNetWorthSnapshot>>,
+        TError,
+        {id: string;data: BodyType<NetWorthSnapshotUpdate>},
+        TContext
+      > => {
+      return useMutation(getUpdateNetWorthSnapshotMutationOptions(options));
     }
 
 export const getListTopicsUrl = (params?: ListTopicsParams,) => {

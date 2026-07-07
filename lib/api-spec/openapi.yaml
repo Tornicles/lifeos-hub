@@ -765,6 +765,20 @@ paths:
         in: path
         required: true
         schema: { type: string, format: uuid }
+    patch:
+      operationId: updateInvestmentEntry
+      tags: [finance]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/InvestmentEntryUpdate" }
+      responses:
+        "200":
+          description: Updated investment entry
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/InvestmentEntry" }
     delete:
       operationId: deleteInvestmentEntry
       tags: [finance]
@@ -793,6 +807,27 @@ paths:
       responses:
         "201":
           description: Created net worth snapshot
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/NetWorthSnapshot" }
+
+  /net-worth-snapshots/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      operationId: updateNetWorthSnapshot
+      tags: [finance]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/NetWorthSnapshotUpdate" }
+      responses:
+        "200":
+          description: Updated net worth snapshot
           content:
             application/json:
               schema: { $ref: "#/components/schemas/NetWorthSnapshot" }
@@ -2254,23 +2289,36 @@ components:
 
     InvestmentEntry:
       type: object
-      required: [id, userId, accountName, assetType, amount, entryDate]
+      required: [id, userId, assetName, assetType, amountInvested, entryDate]
       properties:
         id: { type: string, format: uuid }
         userId: { type: string }
-        accountName: { type: string }
+        assetName: { type: string }
         assetType: { type: string }
-        amount: { type: string }
+        amountInvested: { type: string }
+        currentValue: { type: ["string", "null"] }
         entryDate: { type: string, format: date }
+        notes: { type: ["string", "null"] }
         createdAt: { type: string, format: date-time }
     InvestmentEntryInput:
       type: object
-      required: [accountName, assetType, amount, entryDate]
+      required: [assetName, assetType, amountInvested]
       properties:
-        accountName: { type: string, minLength: 1 }
+        assetName: { type: string, minLength: 1 }
         assetType: { type: string, minLength: 1 }
-        amount: { type: string }
+        amountInvested: { type: string }
+        currentValue: { type: ["string", "null"] }
         entryDate: { type: string, format: date }
+        notes: { type: ["string", "null"] }
+    InvestmentEntryUpdate:
+      type: object
+      properties:
+        assetName: { type: string, minLength: 1 }
+        assetType: { type: string, minLength: 1 }
+        amountInvested: { type: string }
+        currentValue: { type: ["string", "null"] }
+        entryDate: { type: string, format: date }
+        notes: { type: ["string", "null"] }
 
     NetWorthSnapshot:
       type: object
@@ -2285,12 +2333,16 @@ components:
         createdAt: { type: string, format: date-time }
     NetWorthSnapshotInput:
       type: object
-      required: [snapshotDate, totalAssets, totalLiabilities, netWorth]
+      required: [snapshotDate, totalAssets, totalLiabilities]
       properties:
         snapshotDate: { type: string, format: date }
         totalAssets: { type: string }
         totalLiabilities: { type: string }
-        netWorth: { type: string }
+    NetWorthSnapshotUpdate:
+      type: object
+      properties:
+        totalAssets: { type: string }
+        totalLiabilities: { type: string }
 
     # ---------- Academy ----------
     Topic:

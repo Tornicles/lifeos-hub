@@ -121,10 +121,12 @@ export const investmentEntriesTable = pgTable(
   {
     id: uuid("id").defaultRandom().primaryKey(),
     userId: text("user_id").notNull(),
-    accountName: text("account_name").notNull(),
+    assetName: text("asset_name").notNull(),
     assetType: text("asset_type").notNull(),
-    amount: numeric("amount", { precision: 14, scale: 2 }).notNull(),
+    amountInvested: numeric("amount_invested", { precision: 14, scale: 2 }).notNull(),
+    currentValue: numeric("current_value", { precision: 14, scale: 2 }),
     entryDate: date("entry_date", { mode: "string" }).notNull(),
+    notes: text("notes"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [userIsolation()],
@@ -145,7 +147,7 @@ export const netWorthSnapshotsTable = pgTable(
     netWorth: numeric("net_worth", { precision: 14, scale: 2 }).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (table) => [userIsolation()],
+  (table) => [userIsolation(), unique("net_worth_user_date_unique").on(table.userId, table.snapshotDate)],
 ).enableRLS();
 
 export const insertNetWorthSnapshotSchema = createInsertSchema(netWorthSnapshotsTable).omit({ id: true, createdAt: true });

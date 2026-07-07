@@ -6,8 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface NetWorthSnapshotInput {
-  snapshotDate: Date;
-  totalAssets: string;
-  totalLiabilities: string;
+export interface NetWorthSnapshotUpdate {
+  totalAssets?: string;
+  totalLiabilities?: string;
 }

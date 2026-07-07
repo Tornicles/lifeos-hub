@@ -8,6 +8,8 @@ import { ExpensesTab } from "@/components/finance/ExpensesTab";
 import { SavingsGoalsTab } from "@/components/finance/SavingsGoalsTab";
 import { DebtsTab } from "@/components/finance/DebtsTab";
 import { EmergencyFundTab } from "@/components/finance/EmergencyFundTab";
+import { InvestmentsTab } from "@/components/finance/InvestmentsTab";
+import { NetWorthTab } from "@/components/finance/NetWorthTab";
 import { useIncome, useExpenses, useDebts } from "@/hooks/useFinance";
 
 function currentMonthKey() {
@@ -77,13 +79,15 @@ export default function Finance() {
       </div>
 
       <Tabs defaultValue="budgets" className="space-y-4">
-        <TabsList>
+        <TabsList className="flex-wrap h-auto">
           <TabsTrigger value="budgets">Budgets</TabsTrigger>
           <TabsTrigger value="income">Income</TabsTrigger>
           <TabsTrigger value="expenses">Expenses</TabsTrigger>
           <TabsTrigger value="savings">Savings Goals</TabsTrigger>
           <TabsTrigger value="debts">Debts</TabsTrigger>
           <TabsTrigger value="emergency">Emergency Fund</TabsTrigger>
+          <TabsTrigger value="investments">Investments</TabsTrigger>
+          <TabsTrigger value="net-worth">Net Worth</TabsTrigger>
         </TabsList>
         <TabsContent value="budgets"><BudgetsTab /></TabsContent>
         <TabsContent value="income"><IncomeTab /></TabsContent>
@@ -91,6 +95,8 @@ export default function Finance() {
         <TabsContent value="savings"><SavingsGoalsTab /></TabsContent>
         <TabsContent value="debts"><DebtsTab /></TabsContent>
         <TabsContent value="emergency"><EmergencyFundTab /></TabsContent>
+        <TabsContent value="investments"><InvestmentsTab /></TabsContent>
+        <TabsContent value="net-worth"><NetWorthTab /></TabsContent>
       </Tabs>
     </div>
   );

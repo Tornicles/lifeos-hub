@@ -6,16 +6,15 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface InvestmentEntry {
-  id: string;
-  userId: string;
-  assetName: string;
-  assetType: string;
-  amountInvested: string;
+export interface InvestmentEntryUpdate {
+  /** @minLength 1 */
+  assetName?: string;
+  /** @minLength 1 */
+  assetType?: string;
+  amountInvested?: string;
   /** @nullable */
   currentValue?: string | null;
-  entryDate: Date;
+  entryDate?: Date;
   /** @nullable */
   notes?: string | null;
-  createdAt?: Date;
 }

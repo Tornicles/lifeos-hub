@@ -8,9 +8,13 @@
 
 export interface InvestmentEntryInput {
   /** @minLength 1 */
-  accountName: string;
+  assetName: string;
   /** @minLength 1 */
   assetType: string;
-  amount: string;
-  entryDate: Date;
+  amountInvested: string;
+  /** @nullable */
+  currentValue?: string | null;
+  entryDate?: Date;
+  /** @nullable */
+  notes?: string | null;
 }

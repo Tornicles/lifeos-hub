@@ -575,20 +575,41 @@ export interface DebtUpdate {
 export interface InvestmentEntry {
   id: string;
   userId: string;
-  accountName: string;
+  assetName: string;
   assetType: string;
-  amount: string;
+  amountInvested: string;
+  /** @nullable */
+  currentValue?: string | null;
   entryDate: string;
+  /** @nullable */
+  notes?: string | null;
   createdAt?: string;
 }
 
 export interface InvestmentEntryInput {
   /** @minLength 1 */
-  accountName: string;
+  assetName: string;
   /** @minLength 1 */
   assetType: string;
-  amount: string;
-  entryDate: string;
+  amountInvested: string;
+  /** @nullable */
+  currentValue?: string | null;
+  entryDate?: string;
+  /** @nullable */
+  notes?: string | null;
+}
+
+export interface InvestmentEntryUpdate {
+  /** @minLength 1 */
+  assetName?: string;
+  /** @minLength 1 */
+  assetType?: string;
+  amountInvested?: string;
+  /** @nullable */
+  currentValue?: string | null;
+  entryDate?: string;
+  /** @nullable */
+  notes?: string | null;
 }
 
 export interface NetWorthSnapshot {
@@ -605,7 +626,11 @@ export interface NetWorthSnapshotInput {
   snapshotDate: string;
   totalAssets: string;
   totalLiabilities: string;
-  netWorth: string;
+}
+
+export interface NetWorthSnapshotUpdate {
+  totalAssets?: string;
+  totalLiabilities?: string;
 }
 
 export interface Topic {
