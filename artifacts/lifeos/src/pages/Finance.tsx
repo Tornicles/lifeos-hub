@@ -11,6 +11,8 @@ import { EmergencyFundTab } from "@/components/finance/EmergencyFundTab";
 import { InvestmentsTab } from "@/components/finance/InvestmentsTab";
 import { NetWorthTab } from "@/components/finance/NetWorthTab";
 import { useIncome, useExpenses, useDebts } from "@/hooks/useFinance";
+import { useCalendarEntries } from "@/hooks/useCalendar";
+import { Receipt } from "lucide-react";
 
 function currentMonthKey() {
   const now = new Date();
@@ -21,6 +23,7 @@ export default function Finance() {
   const { data: income, isLoading: incomeLoading } = useIncome();
   const { data: expenses, isLoading: expensesLoading } = useExpenses();
   const { data: debts, isLoading: debtsLoading } = useDebts();
+  const { data: calendarEntries, isLoading: billsLoading } = useCalendarEntries();
 
   const monthKey = currentMonthKey();
   const monthIncome = income?.filter((i) => i.receivedDate?.toString().slice(0, 7) === monthKey) ?? [];
@@ -32,6 +35,19 @@ export default function Finance() {
   const net = totalIncome - totalExpenses;
 
   const statsLoading = incomeLoading || expensesLoading || debtsLoading;
+
+  function daysUntilDue(dueDay: number) {
+    const now = new Date();
+    const currentDay = now.getDate();
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    if (dueDay >= currentDay) return dueDay - currentDay;
+    const daysLeftThisMonth = daysInMonth - currentDay;
+    return daysLeftThisMonth + dueDay;
+  }
+
+  const thisWeekBills = (calendarEntries ?? [])
+    .filter((e) => e.dueDay !== null && e.dueDay !== undefined && daysUntilDue(e.dueDay) <= 7)
+    .sort((a, b) => daysUntilDue(a.dueDay ?? 0) - daysUntilDue(b.dueDay ?? 0));
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -77,6 +93,31 @@ export default function Finance() {
           </CardContent>
         </Card>
       </div>
+
+      <Card className="border-amber-200 bg-amber-50/50 dark:bg-amber-950/10">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-medium flex items-center gap-2">
+            <Receipt className="h-4 w-4" />
+            Bills Due This Week
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {billsLoading ? (
+            <Skeleton className="h-8 w-full" />
+          ) : thisWeekBills.length === 0 ? (
+            <div className="text-sm text-muted-foreground">No bills due in the next 7 days</div>
+          ) : (
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {thisWeekBills.map((b) => (
+                <div key={b.id} className="flex items-center justify-between rounded-md border bg-background px-3 py-2 text-sm">
+                  <span className="truncate">{b.title}</span>
+                  <span className="font-semibold">${Number(b.amount ?? 0).toFixed(2)}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <Tabs defaultValue="budgets" className="space-y-4">
         <TabsList className="flex-wrap h-auto">

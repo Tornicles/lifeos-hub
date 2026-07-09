@@ -50,6 +50,7 @@ import type {
   Challenge,
   ChallengeCompletion,
   ChallengeCompletionInput,
+  ChallengeCompletionResult,
   Couple,
   CoupleDiscussionPrompt,
   Debt,
@@ -75,6 +76,7 @@ import type {
   Lesson,
   LessonProgress,
   LessonProgressInput,
+  LessonProgressResult,
   ListBibleVersesParams,
   ListCalendarEntriesParams,
   ListHabitsParams,
@@ -109,6 +111,7 @@ import type {
   ProjectUpdate,
   QuizAttempt,
   QuizAttemptInput,
+  QuizAttemptResult,
   QuizWithQuestions,
   SavingsGoal,
   SavingsGoalInput,
@@ -4367,9 +4370,9 @@ export const getCreateLessonProgressUrl = () => {
   return `/api/lesson-progress`
 }
 
-export const createLessonProgress = async (lessonProgressInput: LessonProgressInput, options?: RequestInit): Promise<LessonProgress> => {
+export const createLessonProgress = async (lessonProgressInput: LessonProgressInput, options?: RequestInit): Promise<LessonProgressResult> => {
 
-  return customFetch<LessonProgress>(getCreateLessonProgressUrl(),
+  return customFetch<LessonProgressResult>(getCreateLessonProgressUrl(),
   {
     ...options,
     method: 'POST',
@@ -4573,9 +4576,9 @@ export const getCreateQuizAttemptUrl = () => {
   return `/api/quiz-attempts`
 }
 
-export const createQuizAttempt = async (quizAttemptInput: QuizAttemptInput, options?: RequestInit): Promise<QuizAttempt> => {
+export const createQuizAttempt = async (quizAttemptInput: QuizAttemptInput, options?: RequestInit): Promise<QuizAttemptResult> => {
 
-  return customFetch<QuizAttempt>(getCreateQuizAttemptUrl(),
+  return customFetch<QuizAttemptResult>(getCreateQuizAttemptUrl(),
   {
     ...options,
     method: 'POST',
@@ -4779,9 +4782,9 @@ export const getCreateChallengeCompletionUrl = () => {
   return `/api/challenge-completions`
 }
 
-export const createChallengeCompletion = async (challengeCompletionInput: ChallengeCompletionInput, options?: RequestInit): Promise<ChallengeCompletion> => {
+export const createChallengeCompletion = async (challengeCompletionInput: ChallengeCompletionInput, options?: RequestInit): Promise<ChallengeCompletionResult> => {
 
-  return customFetch<ChallengeCompletion>(getCreateChallengeCompletionUrl(),
+  return customFetch<ChallengeCompletionResult>(getCreateChallengeCompletionUrl(),
   {
     ...options,
     method: 'POST',

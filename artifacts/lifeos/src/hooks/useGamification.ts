@@ -8,7 +8,10 @@ import {
   useListXpEvents,
   useListBadges,
   useListUserBadges,
+  getListUserBadgesQueryKey,
+  getListHabitsQueryKey,
 } from '@workspace/api-client-react';
+import { celebrateGamification } from '@/lib/gamificationToast';
 
 export const useChallenges = () => useListChallenges();
 export const useChallengeCompletions = () => useListChallengeCompletions();
@@ -22,9 +25,14 @@ export const useCompleteChallenge = () => {
       mutation.mutate(
         { data: { challengeId } },
         {
-          onSuccess: () => {
+          onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: getListChallengeCompletionsQueryKey() });
-            toast.success('Challenge completed! XP awarded.');
+            queryClient.invalidateQueries({ queryKey: getListHabitsQueryKey() });
+            toast.success('Challenge completed!');
+            if (data?.newBadges?.length) {
+              queryClient.invalidateQueries({ queryKey: getListUserBadgesQueryKey() });
+            }
+            celebrateGamification(data);
           },
           onError: (error: any) => {
             console.error('Complete challenge error:', error);

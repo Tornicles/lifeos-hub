@@ -1,0 +1,49 @@
+Branch: techtate-xp-streaks-badges
+
+GOAL
+Turn lesson/quiz/challenge completion into a visible reward system: XP total, 
+daily streak, and earned badges.
+
+XP
+- On lesson completion: write xp_events (amount: 10, source_type: 'lesson', 
+  source_id: lesson id)
+- On quiz submission: write xp_events (amount: score >= 70 ? 15 : 5, 
+  source_type: 'quiz', source_id: quiz id) — partial credit for attempting 
+  even if the score is low, don't give zero XP for trying
+- On challenge completion: write xp_events (amount: challenges.xp_reward, 
+  source_type: 'challenge', source_id: challenge id)
+- Display running total (SUM of xp_events.amount for the user) on Home tab 
+  header and Profile tab
+
+STREAKS (reuse habits/habit_checkins — do not create a new table)
+- On first use, create one habits row per user named "Daily Challenge" 
+  (check if it already exists before creating, don't duplicate per session)
+- When all 3 steps of a day's challenge sequence are complete (from Prompt 
+  10), write a habit_checkins row for that date if one doesn't already exist, 
+  and increment/maintain the habits.streak field using whatever logic 
+  Habits.tsx already used for streak calculation before it was removed from 
+  nav — reuse that logic, don't reinvent it
+- Display current streak count prominently on Home tab (e.g. "🔥 5 day streak")
+
+BADGES
+Seed these badges: "First Lesson" (criteria: 1 lesson completed), "First 
+Quiz" (criteria: 1 quiz completed), "7-Day Streak" (criteria: streak >= 7), 
+"30-Day Streak" (criteria: streak >= 30), "Quiz Master" (criteria: 10 quizzes 
+completed with score >= 80).
+- After each relevant action (lesson/quiz/challenge completion), check badge 
+  criteria and insert into user_badges if newly earned and not already awarded 
+  (respect the UNIQUE constraint, catch and ignore the conflict rather than 
+  erroring)
+- Show a small celebratory toast/modal when a new badge is earned (don't just 
+  silently add it)
+- Profile tab: grid of all badges, earned ones in full color, unearned ones 
+  greyed out with their criteria shown on tap
+
+OUTPUT
+- Files created/changed
+- Confirm the "Daily Challenge" habit is created once per user, not duplicated
+- Confirm streak logic matches what Habits.tsx used previously (describe what 
+  you found and reused)
+- Confirm all 5 badges can be earned and display correctly in both states 
+  (earned/unearned)
+- Any errors

@@ -5,11 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Loader2, User, Mail, Shield, Calendar } from 'lucide-react';
+import { Loader2, User, Mail, Shield, Calendar, Award, Lock } from 'lucide-react';
 import { useHighestRole } from '@/hooks/useUserRole';
 import { useUser } from '@clerk/react';
 import { useGetMyProfile, useUpdateMyProfile, getGetMyProfileQueryKey } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useBadges, useUserBadges } from '@/hooks/useGamification';
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -18,6 +19,9 @@ export default function Profile() {
   const { role, isLoading: roleLoading } = useHighestRole();
   const [editing, setEditing] = useState(false);
   const [fullName, setFullName] = useState('');
+  const { data: badges } = useBadges();
+  const { data: userBadges } = useUserBadges();
+  const earnedBadgeIds = new Set((userBadges ?? []).map((ub) => ub.badgeId));
 
   const { data: profile, isLoading: profileLoading } = useGetMyProfile({
     query: {
@@ -223,6 +227,54 @@ export default function Profile() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Badges */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Award className="w-5 h-5" />
+            Badges
+          </CardTitle>
+          <CardDescription>
+            {earnedBadgeIds.size} of {badges?.length ?? 0} earned
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {badges && badges.length > 0 ? (
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
+              {badges.map((badge) => {
+                const earned = earnedBadgeIds.has(badge.id);
+                return (
+                  <div
+                    key={badge.id}
+                    className={`flex flex-col items-center gap-2 rounded-lg border p-4 text-center transition-colors ${
+                      earned ? 'border-purple-300 bg-purple-50 dark:bg-purple-950/30' : 'opacity-50'
+                    }`}
+                  >
+                    <div
+                      className={`flex h-12 w-12 items-center justify-center rounded-full ${
+                        earned ? 'bg-purple-100 dark:bg-purple-900' : 'bg-muted'
+                      }`}
+                    >
+                      {earned ? (
+                        <Award className="h-6 w-6 text-purple-600" />
+                      ) : (
+                        <Lock className="h-5 w-5 text-muted-foreground" />
+                      )}
+                    </div>
+                    <p className="text-sm font-medium">{badge.name}</p>
+                    {badge.description && (
+                      <p className="text-xs text-muted-foreground">{badge.description}</p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">No badges available yet.</p>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

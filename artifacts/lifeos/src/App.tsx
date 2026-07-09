@@ -31,6 +31,7 @@ import Academy from "./pages/Academy";
 import BibleStudy from "./pages/BibleStudy";
 import Couples from "./pages/Couples";
 import Gamification from "./pages/Gamification";
+import Progress from "./pages/Progress";
 import Onboarding from "./pages/Onboarding";
 
 // REQUIRED — copy verbatim. Resolves the key from window.location.hostname so the
@@ -208,14 +209,7 @@ function ClerkProviderWithRoutes() {
           <Route path="/couples" element={<Couples />} />
           <Route path="/bible" element={<BibleStudy />} />
           <Route path="/achievements" element={<Gamification />} />
-          <Route
-            path="/reports"
-            element={
-              <div className="p-6">
-                <h1 className="text-2xl">Progress - Coming Soon</h1>
-              </div>
-            }
-          />
+          <Route path="/reports" element={<Progress />} />
           <Route
             path="/quiz"
             element={

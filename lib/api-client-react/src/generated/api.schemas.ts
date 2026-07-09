@@ -711,6 +711,27 @@ export interface QuizAttemptInput {
   answers?: unknown;
 }
 
+export interface Badge {
+  id: number;
+  name: string;
+  /** @nullable */
+  description?: string | null;
+  /** @nullable */
+  iconName?: string | null;
+  criteria?: unknown;
+  createdAt?: string;
+}
+
+export type LessonProgressResult = LessonProgress & {
+  xpAwarded?: number;
+  newBadges?: Badge[];
+};
+
+export type QuizAttemptResult = QuizAttempt & {
+  xpAwarded?: number;
+  newBadges?: Badge[];
+};
+
 export interface Challenge {
   id: number;
   name: string;
@@ -735,6 +756,11 @@ export interface ChallengeCompletionInput {
   challengeId: number;
 }
 
+export type ChallengeCompletionResult = ChallengeCompletion & {
+  xpAwarded?: number;
+  newBadges?: Badge[];
+};
+
 export interface XpEvent {
   id: string;
   userId: string;
@@ -753,17 +779,6 @@ export interface XpEventInput {
   xpAmount: number;
   sourceType?: string;
   sourceId?: string;
-}
-
-export interface Badge {
-  id: number;
-  name: string;
-  /** @nullable */
-  description?: string | null;
-  /** @nullable */
-  iconName?: string | null;
-  criteria?: unknown;
-  createdAt?: string;
 }
 
 export interface UserBadge {

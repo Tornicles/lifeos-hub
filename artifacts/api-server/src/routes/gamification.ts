@@ -9,6 +9,7 @@ import {
   badgesTable,
   userBadgesTable,
 } from "@workspace/db";
+import { awardXp, checkAndAwardBadges, maybeRecordDailyChallengeCheckin } from "../lib/gamification";
 import {
   ListChallengesResponse,
   ListChallengeCompletionsResponse,
@@ -43,13 +44,33 @@ router.post("/challenge-completions", async (req, res): Promise<void> => {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
-  const [row] = await withUserContext(req.userId!, (tx) =>
-    tx
+
+  const result = await withUserContext(req.userId!, async (tx) => {
+    const [row] = await tx
       .insert(challengeCompletionsTable)
       .values({ ...parsed.data, userId: req.userId! })
-      .returning(),
+      .returning();
+
+    const [challenge] = await tx
+      .select()
+      .from(challengesTable)
+      .where(eq(challengesTable.id, parsed.data.challengeId));
+    const xpAwarded = challenge?.xpReward ?? 0;
+    await awardXp(tx, req.userId!, "challenge_completed", xpAwarded, "challenge", String(parsed.data.challengeId));
+
+    await maybeRecordDailyChallengeCheckin(tx, req.userId!);
+    const newBadges = await checkAndAwardBadges(tx, req.userId!);
+
+    return { row, xpAwarded, newBadges };
+  });
+
+  res.status(201).json(
+    CreateChallengeCompletionResponse.parse({
+      ...result.row,
+      xpAwarded: result.xpAwarded,
+      newBadges: result.newBadges,
+    }),
   );
-  res.status(201).json(CreateChallengeCompletionResponse.parse(row));
 });
 
 router.get("/xp-events", async (req, res): Promise<void> => {

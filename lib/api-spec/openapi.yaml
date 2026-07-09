@@ -887,7 +887,7 @@ paths:
           description: Created/updated lesson progress
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/LessonProgress" }
+              schema: { $ref: "#/components/schemas/LessonProgressResult" }
 
   /quizzes/{id}:
     parameters:
@@ -928,7 +928,7 @@ paths:
           description: Created quiz attempt
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/QuizAttempt" }
+              schema: { $ref: "#/components/schemas/QuizAttemptResult" }
 
   # ---------- Gamification ----------
   /challenges:
@@ -965,7 +965,7 @@ paths:
           description: Created challenge completion
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/ChallengeCompletion" }
+              schema: { $ref: "#/components/schemas/ChallengeCompletionResult" }
 
   /xp-events:
     get:
@@ -2435,6 +2435,26 @@ components:
         totalQuestions: { type: integer }
         answers: {}
 
+    LessonProgressResult:
+      allOf:
+        - $ref: "#/components/schemas/LessonProgress"
+        - type: object
+          properties:
+            xpAwarded: { type: integer }
+            newBadges:
+              type: array
+              items: { $ref: "#/components/schemas/Badge" }
+
+    QuizAttemptResult:
+      allOf:
+        - $ref: "#/components/schemas/QuizAttempt"
+        - type: object
+          properties:
+            xpAwarded: { type: integer }
+            newBadges:
+              type: array
+              items: { $ref: "#/components/schemas/Badge" }
+
     # ---------- Gamification ----------
     Challenge:
       type: object
@@ -2462,6 +2482,16 @@ components:
       required: [challengeId]
       properties:
         challengeId: { type: integer }
+
+    ChallengeCompletionResult:
+      allOf:
+        - $ref: "#/components/schemas/ChallengeCompletion"
+        - type: object
+          properties:
+            xpAwarded: { type: integer }
+            newBadges:
+              type: array
+              items: { $ref: "#/components/schemas/Badge" }
 
     XpEvent:
       type: object

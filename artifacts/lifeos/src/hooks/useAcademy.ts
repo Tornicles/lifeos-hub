@@ -12,8 +12,11 @@ import {
   useListQuizAttempts,
   useCreateQuizAttempt,
   getListQuizAttemptsQueryKey,
+  getListUserBadgesQueryKey,
+  getListHabitsQueryKey,
   type QuizAttemptInput,
 } from '@workspace/api-client-react';
+import { celebrateGamification } from '@/lib/gamificationToast';
 
 export const useTopics = (hubId?: number) => useListTopics(hubId !== undefined ? { hubId } : undefined);
 
@@ -33,9 +36,14 @@ export const useMarkLessonProgress = () => {
       mutation.mutate(
         { data: { lessonId, completed } },
         {
-          onSuccess: () => {
+          onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: getListLessonProgressQueryKey() });
             toast.success(completed ? 'Lesson marked complete' : 'Lesson progress saved');
+            if (data?.newBadges?.length) {
+              queryClient.invalidateQueries({ queryKey: getListUserBadgesQueryKey() });
+              queryClient.invalidateQueries({ queryKey: getListHabitsQueryKey() });
+            }
+            celebrateGamification(data);
           },
           onError: (error: any) => {
             console.error('Lesson progress error:', error);
@@ -62,9 +70,14 @@ export const useSubmitQuizAttempt = () => {
       mutation.mutate(
         { data },
         {
-          onSuccess: () => {
+          onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: getListQuizAttemptsQueryKey() });
             toast.success('Quiz attempt recorded');
+            if (data?.newBadges?.length) {
+              queryClient.invalidateQueries({ queryKey: getListUserBadgesQueryKey() });
+              queryClient.invalidateQueries({ queryKey: getListHabitsQueryKey() });
+            }
+            celebrateGamification(data);
           },
           onError: (error: any) => {
             console.error('Quiz attempt error:', error);

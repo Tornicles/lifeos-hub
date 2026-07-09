@@ -1095,7 +1095,17 @@ export const CreateLessonProgressResponse = zod.object({
   "completed": zod.boolean(),
   "completedAt": zod.coerce.date().nullish(),
   "createdAt": zod.coerce.date().optional()
-})
+}).and(zod.object({
+  "xpAwarded": zod.number().optional(),
+  "newBadges": zod.array(zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "description": zod.string().nullish(),
+  "iconName": zod.string().nullish(),
+  "criteria": zod.unknown().optional(),
+  "createdAt": zod.coerce.date().optional()
+})).optional()
+}))
 
 
 export const GetQuizParams = zod.object({
@@ -1149,7 +1159,17 @@ export const CreateQuizAttemptResponse = zod.object({
   "answers": zod.unknown().optional(),
   "attemptedAt": zod.coerce.date().optional(),
   "createdAt": zod.coerce.date().optional()
-})
+}).and(zod.object({
+  "xpAwarded": zod.number().optional(),
+  "newBadges": zod.array(zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "description": zod.string().nullish(),
+  "iconName": zod.string().nullish(),
+  "criteria": zod.unknown().optional(),
+  "createdAt": zod.coerce.date().optional()
+})).optional()
+}))
 
 
 export const ListChallengesResponseItem = zod.object({
@@ -1184,7 +1204,17 @@ export const CreateChallengeCompletionResponse = zod.object({
   "challengeId": zod.number(),
   "completedAt": zod.coerce.date(),
   "createdAt": zod.coerce.date().optional()
-})
+}).and(zod.object({
+  "xpAwarded": zod.number().optional(),
+  "newBadges": zod.array(zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "description": zod.string().nullish(),
+  "iconName": zod.string().nullish(),
+  "criteria": zod.unknown().optional(),
+  "createdAt": zod.coerce.date().optional()
+})).optional()
+}))
 
 
 export const ListXpEventsResponseItem = zod.object({

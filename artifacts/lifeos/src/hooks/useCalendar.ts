@@ -11,6 +11,10 @@ const calendarEntrySchema = z.object({
   endTime: z.string().regex(/^\d{2}:\d{2}$/).optional().nullable(),
   hubId: z.number().int().positive().optional().nullable(),
   focusDomain: z.string().trim().max(50).optional().nullable(),
+  amount: z.string().optional().nullable(),
+  dueDay: z.number().int().min(1).max(31).optional().nullable(),
+  isAutopay: z.boolean().optional(),
+  category: z.string().trim().max(100).optional().nullable(),
 });
 
 export type CalendarEntryInsert = z.infer<typeof calendarEntrySchema>;
@@ -38,6 +42,10 @@ export const useCreateCalendarEntry = () => {
           endTime: validated.endTime ?? undefined,
           hubId: validated.hubId ?? undefined,
           focusDomain: validated.focusDomain ?? undefined,
+          amount: validated.amount ?? undefined,
+          dueDay: validated.dueDay ?? undefined,
+          isAutopay: validated.isAutopay ?? undefined,
+          category: validated.category ?? undefined,
         }
       }, {
         onSuccess: () => {
@@ -62,6 +70,10 @@ export const useCreateCalendarEntry = () => {
             endTime: validated.endTime ?? undefined,
             hubId: validated.hubId ?? undefined,
             focusDomain: validated.focusDomain ?? undefined,
+            amount: validated.amount ?? undefined,
+            dueDay: validated.dueDay ?? undefined,
+            isAutopay: validated.isAutopay ?? undefined,
+            category: validated.category ?? undefined,
           }
         });
         queryClient.invalidateQueries({ queryKey: getListCalendarEntriesQueryKey() });
