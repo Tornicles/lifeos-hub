@@ -541,6 +541,7 @@ export const ListSavingsGoalsResponseItem = zod.object({
   "currentAmount": zod.string(),
   "targetDate": zod.coerce.date().nullish(),
   "isShared": zod.boolean(),
+  "coupleId": zod.string().uuid().nullish(),
   "createdAt": zod.coerce.date().optional(),
   "updatedAt": zod.coerce.date().optional()
 })
@@ -555,7 +556,8 @@ export const CreateSavingsGoalBody = zod.object({
   "targetAmount": zod.string(),
   "currentAmount": zod.string().optional(),
   "targetDate": zod.coerce.date().optional(),
-  "isShared": zod.boolean().optional()
+  "isShared": zod.boolean().optional(),
+  "coupleId": zod.string().uuid().nullish()
 })
 
 export const CreateSavingsGoalResponse = zod.object({
@@ -566,6 +568,7 @@ export const CreateSavingsGoalResponse = zod.object({
   "currentAmount": zod.string(),
   "targetDate": zod.coerce.date().nullish(),
   "isShared": zod.boolean(),
+  "coupleId": zod.string().uuid().nullish(),
   "createdAt": zod.coerce.date().optional(),
   "updatedAt": zod.coerce.date().optional()
 })
@@ -580,7 +583,8 @@ export const UpdateSavingsGoalBody = zod.object({
   "targetAmount": zod.string().optional(),
   "currentAmount": zod.string().optional(),
   "targetDate": zod.coerce.date().nullish(),
-  "isShared": zod.boolean().optional()
+  "isShared": zod.boolean().optional(),
+  "coupleId": zod.string().uuid().nullish()
 })
 
 export const UpdateSavingsGoalResponse = zod.object({
@@ -591,6 +595,7 @@ export const UpdateSavingsGoalResponse = zod.object({
   "currentAmount": zod.string(),
   "targetDate": zod.coerce.date().nullish(),
   "isShared": zod.boolean(),
+  "coupleId": zod.string().uuid().nullish(),
   "createdAt": zod.coerce.date().optional(),
   "updatedAt": zod.coerce.date().optional()
 })
@@ -601,6 +606,44 @@ export const DeleteSavingsGoalParams = zod.object({
 })
 
 export const DeleteSavingsGoalResponse = zod.void()
+
+
+export const ListSavingsGoalContributionsParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const ListSavingsGoalContributionsResponseItem = zod.object({
+  "id": zod.string().uuid(),
+  "goalId": zod.string().uuid(),
+  "userId": zod.string(),
+  "amount": zod.string(),
+  "note": zod.string().nullish(),
+  "createdAt": zod.coerce.date().optional()
+})
+export const ListSavingsGoalContributionsResponse = zod.array(ListSavingsGoalContributionsResponseItem)
+
+
+export const CreateSavingsGoalContributionParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const CreateSavingsGoalContributionBody = zod.object({
+  "amount": zod.string(),
+  "note": zod.string().optional()
+})
+
+export const CreateSavingsGoalContributionResponse = zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "name": zod.string(),
+  "targetAmount": zod.string(),
+  "currentAmount": zod.string(),
+  "targetDate": zod.coerce.date().nullish(),
+  "isShared": zod.boolean(),
+  "coupleId": zod.string().uuid().nullish(),
+  "createdAt": zod.coerce.date().optional(),
+  "updatedAt": zod.coerce.date().optional()
+})
 
 
 export const ListDebtsResponseItem = zod.object({
@@ -1152,6 +1195,175 @@ export const ListCoupleDiscussionPromptsResponseItem = zod.object({
   "createdAt": zod.coerce.date().optional()
 })
 export const ListCoupleDiscussionPromptsResponse = zod.array(ListCoupleDiscussionPromptsResponseItem)
+
+
+export const ListGamesResponseItem = zod.object({
+  "id": zod.number(),
+  "code": zod.string(),
+  "title": zod.string(),
+  "description": zod.string().nullish(),
+  "mechanicType": zod.enum(['simultaneous_reveal', 'point_allocation', 'guess', 'head_to_head_quiz']),
+  "config": zod.unknown(),
+  "createdAt": zod.coerce.date().optional()
+})
+export const ListGamesResponse = zod.array(ListGamesResponseItem)
+
+
+export const ListGameSessionsParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const ListGameSessionsResponseItem = zod.object({
+  "id": zod.string().uuid(),
+  "coupleId": zod.string().uuid(),
+  "gameId": zod.number(),
+  "initiatedBy": zod.string(),
+  "status": zod.enum(['in_progress', 'completed']),
+  "result": zod.unknown().optional(),
+  "completedAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date().optional()
+})
+export const ListGameSessionsResponse = zod.array(ListGameSessionsResponseItem)
+
+
+export const CreateGameSessionParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const CreateGameSessionBody = zod.object({
+  "gameId": zod.number()
+})
+
+export const CreateGameSessionResponse = zod.object({
+  "id": zod.string().uuid(),
+  "coupleId": zod.string().uuid(),
+  "gameId": zod.number(),
+  "initiatedBy": zod.string(),
+  "status": zod.enum(['in_progress', 'completed']),
+  "result": zod.unknown().optional(),
+  "completedAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date().optional()
+})
+
+
+export const GetGameSessionParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const GetGameSessionResponse = zod.object({
+  "session": zod.object({
+  "id": zod.string().uuid(),
+  "coupleId": zod.string().uuid(),
+  "gameId": zod.number(),
+  "initiatedBy": zod.string(),
+  "status": zod.enum(['in_progress', 'completed']),
+  "result": zod.unknown().optional(),
+  "completedAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date().optional()
+}),
+  "game": zod.object({
+  "id": zod.number(),
+  "code": zod.string(),
+  "title": zod.string(),
+  "description": zod.string().nullish(),
+  "mechanicType": zod.enum(['simultaneous_reveal', 'point_allocation', 'guess', 'head_to_head_quiz']),
+  "config": zod.unknown(),
+  "createdAt": zod.coerce.date().optional()
+}),
+  "responses": zod.array(zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "sessionId": zod.string().uuid(),
+  "promptKey": zod.string(),
+  "response": zod.unknown(),
+  "isCorrect": zod.string().nullish(),
+  "createdAt": zod.coerce.date().optional()
+}))
+})
+
+
+export const CreateGameResponseParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const CreateGameResponseBody = zod.object({
+  "promptKey": zod.string(),
+  "response": zod.unknown()
+})
+
+export const CreateGameResponseResponse = zod.object({
+  "session": zod.object({
+  "id": zod.string().uuid(),
+  "coupleId": zod.string().uuid(),
+  "gameId": zod.number(),
+  "initiatedBy": zod.string(),
+  "status": zod.enum(['in_progress', 'completed']),
+  "result": zod.unknown().optional(),
+  "completedAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date().optional()
+}),
+  "game": zod.object({
+  "id": zod.number(),
+  "code": zod.string(),
+  "title": zod.string(),
+  "description": zod.string().nullish(),
+  "mechanicType": zod.enum(['simultaneous_reveal', 'point_allocation', 'guess', 'head_to_head_quiz']),
+  "config": zod.unknown(),
+  "createdAt": zod.coerce.date().optional()
+}),
+  "responses": zod.array(zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "sessionId": zod.string().uuid(),
+  "promptKey": zod.string(),
+  "response": zod.unknown(),
+  "isCorrect": zod.string().nullish(),
+  "createdAt": zod.coerce.date().optional()
+}))
+})
+
+
+export const GetHouseholdDashboardParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const GetHouseholdDashboardResponse = zod.object({
+  "couple": zod.object({
+  "id": zod.string().uuid(),
+  "userAId": zod.string(),
+  "userBId": zod.string().nullish(),
+  "status": zod.string(),
+  "createdAt": zod.coerce.date().optional(),
+  "updatedAt": zod.coerce.date().optional()
+}),
+  "streaks": zod.array(zod.object({
+  "userId": zod.string(),
+  "streak": zod.number()
+})),
+  "sharedGoals": zod.array(zod.object({
+  "id": zod.string().uuid(),
+  "userId": zod.string(),
+  "name": zod.string(),
+  "targetAmount": zod.string(),
+  "currentAmount": zod.string(),
+  "targetDate": zod.coerce.date().nullish(),
+  "isShared": zod.boolean(),
+  "coupleId": zod.string().uuid().nullish(),
+  "createdAt": zod.coerce.date().optional(),
+  "updatedAt": zod.coerce.date().optional()
+})),
+  "recentGames": zod.array(zod.object({
+  "id": zod.string().uuid(),
+  "coupleId": zod.string().uuid(),
+  "gameId": zod.number(),
+  "initiatedBy": zod.string(),
+  "status": zod.enum(['in_progress', 'completed']),
+  "result": zod.unknown().optional(),
+  "completedAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date().optional()
+})),
+  "teamXp": zod.number()
+})
 
 
 export const GetMySubscriptionResponse = zod.object({

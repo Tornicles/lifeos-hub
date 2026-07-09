@@ -14,6 +14,8 @@ import {
   useCoupleDiscussionPrompts,
 } from "@/hooks/useCouples";
 import { toast } from "sonner";
+import { GamesSection } from "@/components/couples/GamesSection";
+import { HouseholdDashboard } from "@/components/couples/HouseholdDashboard";
 
 export default function Couples() {
   const { data: couples, isLoading } = useCouples();
@@ -108,6 +110,13 @@ export default function Couples() {
             )}
           </CardContent>
         </Card>
+      )}
+
+      {isLinked && couple && (
+        <>
+          <HouseholdDashboard coupleId={couple.id} />
+          <GamesSection coupleId={couple.id} />
+        </>
       )}
 
       <Card>

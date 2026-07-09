@@ -531,6 +531,36 @@ paths:
         "204":
           description: Deleted
 
+  /savings-goals/{id}/contributions:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      operationId: listSavingsGoalContributions
+      tags: [finance]
+      responses:
+        "200":
+          description: Contributions to this goal
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/SavingsGoalContribution" } }
+    post:
+      operationId: createSavingsGoalContribution
+      tags: [finance]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SavingsGoalContributionInput" }
+      responses:
+        "201":
+          description: Contribution recorded, updated goal returned
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SavingsGoal" }
+
   /debts:
     get:
       operationId: listDebts
@@ -964,7 +994,104 @@ paths:
           description: List of discussion prompts
           content:
             application/json:
-              schema: { type: array, items: { $ref: "#/components/schemas/CoupleDiscussionPrompt" } }
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/CoupleDiscussionPrompt" }
+
+  # ---------- Couples Games ----------
+  /games:
+    get:
+      operationId: listGames
+      tags: [couples]
+      responses:
+        "200":
+          description: Catalog of couples games
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Game" } }
+
+  /couples/{id}/game-sessions:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      operationId: listGameSessions
+      tags: [couples]
+      responses:
+        "200":
+          description: Game session history for this couple
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/GameSession" } }
+    post:
+      operationId: createGameSession
+      tags: [couples]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/GameSessionInput" }
+      responses:
+        "201":
+          description: Created (or resumed) game session
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GameSession" }
+
+  /game-sessions/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      operationId: getGameSession
+      tags: [couples]
+      responses:
+        "200":
+          description: Game session with game config and both partners' responses
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GameSessionDetail" }
+
+  /game-sessions/{id}/responses:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      operationId: createGameResponse
+      tags: [couples]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/GameResponseInput" }
+      responses:
+        "201":
+          description: Response recorded; returns the session detail (may now be completed)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GameSessionDetail" }
+
+  /couples/{id}/household-dashboard:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      operationId: getHouseholdDashboard
+      tags: [couples]
+      responses:
+        "200":
+          description: Combined household dashboard for an active couple
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/HouseholdDashboard" }
 
   # ---------- Subscriptions ----------
   /subscriptions/me:
@@ -1984,6 +2111,7 @@ components:
         currentAmount: { type: string }
         targetDate: { type: ["string", "null"], format: date }
         isShared: { type: boolean }
+        coupleId: { type: ["string", "null"], format: uuid }
         createdAt: { type: string, format: date-time }
         updatedAt: { type: string, format: date-time }
     SavingsGoalInput:
@@ -1995,6 +2123,7 @@ components:
         currentAmount: { type: string }
         targetDate: { type: string, format: date }
         isShared: { type: boolean }
+        coupleId: { type: ["string", "null"], format: uuid }
     SavingsGoalUpdate:
       type: object
       properties:
@@ -2003,6 +2132,24 @@ components:
         currentAmount: { type: string }
         targetDate: { type: ["string", "null"], format: date }
         isShared: { type: boolean }
+        coupleId: { type: ["string", "null"], format: uuid }
+
+    SavingsGoalContribution:
+      type: object
+      required: [id, goalId, userId, amount]
+      properties:
+        id: { type: string, format: uuid }
+        goalId: { type: string, format: uuid }
+        userId: { type: string }
+        amount: { type: string }
+        note: { type: ["string", "null"] }
+        createdAt: { type: string, format: date-time }
+    SavingsGoalContributionInput:
+      type: object
+      required: [amount]
+      properties:
+        amount: { type: string }
+        note: { type: string }
 
     Debt:
       type: object
@@ -2350,6 +2497,80 @@ components:
         promptText: { type: string }
         category: { type: ["string", "null"] }
         createdAt: { type: string, format: date-time }
+
+    # ---------- Couples Games ----------
+    Game:
+      type: object
+      required: [id, code, title, mechanicType, config]
+      properties:
+        id: { type: integer }
+        code: { type: string }
+        title: { type: string }
+        description: { type: ["string", "null"] }
+        mechanicType: { type: string, enum: [simultaneous_reveal, point_allocation, guess, head_to_head_quiz] }
+        config: {}
+        createdAt: { type: string, format: date-time }
+
+    GameSession:
+      type: object
+      required: [id, coupleId, gameId, initiatedBy, status]
+      properties:
+        id: { type: string, format: uuid }
+        coupleId: { type: string, format: uuid }
+        gameId: { type: integer }
+        initiatedBy: { type: string }
+        status: { type: string, enum: [in_progress, completed] }
+        result: {}
+        completedAt: { type: ["string", "null"], format: date-time }
+        createdAt: { type: string, format: date-time }
+    GameSessionInput:
+      type: object
+      required: [gameId]
+      properties:
+        gameId: { type: integer }
+
+    GameResponse:
+      type: object
+      required: [id, userId, sessionId, promptKey, response]
+      properties:
+        id: { type: string, format: uuid }
+        userId: { type: string }
+        sessionId: { type: string, format: uuid }
+        promptKey: { type: string }
+        response: {}
+        isCorrect: { type: ["string", "null"] }
+        createdAt: { type: string, format: date-time }
+    GameResponseInput:
+      type: object
+      required: [promptKey, response]
+      properties:
+        promptKey: { type: string }
+        response: {}
+
+    GameSessionDetail:
+      type: object
+      required: [session, game, responses]
+      properties:
+        session: { $ref: "#/components/schemas/GameSession" }
+        game: { $ref: "#/components/schemas/Game" }
+        responses: { type: array, items: { $ref: "#/components/schemas/GameResponse" } }
+
+    HouseholdDashboard:
+      type: object
+      required: [couple, streaks, sharedGoals, recentGames, teamXp]
+      properties:
+        couple: { $ref: "#/components/schemas/Couple" }
+        streaks:
+          type: array
+          items:
+            type: object
+            required: [userId, streak]
+            properties:
+              userId: { type: string }
+              streak: { type: integer }
+        sharedGoals: { type: array, items: { $ref: "#/components/schemas/SavingsGoal" } }
+        recentGames: { type: array, items: { $ref: "#/components/schemas/GameSession" } }
+        teamXp: { type: integer }
 
     # ---------- Subscriptions ----------
     Subscription:

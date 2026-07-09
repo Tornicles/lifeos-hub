@@ -7,7 +7,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
 import { Plus, Trash2, PiggyBank } from "lucide-react";
-import { useSavingsGoals, useAddSavingsGoal, useUpdateSavingsGoalProgress, useRemoveSavingsGoal } from "@/hooks/useFinance";
+import {
+  useSavingsGoals,
+  useAddSavingsGoal,
+  useRemoveSavingsGoal,
+  useSavingsGoalContributions,
+  useAddSavingsGoalContribution,
+} from "@/hooks/useFinance";
+import { useCouples } from "@/hooks/useCouples";
 import { ResponsiveFormModal } from "@/components/finance/ResponsiveFormModal";
 
 interface FormState {
@@ -38,9 +45,12 @@ function daysRemaining(targetDate: string | null | undefined): number | null {
 
 export function SavingsGoalsTab() {
   const { data: goals, isLoading, isError } = useSavingsGoals();
+  const { data: couples } = useCouples();
+  const couple = couples?.[0];
+  const isLinked = couple?.status === "active";
   const addMutation = useAddSavingsGoal();
-  const updateMutation = useUpdateSavingsGoalProgress();
   const removeMutation = useRemoveSavingsGoal();
+  const addContributionMutation = useAddSavingsGoalContribution();
 
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<FormState>(emptyForm);
@@ -83,6 +93,7 @@ export function SavingsGoalsTab() {
       currentAmount: form.currentAmount.trim() || undefined,
       targetDate: form.targetDate.trim() || undefined,
       isShared: form.isShared,
+      coupleId: form.isShared && isLinked ? couple!.id : undefined,
     });
     resetForm();
     setOpen(false);
@@ -92,9 +103,10 @@ export function SavingsGoalsTab() {
     const raw = contributionInputs[id];
     const amount = Number(raw);
     if (!raw || Number.isNaN(amount) || amount <= 0) return;
-    const newAmount = (Number(currentAmount) + amount).toFixed(2);
-    updateMutation.mutate({ id, currentAmount: newAmount });
-    setContributionInputs((prev) => ({ ...prev, [id]: "" }));
+    addContributionMutation.mutate(
+      { id, amount: amount.toFixed(2) },
+      { onSuccess: () => setContributionInputs((prev) => ({ ...prev, [id]: "" })) },
+    );
   }
 
   return (
@@ -153,9 +165,16 @@ export function SavingsGoalsTab() {
             <div className="flex items-center justify-between rounded-md border p-3">
               <div>
                 <Label htmlFor="goal-shared">Shared goal</Label>
-                <p className="text-xs text-muted-foreground">Share this goal with a partner (coming soon)</p>
+                <p className="text-xs text-muted-foreground">
+                  {isLinked ? "Share this goal with your partner" : "Link with a partner in Couples to share goals"}
+                </p>
               </div>
-              <Switch id="goal-shared" checked={form.isShared} onCheckedChange={(checked) => setField("isShared", checked)} />
+              <Switch
+                id="goal-shared"
+                checked={form.isShared}
+                disabled={!isLinked}
+                onCheckedChange={(checked) => setField("isShared", checked)}
+              />
             </div>
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
@@ -234,6 +253,7 @@ export function SavingsGoalsTab() {
                       Add
                     </Button>
                   </div>
+                  {goal.isShared && <ContributorBreakdown goalId={goal.id} />}
                 </CardContent>
               </Card>
             );
@@ -251,6 +271,30 @@ export function SavingsGoalsTab() {
           </CardContent>
         </Card>
       )}
+    </div>
+  );
+}
+
+function ContributorBreakdown({ goalId }: { goalId: string }) {
+  const { data: contributions, isLoading } = useSavingsGoalContributions(goalId);
+
+  if (isLoading) return <Skeleton className="h-4 w-2/3" />;
+  if (!contributions || contributions.length === 0) {
+    return <p className="text-xs text-muted-foreground">No contributions logged yet.</p>;
+  }
+
+  const totalsByUser = contributions.reduce<Record<string, number>>((acc, c) => {
+    acc[c.userId] = (acc[c.userId] ?? 0) + Number(c.amount);
+    return acc;
+  }, {});
+
+  return (
+    <div className="flex flex-wrap gap-2 pt-1">
+      {Object.entries(totalsByUser).map(([userId, total]) => (
+        <span key={userId} className="text-xs rounded-full bg-muted px-2 py-0.5 text-muted-foreground">
+          {userId.slice(0, 6)}… contributed ${total.toFixed(2)}
+        </span>
+      ))}
     </div>
   );
 }

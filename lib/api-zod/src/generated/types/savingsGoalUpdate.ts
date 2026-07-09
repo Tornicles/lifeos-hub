@@ -13,4 +13,6 @@ export interface SavingsGoalUpdate {
   /** @nullable */
   targetDate?: Date | null;
   isShared?: boolean;
+  /** @nullable */
+  coupleId?: string | null;
 }

@@ -5,8 +5,9 @@ import {
   useListDebts, useCreateDebt, useUpdateDebt, useDeleteDebt, getListDebtsQueryKey,
   useListSavingsChallenges, useCreateSavingsChallenge, useCheckInSavingsChallenge, getListSavingsChallengesQueryKey,
   useListShareableCards, getListShareableCardsQueryKey,
+  useListSavingsGoalContributions, useCreateSavingsGoalContribution, getListSavingsGoalContributionsQueryKey,
   type SavingsGoalInput, type SavingsGoalUpdate, type DebtInput, type DebtUpdate,
-  type SavingsChallengeInput, type SavingsChallengeCheckInInput,
+  type SavingsChallengeInput, type SavingsChallengeCheckInInput, type SavingsGoalContributionInput,
 } from '@workspace/api-client-react';
 
 function onMutationResult(queryClient: ReturnType<typeof useQueryClient>, queryKey: readonly unknown[], successMsg: string, errorMsg: string) {
@@ -49,6 +50,34 @@ export const useRemoveSavingsGoal = () => {
     ...mutation,
     mutate: (id: string) =>
       mutation.mutate({ id }, onMutationResult(queryClient, getListSavingsGoalsQueryKey(), 'Savings goal deleted', 'Failed to delete savings goal')),
+  };
+};
+
+export const useSavingsGoalContributions = (goalId: string) =>
+  useListSavingsGoalContributions(goalId, {
+    query: { enabled: !!goalId, queryKey: getListSavingsGoalContributionsQueryKey(goalId) },
+  });
+export const useAddSavingsGoalContribution = () => {
+  const queryClient = useQueryClient();
+  const mutation = useCreateSavingsGoalContribution();
+  return {
+    ...mutation,
+    mutate: ({ id, ...data }: SavingsGoalContributionInput & { id: string }, opts?: { onSuccess?: () => void }) =>
+      mutation.mutate(
+        { id, data },
+        {
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: getListSavingsGoalsQueryKey() });
+            queryClient.invalidateQueries({ queryKey: getListSavingsGoalContributionsQueryKey(id) });
+            toast.success('Contribution added');
+            opts?.onSuccess?.();
+          },
+          onError: (error: any) => {
+            console.error('Failed to add contribution', error);
+            toast.error(error?.data?.error || error?.message || 'Failed to add contribution');
+          },
+        },
+      ),
   };
 };
 

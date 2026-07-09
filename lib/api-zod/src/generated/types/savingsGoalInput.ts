@@ -13,4 +13,6 @@ export interface SavingsGoalInput {
   currentAmount?: string;
   targetDate?: Date;
   isShared?: boolean;
+  /** @nullable */
+  coupleId?: string | null;
 }

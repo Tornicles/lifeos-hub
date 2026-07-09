@@ -368,6 +368,8 @@ export interface SavingsGoal {
   /** @nullable */
   targetDate?: string | null;
   isShared: boolean;
+  /** @nullable */
+  coupleId?: string | null;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -379,6 +381,8 @@ export interface SavingsGoalInput {
   currentAmount?: string;
   targetDate?: string;
   isShared?: boolean;
+  /** @nullable */
+  coupleId?: string | null;
 }
 
 export interface SavingsGoalUpdate {
@@ -388,6 +392,23 @@ export interface SavingsGoalUpdate {
   /** @nullable */
   targetDate?: string | null;
   isShared?: boolean;
+  /** @nullable */
+  coupleId?: string | null;
+}
+
+export interface SavingsGoalContribution {
+  id: string;
+  goalId: string;
+  userId: string;
+  amount: string;
+  /** @nullable */
+  note?: string | null;
+  createdAt?: string;
+}
+
+export interface SavingsGoalContributionInput {
+  amount: string;
+  note?: string;
 }
 
 export interface Debt {
@@ -707,6 +728,86 @@ export interface CoupleDiscussionPrompt {
   /** @nullable */
   category?: string | null;
   createdAt?: string;
+}
+
+export type GameMechanicType = typeof GameMechanicType[keyof typeof GameMechanicType];
+
+
+export const GameMechanicType = {
+  simultaneous_reveal: 'simultaneous_reveal',
+  point_allocation: 'point_allocation',
+  guess: 'guess',
+  head_to_head_quiz: 'head_to_head_quiz',
+} as const;
+
+export interface Game {
+  id: number;
+  code: string;
+  title: string;
+  /** @nullable */
+  description?: string | null;
+  mechanicType: GameMechanicType;
+  config: unknown;
+  createdAt?: string;
+}
+
+export type GameSessionStatus = typeof GameSessionStatus[keyof typeof GameSessionStatus];
+
+
+export const GameSessionStatus = {
+  in_progress: 'in_progress',
+  completed: 'completed',
+} as const;
+
+export interface GameSession {
+  id: string;
+  coupleId: string;
+  gameId: number;
+  initiatedBy: string;
+  status: GameSessionStatus;
+  result?: unknown;
+  /** @nullable */
+  completedAt?: string | null;
+  createdAt?: string;
+}
+
+export interface GameSessionInput {
+  gameId: number;
+}
+
+export interface GameResponse {
+  id: string;
+  userId: string;
+  sessionId: string;
+  promptKey: string;
+  response: unknown;
+  /** @nullable */
+  isCorrect?: string | null;
+  createdAt?: string;
+}
+
+export interface GameResponseInput {
+  promptKey: string;
+  response: unknown;
+}
+
+export interface GameSessionDetail {
+  session: GameSession;
+  game: Game;
+  responses: GameResponse[];
+}
+
+export type HouseholdDashboardStreaksItem = {
+  userId: string;
+  streak: number;
+};
+
+export interface HouseholdDashboard {
+  couple: Couple;
+  streaks: HouseholdDashboardStreaksItem[];
+  sharedGoals: SavingsGoal[];
+  recentGames: GameSession[];
+  teamXp: number;
 }
 
 export type SubscriptionPlan = typeof SubscriptionPlan[keyof typeof SubscriptionPlan];

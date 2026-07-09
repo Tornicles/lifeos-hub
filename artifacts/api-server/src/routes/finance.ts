@@ -4,6 +4,7 @@ import {
   db,
   withUserContext,
   savingsGoalsTable,
+  savingsGoalContributionsTable,
   debtsTable,
   savingsChallengesTable,
   shareableCardsTable,
@@ -19,6 +20,11 @@ import {
   UpdateSavingsGoalBody,
   UpdateSavingsGoalResponse,
   DeleteSavingsGoalParams,
+  ListSavingsGoalContributionsParams,
+  ListSavingsGoalContributionsResponse,
+  CreateSavingsGoalContributionParams,
+  CreateSavingsGoalContributionBody,
+  CreateSavingsGoalContributionResponse,
   ListDebtsResponse,
   CreateDebtBody,
   CreateDebtResponse,
@@ -99,6 +105,57 @@ router.delete("/savings-goals/:id", async (req, res): Promise<void> => {
     return;
   }
   res.sendStatus(204);
+});
+
+router.get("/savings-goals/:id/contributions", async (req, res): Promise<void> => {
+  const params = ListSavingsGoalContributionsParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+  const rows = await withUserContext(req.userId!, (tx) =>
+    tx
+      .select()
+      .from(savingsGoalContributionsTable)
+      .where(eq(savingsGoalContributionsTable.goalId, params.data.id)),
+  );
+  res.json(ListSavingsGoalContributionsResponse.parse(rows));
+});
+
+router.post("/savings-goals/:id/contributions", async (req, res): Promise<void> => {
+  const params = CreateSavingsGoalContributionParams.safeParse(req.params);
+  const parsed = CreateSavingsGoalContributionBody.safeParse(req.body);
+  if (!params.success || !parsed.success) {
+    res.status(400).json({ error: params.success ? parsed.error!.message : params.error.message });
+    return;
+  }
+  const result = await withUserContext(req.userId!, async (tx) => {
+    // RLS scopes this select to the owner or, if the goal is shared, either
+    // partner in the linked couple — so a 0-row result means "not visible to
+    // this user", which we treat the same as not found.
+    const [goal] = await tx.select().from(savingsGoalsTable).where(eq(savingsGoalsTable.id, params.data.id));
+    if (!goal) return null;
+
+    await tx.insert(savingsGoalContributionsTable).values({
+      goalId: goal.id,
+      userId: req.userId!,
+      amount: parsed.data.amount,
+      note: parsed.data.note,
+    });
+
+    const newAmount = (parseFloat(goal.currentAmount) + parseFloat(parsed.data.amount)).toFixed(2);
+    const [updated] = await tx
+      .update(savingsGoalsTable)
+      .set({ currentAmount: newAmount })
+      .where(eq(savingsGoalsTable.id, goal.id))
+      .returning();
+    return updated;
+  });
+  if (!result) {
+    res.status(404).json({ error: "Savings goal not found" });
+    return;
+  }
+  res.status(201).json(CreateSavingsGoalContributionResponse.parse(result));
 });
 
 router.get("/debts", async (req, res): Promise<void> => {

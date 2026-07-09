@@ -14,6 +14,7 @@ import academyRouter from "./academy";
 import gamificationRouter from "./gamification";
 import bibleRouter from "./bible";
 import couplesRouter from "./couples";
+import couplesGamesRouter from "./couplesGames";
 import subscriptionsRouter from "./subscriptions";
 import { requireAuth } from "../middlewares/requireAuth";
 import { ensureProfileMiddleware } from "../middlewares/ensureProfile";
@@ -38,6 +39,7 @@ router.use(academyRouter);
 router.use(gamificationRouter);
 router.use(bibleRouter);
 router.use(couplesRouter);
+router.use(couplesGamesRouter);
 router.use(subscriptionsRouter);
 
 export default router;
