@@ -9,7 +9,9 @@
   },
   "scripts": {
     "push": "drizzle-kit push --config ./drizzle.config.ts",
-    "push-force": "drizzle-kit push --force --config ./drizzle.config.ts"
+    "push-force": "drizzle-kit push --force --config ./drizzle.config.ts",
+    "seed-curriculum": "node --experimental-strip-types ./seed/seed-curriculum.ts",
+    "validate-curriculum": "node --experimental-strip-types ./seed/validate-curriculum-parse.ts"
   },
   "dependencies": {
     "drizzle-orm": "catalog:",

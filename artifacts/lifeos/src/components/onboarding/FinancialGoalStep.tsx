@@ -1,16 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
-
-export const FINANCIAL_GOALS = [
-  "Save money",
-  "Get out of debt",
-  "Learn investing",
-  "Learn business",
-  "Budget better",
-  "Build wealth",
-  "Grow together",
-] as const;
+import { DOC4_FINANCIAL_GOALS } from "./doc4Goals";
 
 interface FinancialGoalStepProps {
   value: string | null;
@@ -21,11 +12,11 @@ export function FinancialGoalStep({ value, onChange }: FinancialGoalStepProps) {
   return (
     <div className="flex flex-col gap-4">
       <div className="text-center space-y-1">
-        <h1 className="text-2xl font-bold">What's your main financial goal?</h1>
-        <p className="text-muted-foreground">We'll tailor your dashboard around this</p>
+        <h1 className="text-2xl font-bold">What's your primary goal?</h1>
+        <p className="text-muted-foreground">We'll personalize your dashboard copy — everyone gets the full 90-day curriculum</p>
       </div>
       <div className="grid gap-2">
-        {FINANCIAL_GOALS.map((goal) => (
+        {DOC4_FINANCIAL_GOALS.map((goal) => (
           <Card
             key={goal}
             role="button"

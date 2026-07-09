@@ -28,6 +28,7 @@ import NotificationSettings from "./pages/NotificationSettings";
 import Analytics from "./pages/Analytics";
 import Finance from "./pages/Finance";
 import Academy from "./pages/Academy";
+import AcademyDayReview from "./pages/AcademyDayReview";
 import AcademyLessonDetail from "./pages/AcademyLessonDetail";
 import BibleStudy from "./pages/BibleStudy";
 import Couples from "./pages/Couples";
@@ -36,6 +37,12 @@ import Progress from "./pages/Progress";
 import Quiz from "./pages/Quiz";
 import QuizTake from "./pages/QuizTake";
 import Onboarding from "./pages/Onboarding";
+import Welcome from "./pages/Welcome";
+import MorningPrayer from "./pages/curriculum/MorningPrayer";
+import LessonCards from "./pages/curriculum/LessonCards";
+import DayQuiz from "./pages/curriculum/DayQuiz";
+import DayGame from "./pages/curriculum/DayGame";
+import NightPrayer from "./pages/curriculum/NightPrayer";
 
 // REQUIRED — copy verbatim. Resolves the key from window.location.hostname so the
 // same build serves multiple Clerk custom domains. Do not inline the env var, leave
@@ -192,9 +199,15 @@ function ClerkProviderWithRoutes() {
       <ClerkQueryClientCacheInvalidator />
       <Routes>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/welcome" element={<Welcome />} />
         <Route path="/sign-in/*" element={<SignInPage />} />
         <Route path="/sign-up/*" element={<SignUpPage />} />
         <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/day/:dayNumber/morning" element={<MorningPrayer />} />
+        <Route path="/day/:dayNumber/cards" element={<LessonCards />} />
+        <Route path="/day/:dayNumber/quiz" element={<DayQuiz />} />
+        <Route path="/day/:dayNumber/game" element={<DayGame />} />
+        <Route path="/day/:dayNumber/night" element={<NightPrayer />} />
         <Route element={<AppLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/hubs/:hubCode" element={<HubDetail />} />
@@ -209,6 +222,7 @@ function ClerkProviderWithRoutes() {
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/finance" element={<Finance />} />
           <Route path="/academy" element={<Academy />} />
+          <Route path="/academy/day/:dayNumber" element={<AcademyDayReview />} />
           <Route path="/academy/lessons/:id" element={<AcademyLessonDetail />} />
           <Route path="/couples" element={<Couples />} />
           <Route path="/bible" element={<BibleStudy />} />

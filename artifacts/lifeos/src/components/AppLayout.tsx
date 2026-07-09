@@ -5,12 +5,12 @@ import { Activity } from "lucide-react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { TopNav } from "@/components/TopNav";
-import { useOnboardingProfile } from "@/hooks/useOnboarding";
+import { useCurriculumOnboarding } from "@/hooks/useCurriculum";
 
 const AppLayout = () => {
   const navigate = useNavigate();
   const { isLoaded, isSignedIn } = useAuth();
-  const { data: profile, isLoading: profileLoading } = useOnboardingProfile();
+  const { data: onboarding, isLoading: onboardingLoading } = useCurriculumOnboarding();
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
@@ -22,17 +22,17 @@ const AppLayout = () => {
   // forced to /onboarding regardless of the route they requested. This never
   // fires again once onboardingCompletedAt is set.
   useEffect(() => {
-    if (isLoaded && isSignedIn && profile && !profile.onboardingCompletedAt) {
+    if (isLoaded && isSignedIn && onboarding && !onboarding.completedAt) {
       navigate("/onboarding", { replace: true });
     }
-  }, [isLoaded, isSignedIn, profile, navigate]);
+  }, [isLoaded, isSignedIn, onboarding, navigate]);
 
-  if (!isLoaded || !isSignedIn || profileLoading || (profile && !profile.onboardingCompletedAt)) {
+  if (!isLoaded || !isSignedIn || onboardingLoading || (onboarding && !onboarding.completedAt)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Activity className="w-12 h-12 text-primary animate-pulse mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading LifeOS...</p>
+          <p className="text-muted-foreground">Loading Tech-Tate...</p>
         </div>
       </div>
     );

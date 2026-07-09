@@ -1,76 +1,64 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth, useUser } from "@clerk/react";
+import { useAuth } from "@clerk/react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { OnboardingProgress } from "@/components/onboarding/OnboardingProgress";
-import { WelcomeStep } from "@/components/onboarding/WelcomeStep";
-import { AccountTypeStep, type AccountType } from "@/components/onboarding/AccountTypeStep";
+import { AccountStep } from "@/components/onboarding/AccountStep";
 import { FinancialGoalStep } from "@/components/onboarding/FinancialGoalStep";
-import { KnowledgeLevelStep } from "@/components/onboarding/KnowledgeLevelStep";
-import { LearningTimeStep } from "@/components/onboarding/LearningTimeStep";
-import { RemindersStep } from "@/components/onboarding/RemindersStep";
+import { NotificationPermissionStep } from "@/components/onboarding/NotificationPermissionStep";
+import { CouplesModeStep } from "@/components/onboarding/CouplesModeStep";
+import { ReadyStep } from "@/components/onboarding/ReadyStep";
 import {
-  useOnboardingProfile,
-  useCompleteOnboardingStep,
-  getResumeStep,
-  markWelcomeSeen,
-  type OnboardingStep,
-} from "@/hooks/useOnboarding";
+  useCurriculumOnboarding,
+  useUpdateCurriculumOnboarding,
+  useCurriculumDay,
+} from "@/hooks/useCurriculum";
+import { useCompleteOnboardingStep } from "@/hooks/useOnboarding";
+
+type Step = 2 | 3 | 4 | 5 | 6;
 
 export default function Onboarding() {
   const navigate = useNavigate();
-  const { user } = useUser();
   const { isLoaded, isSignedIn } = useAuth();
-  const { data: profile, isLoading } = useOnboardingProfile();
-  const updateMutation = useCompleteOnboardingStep();
+  const { data: onboarding, isLoading } = useCurriculumOnboarding();
+  const updateOnboarding = useUpdateCurriculumOnboarding();
+  const updateProfile = useCompleteOnboardingStep();
+  const { data: dayOne } = useCurriculumDay(1);
+
+  const [step, setStep] = useState<Step>(2);
+  const [goal, setGoal] = useState<string | null>(null);
+  const [couplesOptIn, setCouplesOptIn] = useState<boolean | null>(null);
+  const [notificationsHandled, setNotificationsHandled] = useState(false);
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
-      navigate("/sign-in", { replace: true });
+      navigate("/welcome", { replace: true });
     }
   }, [isLoaded, isSignedIn, navigate]);
 
-  const [step, setStep] = useState<OnboardingStep | null>(null);
-  const [accountType, setAccountType] = useState<AccountType | null>(null);
-  const [financialGoal, setFinancialGoal] = useState<string | null>(null);
-  const [knowledgeLevel, setKnowledgeLevel] = useState<string | null>(null);
-  const [dailyLearningMinutes, setDailyLearningMinutes] = useState<number | null>(null);
-  const [remindersEnabled, setRemindersEnabled] = useState<boolean | null>(null);
-
-  // Already-finished users should never see onboarding again — bounce them
-  // straight to the dashboard if they land on this route directly.
   useEffect(() => {
-    if (profile?.onboardingCompletedAt) {
+    if (onboarding?.completedAt) {
       navigate("/dashboard", { replace: true });
     }
-  }, [profile, navigate]);
+  }, [onboarding, navigate]);
 
-  // Resume at the first incomplete step and hydrate local state from
-  // whatever the profile already has, so going back and forward within a
-  // session (or a fresh reload) never loses previously-made selections.
   useEffect(() => {
-    if (!profile || !user?.id || step !== null) return;
-    setAccountType((profile.accountType as AccountType) ?? null);
-    setFinancialGoal(profile.financialGoal ?? null);
-    setKnowledgeLevel(profile.knowledgeLevel ?? null);
-    setDailyLearningMinutes(profile.dailyLearningMinutes ?? null);
-    setStep(getResumeStep(user.id, profile));
-  }, [profile, user?.id, step]);
+    if (!onboarding) return;
+    if (onboarding.goalSelected) setGoal(onboarding.goalSelected);
+    if (onboarding.couplesModeOptedIn !== undefined) setCouplesOptIn(onboarding.couplesModeOptedIn);
+    const resume = Math.max(2, Math.min(6, (onboarding.stepCompleted || 1) + 1)) as Step;
+    if (onboarding.stepCompleted >= 1) setStep(resume);
+  }, [onboarding]);
 
-  const canProceed = useMemo(() => {
-    switch (step) {
-      case 1: return true;
-      case 2: return accountType !== null;
-      case 3: return financialGoal !== null;
-      case 4: return knowledgeLevel !== null;
-      case 5: return dailyLearningMinutes !== null;
-      case 6: return remindersEnabled !== null;
-      default: return false;
-    }
-  }, [step, accountType, financialGoal, knowledgeLevel, dailyLearningMinutes, remindersEnabled]);
+  const canProceed =
+    step === 2 ||
+    (step === 3 && goal !== null) ||
+    (step === 4 && notificationsHandled) ||
+    (step === 5 && couplesOptIn !== null) ||
+    step === 6;
 
-  if (!isLoaded || !isSignedIn || isLoading || step === null) {
+  if (!isLoaded || !isSignedIn || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -79,58 +67,47 @@ export default function Onboarding() {
   }
 
   const handleBack = () => {
-    if (step > 1) setStep((step - 1) as OnboardingStep);
+    if (step > 2) setStep((step - 1) as Step);
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!canProceed) return;
 
-    if (step === 1) {
-      if (user?.id) markWelcomeSeen(user.id);
-      setStep(2);
-      return;
-    }
-
     if (step === 2) {
-      updateMutation.mutate({ data: { accountType: accountType! } });
+      await updateOnboarding.mutateAsync({ stepCompleted: 2 });
       setStep(3);
       return;
     }
 
-    if (step === 3) {
-      updateMutation.mutate({ data: { financialGoal: financialGoal! } });
+    if (step === 3 && goal) {
+      await updateOnboarding.mutateAsync({ stepCompleted: 3, goalSelected: goal });
+      updateProfile.mutate({ data: { financialGoal: goal } });
       setStep(4);
       return;
     }
 
     if (step === 4) {
-      updateMutation.mutate({ data: { knowledgeLevel: knowledgeLevel! } });
+      await updateOnboarding.mutateAsync({ stepCompleted: 4 });
       setStep(5);
       return;
     }
 
-    if (step === 5) {
-      updateMutation.mutate({ data: { dailyLearningMinutes: dailyLearningMinutes! } });
+    if (step === 5 && couplesOptIn !== null) {
+      await updateOnboarding.mutateAsync({ stepCompleted: 5, couplesModeOptedIn: couplesOptIn });
       setStep(6);
       return;
     }
 
     if (step === 6) {
-      updateMutation.mutate(
-        {
-          data: {
-            accountType: accountType!,
-            financialGoal: financialGoal!,
-            knowledgeLevel: knowledgeLevel!,
-            dailyLearningMinutes: dailyLearningMinutes!,
-            remindersEnabled: remindersEnabled!,
-            onboardingCompletedAt: new Date().toISOString(),
-          },
+      await updateOnboarding.mutateAsync({ stepCompleted: 6, completed: true });
+      updateProfile.mutate({
+        data: {
+          financialGoal: goal ?? undefined,
+          remindersEnabled: notificationsHandled,
+          onboardingCompletedAt: new Date().toISOString(),
         },
-        {
-          onSuccess: () => navigate("/dashboard", { replace: true }),
-        },
-      );
+      });
+      navigate("/day/1/morning", { replace: true });
     }
   };
 
@@ -138,7 +115,7 @@ export default function Onboarding() {
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-muted/30 to-background">
       <div className="w-full max-w-md mx-auto flex flex-col min-h-screen px-6">
         <div className="pt-6 pb-2 flex items-center gap-3">
-          {step > 1 ? (
+          {step > 2 ? (
             <Button variant="ghost" size="icon" onClick={handleBack} aria-label="Back">
               <ArrowLeft className="h-5 w-5" />
             </Button>
@@ -146,37 +123,44 @@ export default function Onboarding() {
             <div className="h-10 w-10" />
           )}
           <div className="flex-1">
-            <OnboardingProgress step={step} />
+            <OnboardingProgress step={step - 1} />
           </div>
         </div>
 
         <div className="flex-1 flex flex-col justify-center py-6">
-          {step === 1 && <WelcomeStep />}
-          {step === 2 && <AccountTypeStep value={accountType} onChange={setAccountType} />}
-          {step === 3 && <FinancialGoalStep value={financialGoal} onChange={setFinancialGoal} />}
-          {step === 4 && <KnowledgeLevelStep value={knowledgeLevel} onChange={setKnowledgeLevel} />}
-          {step === 5 && <LearningTimeStep value={dailyLearningMinutes} onChange={setDailyLearningMinutes} />}
-          {step === 6 && <RemindersStep value={remindersEnabled} onChange={setRemindersEnabled} />}
+          {step === 2 && <AccountStep />}
+          {step === 3 && <FinancialGoalStep value={goal} onChange={setGoal} />}
+          {step === 4 && (
+            <NotificationPermissionStep
+              onComplete={(enabled) => {
+                setNotificationsHandled(true);
+                updateProfile.mutate({ data: { remindersEnabled: enabled } });
+                updateOnboarding.mutate({ stepCompleted: 4 }, { onSuccess: () => setStep(5) });
+              }}
+            />
+          )}
+          {step === 5 && <CouplesModeStep value={couplesOptIn} onChange={setCouplesOptIn} />}
+          {step === 6 && <ReadyStep dayOneTitle={dayOne?.topicTitle ?? "Manual Entry Discipline"} />}
         </div>
 
-        <div className="sticky bottom-0 pb-8 pt-4 bg-gradient-to-t from-background via-background to-transparent">
-          <Button
-            className="w-full h-14 text-base"
-            size="lg"
-            disabled={!canProceed || updateMutation.isPending}
-            onClick={handleNext}
-          >
-            {updateMutation.isPending ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : step === 1 ? (
-              "Get Started"
-            ) : step === 6 ? (
-              "Finish"
-            ) : (
-              "Continue"
-            )}
-          </Button>
-        </div>
+        {step !== 4 && (
+          <div className="sticky bottom-0 pb-8 pt-4 bg-gradient-to-t from-background via-background to-transparent">
+            <Button
+              className="w-full h-14 text-base"
+              size="lg"
+              disabled={!canProceed || updateOnboarding.isPending || updateProfile.isPending}
+              onClick={handleNext}
+            >
+              {updateOnboarding.isPending || updateProfile.isPending ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : step === 6 ? (
+                "Begin Day 1"
+              ) : (
+                "Continue"
+              )}
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -10,6 +10,7 @@ A personal life operating system — tracks habits, calendar, finance, learning 
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
+- `pnpm --filter @workspace/db run seed-curriculum` — seed all 90 curriculum days from `lib/db/seed/data/*.md`
 - Required env: `DATABASE_URL` — Postgres connection string; `CLERK_SECRET_KEY` / `CLERK_PUBLISHABLE_KEY` / `VITE_CLERK_PUBLISHABLE_KEY` — Replit-managed Clerk auth
 
 ## Stack

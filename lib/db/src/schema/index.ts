@@ -17,3 +17,4 @@ export * from "./subscriptions";
 export * from "./market";
 export * from "./games";
 export * from "./cards";
+export * from "./curriculum";

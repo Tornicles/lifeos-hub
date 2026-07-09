@@ -5,7 +5,12 @@
   "type": "module",
   "scripts": {
     "hello": "tsx ./src/hello.ts",
+    "seed-curriculum": "node --experimental-strip-types ../lib/db/seed/seed-curriculum.ts",
+    "validate-curriculum": "node --experimental-strip-types ../lib/db/seed/validate-curriculum-parse.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@workspace/db": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "catalog:",

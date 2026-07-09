@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { User, Moon, Sun, Download, LogOut, Trash2 } from "lucide-react";
+import { User, Moon, Sun, Download, LogOut, Trash2, Heart } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useUser, useClerk } from "@clerk/react";
 
@@ -82,6 +82,22 @@ export default function Settings() {
             >
               <User className="w-4 h-4 mr-2" />
               Manage Profile
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Couples mode */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Heart className="w-5 h-5" />
+              Couples Mode
+            </CardTitle>
+            <CardDescription>Build your financial journey with a partner</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button variant="outline" className="w-full" onClick={() => navigate("/couples")}>
+              Invite Partner
             </Button>
           </CardContent>
         </Card>

@@ -2,20 +2,13 @@ import {
   Home,
   DollarSign, 
   GraduationCap,
-  HelpCircle,
-  User,
-  Heart,
-  BookOpen,
-  Bell,
-  HelpingHand,
-  Zap,
-  Shield,
-  ShieldCheck,
-  Trophy
+  TrendingUp,
+  Settings,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAdminAccess } from "@/hooks/useAdminAccess";
+import { ShieldCheck } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -29,26 +22,13 @@ import {
   SidebarHeader,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Badge } from "@/components/ui/badge";
 
 const mainItems = [
   { title: "Home", url: "/dashboard", icon: Home },
+  { title: "Academy", url: "/academy", icon: GraduationCap },
   { title: "Finance", url: "/finance", icon: DollarSign },
-  { title: "Learn", url: "/academy", icon: GraduationCap },
-  { title: "Quiz", url: "/quiz", icon: HelpCircle },
-  { title: "Profile", url: "/profile", icon: User },
-];
-
-const secondaryItems = [
-  { title: "Achievements", url: "/achievements", icon: Trophy },
-  { title: "Couples", url: "/couples", icon: Heart },
-  { title: "Bible & Stewardship", url: "/bible", icon: BookOpen },
-  { title: "Notifications", url: "/notifications", icon: Bell },
-  { title: "Help & Support", url: "/help", icon: HelpingHand },
-];
-
-const adminItems = [
-  { title: "Tech-Tate Admin", url: "/admin", icon: ShieldCheck },
+  { title: "Progress", url: "/reports", icon: TrendingUp },
+  { title: "Settings", url: "/settings", icon: Settings },
 ];
 
 export function AppSidebar() {
@@ -98,54 +78,19 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Secondary Menu */}
-        <SidebarGroup>
-          <SidebarGroupLabel>More</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {secondaryItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                    <NavLink 
-                      to={item.url}
-                      className="flex items-center gap-3"
-                      activeClassName="bg-accent/10 text-accent font-medium"
-                    >
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
+        {isAdmin && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Admin</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={isActive("/admin")}>
+                    <NavLink to="/admin" className="flex items-center gap-3" activeClassName="bg-destructive/10 text-destructive font-medium">
+                      <ShieldCheck className="h-4 w-4" />
+                      <span>Tech-Tate Admin</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Admin (only visible to admins) */}
-        {isAdmin && (
-          <SidebarGroup>
-            <SidebarGroupLabel>
-              <div className="flex items-center gap-2">
-                <Shield className="h-3 w-3" />
-                Admin
-              </div>
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {adminItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                      <NavLink 
-                        to={item.url}
-                        className="flex items-center gap-3"
-                        activeClassName="bg-destructive/10 text-destructive font-medium"
-                      >
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
@@ -154,13 +99,7 @@ export function AppSidebar() {
 
       <SidebarFooter className="border-t border-border p-4">
         {open && (
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className="text-xs">
-              <Zap className="h-3 w-3 mr-1" />
-              Pro
-            </Badge>
-            <span className="text-xs text-muted-foreground">v30.0</span>
-          </div>
+          <span className="text-xs text-muted-foreground">Tech-Tate v1.0</span>
         )}
       </SidebarFooter>
     </Sidebar>

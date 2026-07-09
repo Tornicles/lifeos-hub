@@ -1,105 +1,77 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAutomationEngine } from "@/hooks/useAutomationEngine";
-import { HubTile } from "@/components/cards/HubTile";
-import { AICoachCard } from "@/components/dashboard/AICoachCard";
-import { DailySequenceCard } from "@/components/dashboard/DailySequenceCard";
+import { CurriculumHomeTiles } from "@/components/dashboard/CurriculumHomeTiles";
 import { useNavigate } from "react-router-dom";
-import { 
-  Sparkles,
-  DollarSign,
-  Heart,
-  Briefcase,
-  GraduationCap,
-  User,
-  Home,
-  Users,
-  FolderKanban,
-  Brain,
-  Zap
-} from "lucide-react";
+import { DollarSign, Calendar, GraduationCap } from "lucide-react";
+import { HubTile } from "@/components/cards/HubTile";
+import { useSavingsGoals } from "@/hooks/useFinance";
+import { useCalendarEntries } from "@/hooks/useCalendar";
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { data: automation, isLoading: automationLoading } = useAutomationEngine();
+  const { data: goals, isLoading: goalsLoading } = useSavingsGoals();
+  const { data: calendar, isLoading: calendarLoading } = useCalendarEntries();
 
   const currentDate = new Date();
-  const greeting = currentDate.getHours() < 12 ? "Good Morning" : currentDate.getHours() < 18 ? "Good Afternoon" : "Good Evening";
-  const dateStr = currentDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  const greeting =
+    currentDate.getHours() < 12 ? "Good Morning" : currentDate.getHours() < 18 ? "Good Afternoon" : "Good Evening";
+  const dateStr = currentDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 
-  // Hub data with icons
-  const hubs = [
-    { name: "Finance", icon: DollarSign, code: "FIN" },
-    { name: "Health", icon: Heart, code: "HEA" },
-    { name: "Work", icon: Briefcase, code: "WOR" },
-    { name: "Academy", icon: GraduationCap, code: "ACA" },
-    { name: "Personal Dev", icon: User, code: "PER" },
-    { name: "Household", icon: Home, code: "HOU" },
-    { name: "Relationships", icon: Users, code: "REL" },
-    { name: "Projects", icon: FolderKanban, code: "PRO" },
-    { name: "Mindset", icon: Brain, code: "MIN" },
-  ];
+  const topGoal = goals?.[0];
+  const upcomingBills = calendar?.filter((e) => e.dueDay != null).length ?? 0;
 
   return (
     <div className="space-y-6 pb-6">
-      {/* Greeting Header */}
-      <div className="bg-gradient-to-r from-primary to-primary-hover text-primary-foreground p-6 rounded-xl shadow-lg">
-        <h1 className="text-3xl font-bold">{greeting}!</h1>
-        <p className="text-primary-foreground/80 flex items-center gap-2 mt-1">
-          <Sparkles className="w-4 h-4" />
-          {dateStr}
-        </p>
-      </div>
-
-      {/* Today's Sequence */}
-      <DailySequenceCard />
-
-      {/* AI Coach Dashboard */}
-      <AICoachCard />
-
-      {/* Automation Engine Summary */}
-      <Card className="bg-gradient-to-br from-primary/10 to-secondary/10">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-            <Zap className="w-4 h-4" />
-            Automation Engine
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {automationLoading ? (
-            <Skeleton className="h-12 w-full" />
-          ) : (
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-3xl font-bold">{automation?.rulesEvaluated ?? 0}</p>
-                <p className="text-xs text-muted-foreground mt-1">Active rules evaluated</p>
-              </div>
-              <div>
-                <p className="text-3xl font-bold">{automation?.actionsQueued ?? 0}</p>
-                <p className="text-xs text-muted-foreground mt-1">Actions queued</p>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Hubs Grid */}
       <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Life Hubs</h2>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          {hubs.map((hub) => (
-            <HubTile
-              key={hub.code}
-              name={hub.name}
-              icon={hub.icon}
-              onClick={() => navigate(`/hubs/${hub.code}`)}
-            />
-          ))}
-        </div>
+        <h1 className="text-2xl font-bold">{greeting}</h1>
+        <p className="text-muted-foreground text-sm">{dateStr}</p>
       </div>
 
+      <CurriculumHomeTiles />
+
+      <div className="grid grid-cols-2 gap-4">
+        <Card className="cursor-pointer hover:shadow-md" onClick={() => navigate("/finance")}>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <DollarSign className="h-4 w-4" />
+              Savings snapshot
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {goalsLoading ? (
+              <Skeleton className="h-8 w-24" />
+            ) : topGoal ? (
+              <p className="text-2xl font-bold">
+                ${Number(topGoal.currentAmount).toLocaleString()}
+                <span className="text-sm font-normal text-muted-foreground"> / ${Number(topGoal.targetAmount).toLocaleString()}</span>
+              </p>
+            ) : (
+              <p className="text-sm text-muted-foreground">No goals yet</p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="cursor-pointer hover:shadow-md" onClick={() => navigate("/calendar")}>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              Bills tracked
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {calendarLoading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <p className="text-2xl font-bold">{upcomingBills}</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <HubTile name="Finance" icon={DollarSign} onClick={() => navigate("/finance")} />
+        <HubTile name="Learn" icon={GraduationCap} onClick={() => navigate("/academy")} />
+      </div>
     </div>
   );
 }
