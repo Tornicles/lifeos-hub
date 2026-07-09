@@ -1,0 +1,46 @@
+Branch: techtate-investments-networth
+
+GOAL
+Add manual investment tracking and net worth history to the Finance tab.
+
+INVESTMENT TRACKER (investment_entries table)
+- List view: grouped by asset_type (stock, etf, real_estate, crypto, 
+  retirement, other), each entry showing asset_name, amount_invested, 
+  current_value, and calculated gain/loss (current_value - amount_invested) 
+  with percentage, color-coded green/red
+- Summary header above the list: total amount invested, total current value, 
+  total gain/loss across everything
+- Add/edit form: asset_name (required), asset_type (required, select from the 
+  6 options), amount_invested (required, >0), current_value (optional — if 
+  blank, treat as equal to amount_invested and show "unrealized" label 
+  instead of a gain/loss figure), entry_date (date picker), notes (optional)
+- IMPORTANT: nowhere in this UI should there be any suggestion of investment 
+  advice, performance prediction, or "you should buy/sell" language — this is 
+  pure manual record-keeping, label it clearly if there's any ambiguity
+
+NET WORTH TRACKER (net_worth_snapshots table)
+- Add snapshot form: total_assets (required, numeric), total_liabilities 
+  (required, numeric) — net_worth is a generated column, do not let the user 
+  edit it directly, just display it as read-only after the other two are entered
+- One snapshot per user per day max, enforced by the existing UNIQUE 
+  constraint — if the user tries to add a second snapshot same day, show 
+  "You already logged today — edit it instead" and open the existing row for 
+  editing rather than erroring
+- Chart view: line chart of net_worth over time using whatever charting 
+  library is already used elsewhere in the repo (check Analytics.tsx for the 
+  existing pattern) — do not add a new charting dependency
+- If fewer than 2 snapshots exist, show a message like "Log a few snapshots 
+  to see your trend over time" instead of an empty or broken chart
+
+MOBILE
+Chart must be legible on a 375px-wide screen — use existing responsive chart 
+config if present, don't let axis labels overlap.
+
+OUTPUT
+- Files created/changed
+- Confirm gain/loss calculation and color-coding work correctly
+- Confirm the one-snapshot-per-day constraint is handled gracefully, not as a 
+  raw database error
+- Confirm chart renders correctly with 0, 1, and 3+ data points (all three 
+  cases tested)
+- Any errors
