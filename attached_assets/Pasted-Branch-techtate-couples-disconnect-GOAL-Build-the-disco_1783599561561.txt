@@ -1,0 +1,41 @@
+Branch: techtate-couples-disconnect
+
+GOAL
+Build the disconnect flow, kept separate from linking because it's easy to 
+under-build if bundled — data handling on disconnect needs to be explicit 
+and tested, not assumed.
+
+DISCONNECT FLOW
+- Either partner can initiate disconnect from Profile/Settings (add a 
+  "Disconnect from partner" option, with a confirmation step — this is a 
+  destructive-feeling action even though no data is deleted, so require 
+  explicit confirmation, not a single tap)
+- On disconnect: set couples.disconnected_at = now(), set BOTH partner_links 
+  rows to status='disconnected' — do not delete the couples or partner_links 
+  rows, keep them for history per the schema's design
+- Shared savings_goals: on disconnect, the goal's couple_id stays set (for 
+  historical record) but is_shared should be handled per this rule — the 
+  goal becomes read-only/archived for both partners rather than continuing 
+  to accept contributions from either, since the couple is no longer active. 
+  Show it in a "past shared goals" section rather than the active goals list.
+- Game history (game_sessions, game_responses) stays intact and viewable as 
+  history, but no new sessions can be started with a disconnected couple_id
+- Household dashboard (Prompt 18) should stop showing for either partner 
+  once disconnected — gate it the same way couples features were gated 
+  behind "both accepted" in Prompt 17, now also checking disconnected_at IS 
+  NULL
+- Notify BOTH partners of the disconnect (not just the one who initiated 
+  it) — use the existing notification system, this should not be a silent 
+  action for the other partner
+- After disconnect, either partner can start a fresh invite (new couples 
+  row) — confirm this doesn't conflict with the old, now-disconnected couples 
+  row in any query
+
+OUTPUT
+- Files created/changed
+- Confirm both partners receive a notification on disconnect, not just the 
+  initiator
+- Confirm shared goals become read-only/archived rather than deleted or 
+  still-editable
+- Confirm a fresh invite after disconnect works cleanly
+- Any errors

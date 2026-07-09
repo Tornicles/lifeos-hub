@@ -7,7 +7,9 @@
  */
 import type { Lesson } from './lesson';
 
-export type LessonWithTopic = Lesson & {
+export type LessonWithTopic = Lesson & ({
   topicName: string;
   topicCode: string;
-};
+  /** @nullable */
+  quizId?: number | null;
+});

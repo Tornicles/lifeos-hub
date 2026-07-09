@@ -109,6 +109,7 @@ export * from './quiz';
 export * from './quizAttempt';
 export * from './quizAttemptInput';
 export * from './quizAttemptResult';
+export * from './quizAttemptWithQuiz';
 export * from './quizQuestion';
 export * from './quizWithQuestions';
 export * from './savingsGoal';

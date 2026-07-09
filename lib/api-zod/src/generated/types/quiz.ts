@@ -13,5 +13,6 @@ export interface Quiz {
   /** @nullable */
   lessonId?: number | null;
   title: string;
+  quizType: string;
   createdAt?: Date;
 }

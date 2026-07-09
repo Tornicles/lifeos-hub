@@ -1,0 +1,59 @@
+Branch: techtate-curriculum-bible
+
+GOAL
+Seed new lesson content addressing modern financial behavior (impulse 
+spending, BNPL, social comparison, subscription creep, couples money talk), 
+and build the Bible & Stewardship module including the new prayer_text field.
+
+CURRICULUM CONTENT SEEDING
+Write original lesson content (2-3 paragraphs each, not placeholder text) 
+for these 5 new lessons under existing or new topics as appropriate:
+1. "Why We Buy What We Didn't Plan To" — psychology of impulse spending
+2. "The True Cost of Pay in 4" — how Buy Now Pay Later changes 
+   decision-making (can reference that BNPL removes the natural friction 
+   that normally slows down a purchase decision, without citing any specific 
+   external source verbatim)
+3. "Comparison Is the Thief of Contentment" — social media, FOMO, and 
+   spending to keep up; connect to the Bible & Stewardship pillar's theme of 
+   contentment
+4. "The Subscription Audit" — build this one as a challenge, not just a 
+   lesson: write a companion challenges row prompting the user to list every 
+   recurring subscription they can think of and mark each "worth it" or 
+   "cut" (this is a text-response challenge like existing ones, not a new 
+   UI pattern)
+5. "Money Talk for Two" — couples-specific lesson on financial transparency 
+   and communication
+
+Write a short quiz (3 questions each) for lessons 1, 2, 3, and 5 following 
+the existing quiz pattern from Prompt 8.
+
+IMPORTANT — ORIGINALITY: do not reproduce or closely paraphrase content from 
+any specific published book, article, or app. Write these from general 
+financial-education knowledge in an original voice consistent with the 
+existing lesson content already in the app.
+
+BIBLE & STEWARDSHIP MODULE
+- Build the /bible route (currently a placeholder from the original rebrand 
+  pass) as a real screen: today's verse + prayer (from bible_verses, 
+  matched by scheduled_date), plus a browsable archive of past entries
+- Seed 14 bible_verses rows (2 weeks worth) with reference, verse_text, 
+  theme, scheduled_date, and prayer_text — write original short prayers 
+  (2-3 sentences each) tied to that day's verse and a financial theme (e.g. 
+  contentment, generosity, diligence, patience) — these should read as 
+  original devotional writing, not scripted liturgy
+- Display format: verse first (with reference), then a visually distinct 
+  "Today's Prayer" section below it, clearly separated so it reads as an 
+  optional devotional addition, not mixed into the verse itself
+- Add this to the Home tab's existing Bible verse card: below the current 
+  verse display, add a collapsed/expandable "Read today's prayer" section
+
+MOBILE
+Devotional text should be comfortably readable — same typography standards 
+as the Learn tab from Prompt 8.
+
+OUTPUT
+- Confirm 5 new lessons + 4 new quizzes seeded, list their titles
+- Confirm the subscription audit challenge was created and linked correctly
+- Confirm 14 bible_verses rows seeded with both verse and prayer content
+- Files created/changed
+- Any errors

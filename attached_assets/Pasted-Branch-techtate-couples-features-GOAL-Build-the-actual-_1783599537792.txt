@@ -1,0 +1,55 @@
+Branch: techtate-couples-features
+
+GOAL
+Build the actual couples experience now that linking/consent (Prompt 17) is 
+done: the games engine, shared savings goals, and a household dashboard.
+
+COUPLES GAMES
+Using games, game_sessions, game_responses (seeded with 4 games in the 
+schema pivot):
+- Games entry point (likely inside Quiz tab or a couples-specific area — 
+  check where it fits given existing nav, state your reasoning)
+- Only show games if the couple is active (both partners accepted, per 
+  Prompt 17)
+- For each mechanic_type, build the matching interaction:
+  - simultaneous_reveal (Money Match): both partners answer independently, 
+    answers stay hidden until both have responded, then reveal together with 
+    a "match!" indicator if answers agree
+  - point_allocation (Values Auction): each partner allocates 100 points 
+    across a fixed set of values (security, generosity, adventure, growth), 
+    submitted independently, then a comparison view shows both allocations 
+    side by side
+  - guess (Guess My Number): partner A answers a question privately, 
+    partner B guesses what A answered, then reveals both
+  - head_to_head_quiz (Trivia Duel): reuse the existing quiz_questions data, 
+    both partners answer the same set, fastest correct wins per question, 
+    show a running score
+- Each game session writes to game_sessions (status transitions from 
+  in_progress to completed once both partners have responded to all prompts 
+  in that session) and game_responses per answer
+- Handle the async nature: partners won't always be using the app at the 
+  same moment. A started-but-not-completed session should be resumable, not 
+  lost, and the waiting partner should see a "waiting for [partner]" state 
+  rather than the app assuming both are online simultaneously
+
+SHARED GOALS
+- On the savings_goals table, when is_shared is toggled on AND couple_id is 
+  set, both partners should see the same goal on their own Finance tab, with 
+  contributions from either partner updating the same current_amount
+- Add a "who contributed" lightweight indicator (doesn't need a full 
+  transaction log — a simple contributor name + amount + date, could reuse 
+  the shareable_cards pattern's simplicity rather than building a new ledger, 
+  since we deliberately don't do ledgers — keep this minimal)
+
+HOUSEHOLD DASHBOARD
+- New view (inside Profile or a couples section) showing: combined streak 
+  status for both partners, shared goals progress, recent game activity, 
+  and a "team XP" figure (sum of both partners' individual XP — this is 
+  additive display only, not a new XP pool/table)
+
+OUTPUT
+- Files created/changed
+- Confirm all 4 game mechanics work end-to-end with the async/resumable 
+  behavior tested
+- Confirm shared goal contributions update correctly for both partners
+- Any errors

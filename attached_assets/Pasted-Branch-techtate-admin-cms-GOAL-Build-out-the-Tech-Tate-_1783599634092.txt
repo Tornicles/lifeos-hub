@@ -1,0 +1,44 @@
+Branch: techtate-admin-cms
+
+GOAL
+Build out the Tech-Tate Admin panel (existing AdminLayout.tsx/Admin.tsx 
+scaffold, already renamed in Prompt 1) into a working CMS for both content 
+and operations.
+
+CONTENT MANAGEMENT
+- Lessons: list/create/edit lessons (title, content, topic, video_url, 
+  scheduled_date, is_published toggle)
+- Quizzes: list/create/edit quizzes and their questions, including reviewing 
+  and publishing the AI-generated draft quizzes from Prompt 16
+- Bible & Prayer: list/create/edit bible_verses rows including prayer_text
+- Topic scheduling: a calendar/list view showing which lesson is scheduled 
+  for which date, with drag-or-select rescheduling
+- Market news source config: a simple settings screen showing which market-
+  data API is active and its status (not the API key itself, just 
+  connection health) — reuse from Prompt 14
+
+OPERATIONS
+- User management: list users, search, view basic profile info (name, 
+  streak, XP, subscription status) — do not expose other users' financial 
+  goal amounts or private data here beyond what's needed for support
+- Subscriptions: list active/canceled/past-due subscriptions from the 
+  subscriptions table (read-only here, writes still only via the Stripe 
+  webhook)
+- Announcements: create a simple broadcast notification sent to all users 
+  via the existing notification system
+- Analytics: reuse Analytics.tsx (already in the repo) — extend it with 
+  Tech-Tate-relevant metrics (daily active users, lesson completion rate, 
+  quiz completion rate, streak retention) rather than the old LifeOS metrics 
+  it may currently show
+- Badge awards: manual badge-award tool for support/community-management use
+
+ACCESS CONTROL
+Confirm the existing admin role-check pattern (from user_roles, kept intact 
+since the original rebrand pass) correctly restricts this entire panel to 
+admin users only — test that a non-admin user cannot reach /admin routes.
+
+OUTPUT
+- Files created/changed
+- Confirm admin-only access is enforced (describe the test)
+- Confirm AI-generated quiz drafts can be reviewed and published from here
+- Any errors

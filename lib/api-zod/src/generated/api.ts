@@ -1087,7 +1087,8 @@ export const ListAllLessonsResponseItem = zod.object({
   "createdAt": zod.coerce.date().optional()
 }).and(zod.object({
   "topicName": zod.string(),
-  "topicCode": zod.string()
+  "topicCode": zod.string(),
+  "quizId": zod.number().nullish()
 }))
 export const ListAllLessonsResponse = zod.array(ListAllLessonsResponseItem)
 
@@ -1104,7 +1105,8 @@ export const GetTodayLessonResponse = zod.union([zod.object({
   "createdAt": zod.coerce.date().optional()
 }).and(zod.object({
   "topicName": zod.string(),
-  "topicCode": zod.string()
+  "topicCode": zod.string(),
+  "quizId": zod.number().nullish()
 })),zod.null()])
 
 
@@ -1124,7 +1126,8 @@ export const GetLessonResponse = zod.object({
   "createdAt": zod.coerce.date().optional()
 }).and(zod.object({
   "topicName": zod.string(),
-  "topicCode": zod.string()
+  "topicCode": zod.string(),
+  "quizId": zod.number().nullish()
 }))
 
 
@@ -1173,6 +1176,7 @@ export const GetQuizResponse = zod.object({
   "topicId": zod.number().nullish(),
   "lessonId": zod.number().nullish(),
   "title": zod.string(),
+  "quizType": zod.string(),
   "createdAt": zod.coerce.date().optional()
 }).and(zod.object({
   "questions": zod.array(zod.object({
@@ -1181,6 +1185,7 @@ export const GetQuizResponse = zod.object({
   "questionText": zod.string(),
   "options": zod.unknown(),
   "correctAnswer": zod.string(),
+  "explanation": zod.string().nullish(),
   "createdAt": zod.coerce.date().optional()
 }))
 }))
@@ -1195,7 +1200,9 @@ export const ListQuizAttemptsResponseItem = zod.object({
   "answers": zod.unknown().optional(),
   "attemptedAt": zod.coerce.date().optional(),
   "createdAt": zod.coerce.date().optional()
-})
+}).and(zod.object({
+  "quizTitle": zod.string()
+}))
 export const ListQuizAttemptsResponse = zod.array(ListQuizAttemptsResponseItem)
 
 

@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Award, Clock, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Award, Clock, CheckCircle2, Brain } from "lucide-react";
 import { useLesson, useLessonProgress, useMarkLessonProgress } from "@/hooks/useAcademy";
 
 function estimateReadingMinutes(content: string) {
@@ -92,7 +92,7 @@ export default function AcademyLessonDetail() {
         ))}
       </div>
 
-      <div className="pt-2">
+      <div className="pt-2 flex flex-wrap gap-3">
         {complete ? (
           <Button variant="outline" className="gap-2" disabled>
             <CheckCircle2 className="h-4 w-4 text-green-600" />
@@ -106,6 +106,12 @@ export default function AcademyLessonDetail() {
           >
             <CheckCircle2 className="h-4 w-4" />
             Mark Complete
+          </Button>
+        )}
+        {lesson.quizId !== null && lesson.quizId !== undefined && (
+          <Button variant="secondary" className="gap-2" onClick={() => navigate(`/quiz/${lesson.quizId}/take`)}>
+            <Brain className="h-4 w-4" />
+            Take the Quiz
           </Button>
         )}
       </div>

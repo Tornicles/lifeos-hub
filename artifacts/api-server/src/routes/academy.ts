@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, gte, lt } from "drizzle-orm";
 import {
   db,
   withUserContext,
@@ -30,24 +30,31 @@ import {
   CreateQuizAttemptResponse,
 } from "@workspace/api-zod";
 
-async function lessonWithTopic(lessonId: number) {
-  const [row] = await db
-    .select({
-      id: lessonsTable.id,
-      topicId: lessonsTable.topicId,
-      title: lessonsTable.title,
-      content: lessonsTable.content,
-      videoUrl: lessonsTable.videoUrl,
-      scheduledDate: lessonsTable.scheduledDate,
-      sortOrder: lessonsTable.sortOrder,
-      xpReward: lessonsTable.xpReward,
-      createdAt: lessonsTable.createdAt,
-      topicName: topicsTable.name,
-      topicCode: topicsTable.code,
-    })
+const lessonWithTopicColumns = {
+  id: lessonsTable.id,
+  topicId: lessonsTable.topicId,
+  title: lessonsTable.title,
+  content: lessonsTable.content,
+  videoUrl: lessonsTable.videoUrl,
+  scheduledDate: lessonsTable.scheduledDate,
+  sortOrder: lessonsTable.sortOrder,
+  xpReward: lessonsTable.xpReward,
+  createdAt: lessonsTable.createdAt,
+  topicName: topicsTable.name,
+  topicCode: topicsTable.code,
+  quizId: quizzesTable.id,
+};
+
+function lessonWithTopicQuery() {
+  return db
+    .select(lessonWithTopicColumns)
     .from(lessonsTable)
     .innerJoin(topicsTable, eq(lessonsTable.topicId, topicsTable.id))
-    .where(eq(lessonsTable.id, lessonId));
+    .leftJoin(quizzesTable, eq(quizzesTable.lessonId, lessonsTable.id));
+}
+
+async function lessonWithTopic(lessonId: number) {
+  const [row] = await lessonWithTopicQuery().where(eq(lessonsTable.id, lessonId));
   return row;
 }
 
@@ -81,69 +88,21 @@ router.get("/topics/:topicId/lessons", async (req, res): Promise<void> => {
 });
 
 router.get("/lessons", async (_req, res): Promise<void> => {
-  const rows = await db
-    .select({
-      id: lessonsTable.id,
-      topicId: lessonsTable.topicId,
-      title: lessonsTable.title,
-      content: lessonsTable.content,
-      videoUrl: lessonsTable.videoUrl,
-      scheduledDate: lessonsTable.scheduledDate,
-      sortOrder: lessonsTable.sortOrder,
-      xpReward: lessonsTable.xpReward,
-      createdAt: lessonsTable.createdAt,
-      topicName: topicsTable.name,
-      topicCode: topicsTable.code,
-    })
-    .from(lessonsTable)
-    .innerJoin(topicsTable, eq(lessonsTable.topicId, topicsTable.id))
-    .orderBy(asc(topicsTable.sortOrder), asc(lessonsTable.sortOrder));
+  const rows = await lessonWithTopicQuery().orderBy(asc(topicsTable.sortOrder), asc(lessonsTable.sortOrder));
   res.json(ListAllLessonsResponse.parse(rows));
 });
 
 router.get("/lessons/today", async (req, res): Promise<void> => {
   const today = new Date().toISOString().slice(0, 10);
 
-  const [scheduled] = await db
-    .select({
-      id: lessonsTable.id,
-      topicId: lessonsTable.topicId,
-      title: lessonsTable.title,
-      content: lessonsTable.content,
-      videoUrl: lessonsTable.videoUrl,
-      scheduledDate: lessonsTable.scheduledDate,
-      sortOrder: lessonsTable.sortOrder,
-      xpReward: lessonsTable.xpReward,
-      createdAt: lessonsTable.createdAt,
-      topicName: topicsTable.name,
-      topicCode: topicsTable.code,
-    })
-    .from(lessonsTable)
-    .innerJoin(topicsTable, eq(lessonsTable.topicId, topicsTable.id))
-    .where(eq(lessonsTable.scheduledDate, today));
+  const [scheduled] = await lessonWithTopicQuery().where(eq(lessonsTable.scheduledDate, today));
 
   if (scheduled) {
     res.json(GetTodayLessonResponse.parse(scheduled));
     return;
   }
 
-  const allLessons = await db
-    .select({
-      id: lessonsTable.id,
-      topicId: lessonsTable.topicId,
-      title: lessonsTable.title,
-      content: lessonsTable.content,
-      videoUrl: lessonsTable.videoUrl,
-      scheduledDate: lessonsTable.scheduledDate,
-      sortOrder: lessonsTable.sortOrder,
-      xpReward: lessonsTable.xpReward,
-      createdAt: lessonsTable.createdAt,
-      topicName: topicsTable.name,
-      topicCode: topicsTable.code,
-    })
-    .from(lessonsTable)
-    .innerJoin(topicsTable, eq(lessonsTable.topicId, topicsTable.id))
-    .orderBy(asc(topicsTable.sortOrder), asc(lessonsTable.sortOrder));
+  const allLessons = await lessonWithTopicQuery().orderBy(asc(topicsTable.sortOrder), asc(lessonsTable.sortOrder));
 
   const progress = await withUserContext(req.userId!, (tx) =>
     tx.select().from(lessonProgressTable).where(eq(lessonProgressTable.userId, req.userId!)),
@@ -239,11 +198,29 @@ router.get("/quizzes/:id", async (req, res): Promise<void> => {
 
 router.get("/quiz-attempts", async (req, res): Promise<void> => {
   const rows = await withUserContext(req.userId!, (tx) =>
-    tx.select().from(quizAttemptsTable).where(eq(quizAttemptsTable.userId, req.userId!)),
+    tx
+      .select({
+        id: quizAttemptsTable.id,
+        userId: quizAttemptsTable.userId,
+        quizId: quizAttemptsTable.quizId,
+        score: quizAttemptsTable.score,
+        totalQuestions: quizAttemptsTable.totalQuestions,
+        answers: quizAttemptsTable.answers,
+        attemptedAt: quizAttemptsTable.attemptedAt,
+        createdAt: quizAttemptsTable.createdAt,
+        quizTitle: quizzesTable.title,
+      })
+      .from(quizAttemptsTable)
+      .innerJoin(quizzesTable, eq(quizAttemptsTable.quizId, quizzesTable.id))
+      .where(eq(quizAttemptsTable.userId, req.userId!)),
   );
   res.json(ListQuizAttemptsResponse.parse(rows));
 });
 
+// NOTE: the `quiz_attempts` table has no DB-level unique constraint on
+// (userId, quizId, day). One-attempt-per-day is enforced here, in application
+// code, by checking for an existing attempt on the same quiz within the
+// current UTC calendar day before allowing an insert.
 router.post("/quiz-attempts", async (req, res): Promise<void> => {
   const parsed = CreateQuizAttemptBody.safeParse(req.body);
   if (!parsed.success) {
@@ -251,7 +228,27 @@ router.post("/quiz-attempts", async (req, res): Promise<void> => {
     return;
   }
 
+  const startOfDay = new Date();
+  startOfDay.setUTCHours(0, 0, 0, 0);
+  const startOfNextDay = new Date(startOfDay);
+  startOfNextDay.setUTCDate(startOfNextDay.getUTCDate() + 1);
+
   const result = await withUserContext(req.userId!, async (tx) => {
+    const [existingToday] = await tx
+      .select({ id: quizAttemptsTable.id })
+      .from(quizAttemptsTable)
+      .where(
+        and(
+          eq(quizAttemptsTable.userId, req.userId!),
+          eq(quizAttemptsTable.quizId, parsed.data.quizId),
+          gte(quizAttemptsTable.attemptedAt, startOfDay),
+          lt(quizAttemptsTable.attemptedAt, startOfNextDay),
+        ),
+      );
+    if (existingToday) {
+      return { alreadyAttempted: true as const };
+    }
+
     const [row] = await tx
       .insert(quizAttemptsTable)
       .values({ ...parsed.data, userId: req.userId! })
@@ -262,8 +259,13 @@ router.post("/quiz-attempts", async (req, res): Promise<void> => {
     await awardXp(tx, req.userId!, "quiz_completed", xpAwarded, "quiz", String(row.quizId));
     const newBadges = await checkAndAwardBadges(tx, req.userId!);
 
-    return { row, xpAwarded, newBadges };
+    return { alreadyAttempted: false as const, row, xpAwarded, newBadges };
   });
+
+  if (result.alreadyAttempted) {
+    res.status(409).json({ error: "This quiz has already been attempted today" });
+    return;
+  }
 
   res.status(201).json(
     CreateQuizAttemptResponse.parse({ ...result.row, xpAwarded: result.xpAwarded, newBadges: result.newBadges }),

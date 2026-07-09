@@ -110,9 +110,9 @@ import type {
   Project,
   ProjectInput,
   ProjectUpdate,
-  QuizAttempt,
   QuizAttemptInput,
   QuizAttemptResult,
+  QuizAttemptWithQuiz,
   QuizWithQuestions,
   SavingsGoal,
   SavingsGoalInput,
@@ -4719,9 +4719,9 @@ export const getListQuizAttemptsUrl = () => {
   return `/api/quiz-attempts`
 }
 
-export const listQuizAttempts = async ( options?: RequestInit): Promise<QuizAttempt[]> => {
+export const listQuizAttempts = async ( options?: RequestInit): Promise<QuizAttemptWithQuiz[]> => {
 
-  return customFetch<QuizAttempt[]>(getListQuizAttemptsUrl(),
+  return customFetch<QuizAttemptWithQuiz[]>(getListQuizAttemptsUrl(),
   {
     ...options,
     method: 'GET'
@@ -4804,7 +4804,7 @@ export const createQuizAttempt = async (quizAttemptInput: QuizAttemptInput, opti
 
 
 
-export const getCreateQuizAttemptMutationOptions = <TError = ErrorType<unknown>,
+export const getCreateQuizAttemptMutationOptions = <TError = ErrorType<void>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createQuizAttempt>>, TError,{data: BodyType<QuizAttemptInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof createQuizAttempt>>, TError,{data: BodyType<QuizAttemptInput>}, TContext> => {
 
@@ -4833,9 +4833,9 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type CreateQuizAttemptMutationResult = NonNullable<Awaited<ReturnType<typeof createQuizAttempt>>>
     export type CreateQuizAttemptMutationBody = BodyType<QuizAttemptInput>
-    export type CreateQuizAttemptMutationError = ErrorType<unknown>
+    export type CreateQuizAttemptMutationError = ErrorType<void>
 
-    export const useCreateQuizAttempt = <TError = ErrorType<unknown>,
+    export const useCreateQuizAttempt = <TError = ErrorType<void>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createQuizAttempt>>, TError,{data: BodyType<QuizAttemptInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof createQuizAttempt>>,

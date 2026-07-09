@@ -660,10 +660,12 @@ export interface Lesson {
   createdAt?: string;
 }
 
-export type LessonWithTopic = Lesson & {
+export type LessonWithTopic = Lesson & ({
   topicName: string;
   topicCode: string;
-};
+  /** @nullable */
+  quizId?: number | null;
+});
 
 export interface LessonProgress {
   id: string;
@@ -687,6 +689,7 @@ export interface Quiz {
   /** @nullable */
   lessonId?: number | null;
   title: string;
+  quizType: string;
   createdAt?: string;
 }
 
@@ -696,6 +699,8 @@ export interface QuizQuestion {
   questionText: string;
   options: unknown;
   correctAnswer: string;
+  /** @nullable */
+  explanation?: string | null;
   createdAt?: string;
 }
 
@@ -720,6 +725,10 @@ export interface QuizAttemptInput {
   totalQuestions: number;
   answers?: unknown;
 }
+
+export type QuizAttemptWithQuiz = QuizAttempt & {
+  quizTitle: string;
+};
 
 export interface Badge {
   id: number;

@@ -1,0 +1,44 @@
+Branch: techtate-subscriptions-stripe
+
+GOAL
+Implement free vs. premium gating using the subscriptions table, with 
+Stripe as the payment provider. Remember: subscriptions has no client-side 
+INSERT/UPDATE policy by design — all writes must go through a service-role 
+edge function.
+
+STRIPE INTEGRATION
+- Create a Supabase Edge Function that creates a Stripe Checkout session 
+  for the premium plan (monthly + annual pricing — pick reasonable 
+  placeholder prices and flag them clearly as placeholders to confirm with 
+  the founder before launch)
+- Create a webhook-handling edge function that listens for Stripe events 
+  (checkout completed, subscription updated, subscription canceled, payment 
+  failed) and writes/updates the subscriptions row using the service role 
+  key — this is the only path that should ever write to this table
+- Store provider_customer_id and provider_subscription_id from Stripe on 
+  the subscriptions row for future reference/support
+
+GATING
+Define and implement free vs. premium feature gates:
+- Free: manual savings goals/debt tracking, daily lesson, daily quiz, 
+  streaks, basic badges, Bible & Stewardship, market news
+- Premium: AI Coach, couples features (linking, games, shared goals — 
+  confirm this is the intended gate, since couples was a core original 
+  pillar; flag this decision explicitly rather than assuming), leaderboards, 
+  shareable card customization
+Gate premium features with a clear upgrade prompt when a free user attempts 
+to access them — not a silent block or a broken screen, an explicit 
+"Upgrade to Premium" card explaining what they'd get
+
+SETTINGS INTEGRATION
+Update the Settings screen's existing Subscription section (built earlier 
+as a placeholder) to show real plan status, renewal date, and an "Upgrade" 
+or "Manage Subscription" action pointing to Stripe's customer portal.
+
+OUTPUT
+- Files/edge functions created
+- Confirm the webhook handler correctly updates subscriptions on all 4 
+  event types tested
+- List of features gated behind premium and confirmation this matches 
+  intent (flag the couples-gating decision specifically for founder review)
+- Any errors

@@ -1,0 +1,48 @@
+Branch: techtate-couples-consent
+
+GOAL
+Build partner invitation and mutual-consent linking using couples and 
+partner_links. This is consent-sensitive — read the requirements carefully, 
+they're intentional, not optional polish.
+
+INVITE FLOW
+- "Invite Partner" (left menu, currently a placeholder) — generate a unique 
+  invite code or link tied to a new couples row, with the inviter's 
+  partner_links row set to status='accepted' and invited_by=self immediately, 
+  and no second partner_links row created yet
+- Share the invite link via the Web Share API (same pattern as Prompt 13's 
+  share flow) or a copyable code
+- When the invited partner opens the link/enters the code: create their 
+  partner_links row with status='pending', invited_by set to the original 
+  inviter — do NOT set status='accepted' automatically
+- The invited partner must see an explicit accept/decline screen showing 
+  who invited them and what connecting means in plain language (e.g. "You'll 
+  be able to see shared goals and take quizzes together. Your individual 
+  finance goals stay private unless you choose to share them.") before their 
+  status can change to 'accepted' or 'declined'
+- A couple is only "active" (able to use couples features) when BOTH 
+  partner_links rows have status='accepted' — enforce this check wherever 
+  couples features are gated, don't assume one accepted row is enough
+
+CONSENT UI REQUIREMENTS
+- No couples feature (shared goals, games, household dashboard) should be 
+  reachable or show any data until both partners have explicitly accepted
+- If invited but not yet responded, show the inviting partner a "Waiting for 
+  [partner] to accept" state, not a broken/empty couples screen
+- If declined, the inviter should see a clear "invite declined" state, and 
+  be able to send a new invite (to the same or different person) — decide 
+  whether a declined couples row blocks re-inviting the same email/code or 
+  allows a fresh one, and state your choice
+
+PROFILE INTEGRATION
+- Update the Profile tab's "Couple Status" card (built in an earlier prompt 
+  as a static placeholder) to reflect real state: not connected / invite 
+  pending / connected, with the correct action available in each state
+
+OUTPUT
+- Files created/changed
+- Confirm both-accepted is enforced before any couples feature becomes 
+  accessible (describe how you tested this)
+- Confirm the pending/waiting and declined states render correctly, not as 
+  broken screens
+- Any errors

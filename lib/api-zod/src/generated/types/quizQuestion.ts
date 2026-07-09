@@ -12,5 +12,7 @@ export interface QuizQuestion {
   questionText: string;
   options: unknown;
   correctAnswer: string;
+  /** @nullable */
+  explanation?: string | null;
   createdAt?: Date;
 }

@@ -33,6 +33,8 @@ import BibleStudy from "./pages/BibleStudy";
 import Couples from "./pages/Couples";
 import Gamification from "./pages/Gamification";
 import Progress from "./pages/Progress";
+import Quiz from "./pages/Quiz";
+import QuizTake from "./pages/QuizTake";
 import Onboarding from "./pages/Onboarding";
 
 // REQUIRED — copy verbatim. Resolves the key from window.location.hostname so the
@@ -212,14 +214,8 @@ function ClerkProviderWithRoutes() {
           <Route path="/bible" element={<BibleStudy />} />
           <Route path="/achievements" element={<Gamification />} />
           <Route path="/reports" element={<Progress />} />
-          <Route
-            path="/quiz"
-            element={
-              <div className="p-6">
-                <h1 className="text-2xl">Quiz - Coming Soon</h1>
-              </div>
-            }
-          />
+          <Route path="/quiz" element={<Quiz />} />
+          <Route path="/quiz/:quizId/take" element={<QuizTake />} />
           <Route path="/invite-partner" element={<Navigate to="/couples" replace />} />
           <Route
             path="/subscription"

@@ -956,10 +956,10 @@ paths:
       tags: [academy]
       responses:
         "200":
-          description: List of quiz attempts
+          description: List of quiz attempts, joined with quiz title
           content:
             application/json:
-              schema: { type: array, items: { $ref: "#/components/schemas/QuizAttempt" } }
+              schema: { type: array, items: { $ref: "#/components/schemas/QuizAttemptWithQuiz" } }
     post:
       operationId: createQuizAttempt
       tags: [academy]
@@ -974,6 +974,8 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/QuizAttemptResult" }
+        "409":
+          description: This quiz has already been attempted today (one attempt per quiz per day)
 
   # ---------- Gamification ----------
   /challenges:
@@ -2424,6 +2426,7 @@ components:
           properties:
             topicName: { type: string }
             topicCode: { type: string }
+            quizId: { type: ["integer", "null"] }
 
     LessonProgress:
       type: object
@@ -2444,12 +2447,13 @@ components:
 
     Quiz:
       type: object
-      required: [id, title]
+      required: [id, title, quizType]
       properties:
         id: { type: integer }
         topicId: { type: ["integer", "null"] }
         lessonId: { type: ["integer", "null"] }
         title: { type: string }
+        quizType: { type: string }
         createdAt: { type: string, format: date-time }
     QuizQuestion:
       type: object
@@ -2460,6 +2464,7 @@ components:
         questionText: { type: string }
         options: {}
         correctAnswer: { type: string }
+        explanation: { type: ["string", "null"] }
         createdAt: { type: string, format: date-time }
     QuizWithQuestions:
       allOf:
@@ -2491,6 +2496,14 @@ components:
         score: { type: integer }
         totalQuestions: { type: integer }
         answers: {}
+
+    QuizAttemptWithQuiz:
+      allOf:
+        - $ref: "#/components/schemas/QuizAttempt"
+        - type: object
+          required: [quizTitle]
+          properties:
+            quizTitle: { type: string }
 
     LessonProgressResult:
       allOf:

@@ -1,0 +1,55 @@
+Branch: techtate-market-leaderboards
+
+GOAL
+Add two read-only ranked/list surfaces: country-based market news on the 
+Finance tab, and streak/XP leaderboards.
+
+MARKET NEWS
+- On first visit to this section, prompt for country (default to a 
+  reasonable guess from browser locale if available, otherwise default to 
+  US) and write to market_watchlist
+- Fetch top market movers for that country from an external market-data API. 
+  Do not hardcode a specific provider without checking first — search for 
+  what's already available as a dependency or API key in the project's 
+  environment variables; if none exists, use a free-tier provider (e.g. 
+  Finnhub or Alpha Vantage) and clearly flag in your output that an API key 
+  needs to be added to environment variables for this to work in production
+- Display: top 5-10 movers for that market, name, ticker, percent change, 
+  color-coded (green up, red down) — headline-level only, no charts needed 
+  for this pass
+- CRITICAL: this is a news feed, not investment guidance. No "buy" / "sell" 
+  language anywhere, no recommendations, no ranking implying "best stocks to 
+  buy." Label the section clearly as market news/information only. Include a 
+  small persistent disclaimer: "For informational purposes only — not 
+  investment advice."
+- Allow adding specific tickers to a personal watchlist (writes additional 
+  market_watchlist rows with ticker_symbol set)
+- Handle the API-unavailable case gracefully: if the market data fetch 
+  fails or hits a rate limit, show a friendly "Market news is temporarily 
+  unavailable" message, not a broken screen or raw error
+
+LEADERBOARDS
+- New screen (add a route/nav entry — decide whether this lives inside 
+  Quiz tab or Profile tab based on where it fits best given existing nav, 
+  state your reasoning)
+- Two views: Streak leaderboard (top users by current habit streak) and XP 
+  leaderboard (top users by total xp_events sum), toggle between them
+- This requires reading other users' aggregate data (streak count, XP total) 
+  without exposing their personal finance/goal data — write the query/RLS 
+  policy carefully so it only exposes profiles.full_name (or a display name) 
+  plus the aggregate numbers, nothing else. Confirm this doesn't leak any 
+  other table's data through a join
+- Show the current user's own rank highlighted even if they're not in the 
+  visible top 10
+- Empty/low-data state: if fewer than 5 users exist (likely true in early 
+  testing), don't show a broken or awkward-looking leaderboard — handle 
+  gracefully with whatever data exists
+
+OUTPUT
+- Which market-data provider was used and confirmation an API key is needed 
+  (if so, exact environment variable name to add)
+- Files created/changed
+- Confirm the RLS/query for leaderboards doesn't expose more than name + 
+  aggregate numbers
+- Confirm the API-failure fallback was tested
+- Any errors

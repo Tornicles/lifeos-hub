@@ -1,0 +1,46 @@
+Branch: techtate-ai-coach
+
+GOAL
+Build the AI Coach (the existing Insights.tsx card, already renamed and 
+repositioned in Prompt 1) into a working feature: lesson Q&A, goal/challenge 
+review, and AI-generated content for quizzes and couple discussion prompts.
+
+AI COACH CORE
+- Chat-style interface accessible from the /insights route (labeled "AI 
+  Coach" per the rebrand) and from the Home tab's existing AI Coach teaser card
+- The Coach should have context on: the user's current savings goals and 
+  debts (from the tables, read-only), their current streak/XP, and today's 
+  lesson topic — pass this as context to whatever AI provider is being used 
+  (check the project for an existing AI integration pattern — e.g. if 
+  Supabase Edge Functions already call an LLM API elsewhere in the repo, 
+  follow that same pattern rather than introducing a new one)
+- HARD REQUIREMENT: every response touching money decisions must avoid 
+  giving regulated investment, tax, or legal advice. Add this as an explicit 
+  instruction in the system prompt sent to the AI, AND add a persistent, 
+  visible disclaimer in the Coach UI itself (not just relying on the AI 
+  behaving correctly) — something like "Tech-Tate's AI Coach offers 
+  general financial education, not investment, tax, or legal advice."
+- Suggested question chips to start a conversation (e.g. "Explain today's 
+  lesson differently," "How am I doing on my goals?", "Give me a money tip 
+  for this week")
+- Store conversation history if an ai_conversations-style pattern already 
+  exists in the repo from LifeOS (check before creating a new table — reuse 
+  if a suitable one exists and is compatible with RLS per-user, otherwise 
+  create one following existing schema conventions)
+
+AI-GENERATED QUIZZES & DISCUSSION PROMPTS
+- Extend the admin/content system (not user-facing) with a way to generate 
+  a draft quiz from a lesson's content using the AI — output should populate 
+  quiz_questions in draft form for an admin to review and publish, not 
+  auto-publish directly to users
+- Couple discussion prompts: generate weekly entries for 
+  couple_discussion_prompts using the AI, seeded off that week's lesson 
+  topics — this can run as a scheduled function or admin-triggered action, 
+  state which approach you used and why
+
+OUTPUT
+- Which AI provider/pattern was used and why (existing pattern reused vs. new)
+- Files created/changed
+- Confirm the disclaimer is visibly present in the Coach UI
+- Confirm AI-generated quiz drafts require manual publish, not auto-publish
+- Any errors

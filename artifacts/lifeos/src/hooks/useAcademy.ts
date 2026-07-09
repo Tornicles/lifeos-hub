@@ -79,7 +79,10 @@ export const useSubmitQuizAttempt = () => {
   const mutation = useCreateQuizAttempt();
   return {
     ...mutation,
-    mutate: (data: QuizAttemptInput) =>
+    mutate: (
+      data: QuizAttemptInput,
+      options?: { onSuccess?: (data: any) => void; onAlreadyAttemptedToday?: () => void },
+    ) =>
       mutation.mutate(
         { data },
         {
@@ -91,8 +94,15 @@ export const useSubmitQuizAttempt = () => {
               queryClient.invalidateQueries({ queryKey: getListHabitsQueryKey() });
             }
             celebrateGamification(data);
+            options?.onSuccess?.(data);
           },
           onError: (error: any) => {
+            const status = error?.response?.status ?? error?.status;
+            if (status === 409) {
+              toast.error("You've already taken today's quiz");
+              options?.onAlreadyAttemptedToday?.();
+              return;
+            }
             console.error('Quiz attempt error:', error);
             toast.error(error?.message || 'Failed to record quiz attempt');
           },

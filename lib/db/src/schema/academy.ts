@@ -62,6 +62,7 @@ export const quizzesTable = pgTable("quizzes", {
   topicId: integer("topic_id").references(() => topicsTable.id, { onDelete: "cascade" }),
   lessonId: integer("lesson_id").references(() => lessonsTable.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
+  quizType: text("quiz_type").notNull().default("daily"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 export const insertQuizSchema = createInsertSchema(quizzesTable).omit({ id: true, createdAt: true });
@@ -74,6 +75,7 @@ export const quizQuestionsTable = pgTable("quiz_questions", {
   questionText: text("question_text").notNull(),
   options: jsonb("options").notNull(),
   correctAnswer: text("correct_answer").notNull(),
+  explanation: text("explanation"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 export const insertQuizQuestionSchema = createInsertSchema(quizQuestionsTable).omit({ id: true, createdAt: true });
