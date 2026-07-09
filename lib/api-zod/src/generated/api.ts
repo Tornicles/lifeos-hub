@@ -1047,6 +1047,7 @@ export const ListTopicsQueryParams = zod.object({
 
 export const ListTopicsResponseItem = zod.object({
   "id": zod.number(),
+  "code": zod.string(),
   "name": zod.string(),
   "description": zod.string().nullish(),
   "hubId": zod.number().nullish(),
@@ -1065,11 +1066,66 @@ export const ListLessonsResponseItem = zod.object({
   "topicId": zod.number(),
   "title": zod.string(),
   "content": zod.string().nullish(),
+  "videoUrl": zod.string().nullish(),
+  "scheduledDate": zod.coerce.date().nullish(),
   "sortOrder": zod.number(),
   "xpReward": zod.number(),
   "createdAt": zod.coerce.date().optional()
 })
 export const ListLessonsResponse = zod.array(ListLessonsResponseItem)
+
+
+export const ListAllLessonsResponseItem = zod.object({
+  "id": zod.number(),
+  "topicId": zod.number(),
+  "title": zod.string(),
+  "content": zod.string().nullish(),
+  "videoUrl": zod.string().nullish(),
+  "scheduledDate": zod.coerce.date().nullish(),
+  "sortOrder": zod.number(),
+  "xpReward": zod.number(),
+  "createdAt": zod.coerce.date().optional()
+}).and(zod.object({
+  "topicName": zod.string(),
+  "topicCode": zod.string()
+}))
+export const ListAllLessonsResponse = zod.array(ListAllLessonsResponseItem)
+
+
+export const GetTodayLessonResponse = zod.union([zod.object({
+  "id": zod.number(),
+  "topicId": zod.number(),
+  "title": zod.string(),
+  "content": zod.string().nullish(),
+  "videoUrl": zod.string().nullish(),
+  "scheduledDate": zod.coerce.date().nullish(),
+  "sortOrder": zod.number(),
+  "xpReward": zod.number(),
+  "createdAt": zod.coerce.date().optional()
+}).and(zod.object({
+  "topicName": zod.string(),
+  "topicCode": zod.string()
+})),zod.null()])
+
+
+export const GetLessonParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetLessonResponse = zod.object({
+  "id": zod.number(),
+  "topicId": zod.number(),
+  "title": zod.string(),
+  "content": zod.string().nullish(),
+  "videoUrl": zod.string().nullish(),
+  "scheduledDate": zod.coerce.date().nullish(),
+  "sortOrder": zod.number(),
+  "xpReward": zod.number(),
+  "createdAt": zod.coerce.date().optional()
+}).and(zod.object({
+  "topicName": zod.string(),
+  "topicCode": zod.string()
+}))
 
 
 export const ListLessonProgressResponseItem = zod.object({

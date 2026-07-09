@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { and, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import {
   db,
   withUserContext,
@@ -16,6 +16,10 @@ import {
   ListTopicsResponse,
   ListLessonsParams,
   ListLessonsResponse,
+  ListAllLessonsResponse,
+  GetTodayLessonResponse,
+  GetLessonParams,
+  GetLessonResponse,
   ListLessonProgressResponse,
   CreateLessonProgressBody,
   CreateLessonProgressResponse,
@@ -25,6 +29,27 @@ import {
   CreateQuizAttemptBody,
   CreateQuizAttemptResponse,
 } from "@workspace/api-zod";
+
+async function lessonWithTopic(lessonId: number) {
+  const [row] = await db
+    .select({
+      id: lessonsTable.id,
+      topicId: lessonsTable.topicId,
+      title: lessonsTable.title,
+      content: lessonsTable.content,
+      videoUrl: lessonsTable.videoUrl,
+      scheduledDate: lessonsTable.scheduledDate,
+      sortOrder: lessonsTable.sortOrder,
+      xpReward: lessonsTable.xpReward,
+      createdAt: lessonsTable.createdAt,
+      topicName: topicsTable.name,
+      topicCode: topicsTable.code,
+    })
+    .from(lessonsTable)
+    .innerJoin(topicsTable, eq(lessonsTable.topicId, topicsTable.id))
+    .where(eq(lessonsTable.id, lessonId));
+  return row;
+}
 
 const router: IRouter = Router();
 
@@ -53,6 +78,94 @@ router.get("/topics/:topicId/lessons", async (req, res): Promise<void> => {
     .from(lessonsTable)
     .where(eq(lessonsTable.topicId, params.data.topicId));
   res.json(ListLessonsResponse.parse(rows));
+});
+
+router.get("/lessons", async (_req, res): Promise<void> => {
+  const rows = await db
+    .select({
+      id: lessonsTable.id,
+      topicId: lessonsTable.topicId,
+      title: lessonsTable.title,
+      content: lessonsTable.content,
+      videoUrl: lessonsTable.videoUrl,
+      scheduledDate: lessonsTable.scheduledDate,
+      sortOrder: lessonsTable.sortOrder,
+      xpReward: lessonsTable.xpReward,
+      createdAt: lessonsTable.createdAt,
+      topicName: topicsTable.name,
+      topicCode: topicsTable.code,
+    })
+    .from(lessonsTable)
+    .innerJoin(topicsTable, eq(lessonsTable.topicId, topicsTable.id))
+    .orderBy(asc(topicsTable.sortOrder), asc(lessonsTable.sortOrder));
+  res.json(ListAllLessonsResponse.parse(rows));
+});
+
+router.get("/lessons/today", async (req, res): Promise<void> => {
+  const today = new Date().toISOString().slice(0, 10);
+
+  const [scheduled] = await db
+    .select({
+      id: lessonsTable.id,
+      topicId: lessonsTable.topicId,
+      title: lessonsTable.title,
+      content: lessonsTable.content,
+      videoUrl: lessonsTable.videoUrl,
+      scheduledDate: lessonsTable.scheduledDate,
+      sortOrder: lessonsTable.sortOrder,
+      xpReward: lessonsTable.xpReward,
+      createdAt: lessonsTable.createdAt,
+      topicName: topicsTable.name,
+      topicCode: topicsTable.code,
+    })
+    .from(lessonsTable)
+    .innerJoin(topicsTable, eq(lessonsTable.topicId, topicsTable.id))
+    .where(eq(lessonsTable.scheduledDate, today));
+
+  if (scheduled) {
+    res.json(GetTodayLessonResponse.parse(scheduled));
+    return;
+  }
+
+  const allLessons = await db
+    .select({
+      id: lessonsTable.id,
+      topicId: lessonsTable.topicId,
+      title: lessonsTable.title,
+      content: lessonsTable.content,
+      videoUrl: lessonsTable.videoUrl,
+      scheduledDate: lessonsTable.scheduledDate,
+      sortOrder: lessonsTable.sortOrder,
+      xpReward: lessonsTable.xpReward,
+      createdAt: lessonsTable.createdAt,
+      topicName: topicsTable.name,
+      topicCode: topicsTable.code,
+    })
+    .from(lessonsTable)
+    .innerJoin(topicsTable, eq(lessonsTable.topicId, topicsTable.id))
+    .orderBy(asc(topicsTable.sortOrder), asc(lessonsTable.sortOrder));
+
+  const progress = await withUserContext(req.userId!, (tx) =>
+    tx.select().from(lessonProgressTable).where(eq(lessonProgressTable.userId, req.userId!)),
+  );
+  const completedIds = new Set(progress.filter((p) => p.completed).map((p) => p.lessonId));
+  const nextUnread = allLessons.find((l) => !completedIds.has(l.id)) ?? null;
+
+  res.json(GetTodayLessonResponse.parse(nextUnread));
+});
+
+router.get("/lessons/:id", async (req, res): Promise<void> => {
+  const params = GetLessonParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+  const row = await lessonWithTopic(params.data.id);
+  if (!row) {
+    res.status(404).json({ error: "Lesson not found" });
+    return;
+  }
+  res.json(GetLessonResponse.parse(row));
 });
 
 router.get("/lesson-progress", async (req, res): Promise<void> => {

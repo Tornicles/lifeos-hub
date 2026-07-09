@@ -4,6 +4,10 @@ import {
   useListTopics,
   useListLessons,
   getListLessonsQueryKey,
+  useListAllLessons,
+  useGetTodayLesson,
+  useGetLesson,
+  getGetLessonQueryKey,
   useListLessonProgress,
   useCreateLessonProgress,
   getListLessonProgressQueryKey,
@@ -23,6 +27,15 @@ export const useTopics = (hubId?: number) => useListTopics(hubId !== undefined ?
 export const useLessons = (topicId: number | null) =>
   useListLessons(topicId ?? 0, {
     query: { enabled: topicId !== null, queryKey: getListLessonsQueryKey(topicId ?? 0) },
+  });
+
+export const useAllLessons = () => useListAllLessons();
+
+export const useTodayLesson = () => useGetTodayLesson();
+
+export const useLesson = (lessonId: number | null) =>
+  useGetLesson(lessonId ?? 0, {
+    query: { enabled: lessonId !== null, queryKey: getGetLessonQueryKey(lessonId ?? 0) },
   });
 
 export const useLessonProgress = () => useListLessonProgress();

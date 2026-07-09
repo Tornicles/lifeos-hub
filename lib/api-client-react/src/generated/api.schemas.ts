@@ -635,6 +635,7 @@ export interface NetWorthSnapshotUpdate {
 
 export interface Topic {
   id: number;
+  code: string;
   name: string;
   /** @nullable */
   description?: string | null;
@@ -650,10 +651,19 @@ export interface Lesson {
   title: string;
   /** @nullable */
   content?: string | null;
+  /** @nullable */
+  videoUrl?: string | null;
+  /** @nullable */
+  scheduledDate?: string | null;
   sortOrder: number;
   xpReward: number;
   createdAt?: string;
 }
+
+export type LessonWithTopic = Lesson & {
+  topicName: string;
+  topicCode: string;
+};
 
 export interface LessonProgress {
   id: string;

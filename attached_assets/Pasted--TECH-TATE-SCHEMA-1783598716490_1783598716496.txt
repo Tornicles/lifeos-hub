@@ -1,0 +1,210 @@
+-- ============================================================================
+-- TECH-TATE SCHEMA PIVOT v2
+-- Removes the manual ledger (budgets/income/expenses/bills/investments/net worth)
+-- in favor of goal-based finance + challenges + market news + couples games +
+-- devotional content. Run this AFTER techtate_schema_rewrite.sql.
+-- ============================================================================
+
+-- ============================================================================
+-- STEP 1: DROP LEDGER TABLES — no more manual expense/income entry
+-- ============================================================================
+DROP TABLE IF EXISTS public.expenses CASCADE;
+DROP TABLE IF EXISTS public.income CASCADE;
+DROP TABLE IF EXISTS public.budgets CASCADE;
+DROP TABLE IF EXISTS public.bills CASCADE;
+DROP TABLE IF EXISTS public.investment_entries CASCADE;
+DROP TABLE IF EXISTS public.net_worth_snapshots CASCADE;
+-- KEEP AS-IS: savings_goals, debts — both are already goal/status fields
+-- (a target + a manually-updated current value), not itemized transaction
+-- ledgers, so they stay exactly as defined in the original migration.
+
+-- ============================================================================
+-- STEP 2: SAVINGS CHALLENGES
+-- The "$13.40/day → $5,000 in 365 days" generator. Stores a saved/active
+-- challenge; day-by-day progress reuses the existing habits/habit_checkins
+-- pattern via challenge_habit_id, so streak logic isn't duplicated.
+-- ============================================================================
+
+CREATE TABLE public.savings_challenges (
+  id SERIAL PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  couple_id INTEGER REFERENCES public.couples(id) ON DELETE SET NULL, -- NULL = individual challenge
+  title TEXT NOT NULL,                 -- e.g. "5K in 365 Days"
+  target_amount NUMERIC NOT NULL,
+  duration_days INTEGER NOT NULL,
+  daily_amount NUMERIC GENERATED ALWAYS AS (target_amount / NULLIF(duration_days,0)) STORED,
+  start_date DATE NOT NULL DEFAULT CURRENT_DATE,
+  is_active BOOLEAN DEFAULT TRUE,
+  challenge_habit_id INTEGER REFERENCES public.habits(id) ON DELETE SET NULL, -- links to a habit row for streak/day tracking
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_savings_challenges_user_id ON public.savings_challenges(user_id);
+
+ALTER TABLE public.savings_challenges ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own challenges" ON public.savings_challenges FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own challenges" ON public.savings_challenges FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own challenges" ON public.savings_challenges FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete own challenges" ON public.savings_challenges FOR DELETE USING (auth.uid() = user_id);
+
+CREATE TRIGGER update_savings_challenges_updated_at BEFORE UPDATE ON public.savings_challenges
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+-- ============================================================================
+-- STEP 3: MARKET NEWS PREFERENCES
+-- Live prices/news are fetched from an external market-data API at request
+-- time (data goes stale fast — not worth storing). This table only stores
+-- what the user wants to see, so the app knows which country/tickers to
+-- fetch for them.
+-- ============================================================================
+
+CREATE TABLE public.market_watchlist (
+  id SERIAL PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  country_code TEXT NOT NULL DEFAULT 'US', -- ISO country code, drives which exchange's movers to show
+  ticker_symbol TEXT,                      -- optional: a specific stock the user wants to follow
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_market_watchlist_user_id ON public.market_watchlist(user_id);
+
+ALTER TABLE public.market_watchlist ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own watchlist" ON public.market_watchlist FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own watchlist" ON public.market_watchlist FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own watchlist" ON public.market_watchlist FOR DELETE USING (auth.uid() = user_id);
+
+-- ============================================================================
+-- STEP 4: COUPLES GAMES ENGINE
+-- Generic enough to support Money Match, Values Auction, Guess My Number,
+-- and Financial Trivia Duel without a new table per game.
+-- ============================================================================
+
+CREATE TABLE public.games (
+  id SERIAL PRIMARY KEY,
+  code TEXT UNIQUE NOT NULL,        -- 'MONEY_MATCH' | 'VALUES_AUCTION' | 'GUESS_MY_NUMBER' | 'TRIVIA_DUEL'
+  name TEXT NOT NULL,
+  description TEXT,
+  mechanic_type TEXT NOT NULL,      -- 'simultaneous_reveal' | 'point_allocation' | 'guess' | 'head_to_head_quiz'
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.games ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Games are viewable by all authenticated users"
+  ON public.games FOR SELECT TO authenticated USING (TRUE);
+
+INSERT INTO public.games (code, name, description, mechanic_type) VALUES
+  ('MONEY_MATCH', 'Money Match', 'Both partners answer the same either/or money question, then reveal together.', 'simultaneous_reveal'),
+  ('VALUES_AUCTION', 'Values Auction', 'Each partner privately allocates points across financial values, then compares.', 'point_allocation'),
+  ('GUESS_MY_NUMBER', 'Guess My Number', 'One partner guesses how the other will answer before it''s revealed.', 'guess'),
+  ('TRIVIA_DUEL', 'Financial Trivia Duel', 'Head-to-head version of the daily quiz — fastest correct answer wins.', 'head_to_head_quiz');
+
+-- ----------------------------------------------------------------------------
+
+CREATE TABLE public.game_sessions (
+  id SERIAL PRIMARY KEY,
+  couple_id INTEGER NOT NULL REFERENCES public.couples(id) ON DELETE CASCADE,
+  game_id INTEGER NOT NULL REFERENCES public.games(id) ON DELETE CASCADE,
+  status TEXT NOT NULL DEFAULT 'in_progress', -- 'in_progress' | 'completed'
+  started_by UUID REFERENCES public.profiles(id),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  completed_at TIMESTAMPTZ
+);
+
+CREATE INDEX idx_game_sessions_couple_id ON public.game_sessions(couple_id);
+
+ALTER TABLE public.game_sessions ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Partners can view own couple's game sessions"
+  ON public.game_sessions FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.partner_links
+      WHERE partner_links.couple_id = game_sessions.couple_id
+      AND partner_links.user_id = auth.uid()
+      AND partner_links.status = 'accepted'
+    )
+  );
+
+CREATE POLICY "Partners can insert own couple's game sessions"
+  ON public.game_sessions FOR INSERT
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.partner_links
+      WHERE partner_links.couple_id = game_sessions.couple_id
+      AND partner_links.user_id = auth.uid()
+      AND partner_links.status = 'accepted'
+    )
+  );
+
+-- ----------------------------------------------------------------------------
+
+CREATE TABLE public.game_responses (
+  id SERIAL PRIMARY KEY,
+  session_id INTEGER NOT NULL REFERENCES public.game_sessions(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  prompt TEXT NOT NULL,
+  response JSONB NOT NULL, -- flexible: a chosen option, a point allocation, a guess, a quiz answer
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_game_responses_session_id ON public.game_responses(session_id);
+
+ALTER TABLE public.game_responses ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view responses in own game sessions"
+  ON public.game_responses FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.game_sessions gs
+      JOIN public.partner_links pl ON pl.couple_id = gs.couple_id
+      WHERE gs.id = game_responses.session_id
+      AND pl.user_id = auth.uid()
+      AND pl.status = 'accepted'
+    )
+  );
+
+CREATE POLICY "Users can insert own game responses"
+  ON public.game_responses FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- ============================================================================
+-- STEP 5: PRAYER — extend the existing bible_verses table rather than
+-- creating a parallel devotional system
+-- ============================================================================
+
+ALTER TABLE public.bible_verses ADD COLUMN IF NOT EXISTS prayer_text TEXT;
+-- prayer_text: a short, original prayer tied to that day's verse/financial
+-- theme. Not a scripted liturgical prayer — written per-entry by the content
+-- team, same authorship model as the verse pairing itself.
+
+-- ============================================================================
+-- STEP 6: SHAREABLE CONTENT
+-- Tracks what's been generated for sharing (streak milestones, challenge
+-- cards, badges) so the app can show a "your shares" history and avoid
+-- regenerating identical cards.
+-- ============================================================================
+
+CREATE TABLE public.shareable_cards (
+  id SERIAL PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  card_type TEXT NOT NULL, -- 'streak' | 'badge' | 'challenge' | 'milestone'
+  reference_id INTEGER,    -- id of the underlying badge/challenge/etc, nullable
+  caption TEXT,            -- auto-generated share caption, editable by user before posting
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_shareable_cards_user_id ON public.shareable_cards(user_id);
+
+ALTER TABLE public.shareable_cards ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own shareable cards" ON public.shareable_cards FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own shareable cards" ON public.shareable_cards FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- ============================================================================
+-- END OF PIVOT PATCH
+-- Finance tab now = savings_goals + debts (goal-only) + savings_challenges
+-- + market_watchlist (live-fetched news). No transaction ledger anywhere.
+-- ============================================================================

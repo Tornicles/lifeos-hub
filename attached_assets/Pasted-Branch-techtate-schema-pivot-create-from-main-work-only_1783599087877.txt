@@ -1,0 +1,67 @@
+Branch: techtate-schema-pivot (create from main, work only here)
+
+GOAL
+Apply the schema pivot that removes manual ledger tracking (no more expense/
+income logging), and remove the UI built against those tables so the app 
+doesn't reference tables that no longer exist.
+
+PART 1 — SCHEMA
+Run the attached migration file techtate_schema_pivot_v2.sql exactly as 
+provided. This drops expenses, income, budgets, bills, investment_entries, 
+and net_worth_snapshots, and creates savings_challenges, market_watchlist, 
+games (pre-seeded with 4 rows), game_sessions, game_responses, adds a 
+prayer_text column to bible_verses, and creates shareable_cards.
+
+After running it, regenerate the Supabase TypeScript types file to reflect 
+the new schema (find the existing generated types file, likely 
+src/integrations/supabase/types.ts, and regenerate — don't hand-edit it).
+
+PART 2 — FIND WHAT NEEDS TO COME OUT
+Before deleting anything, search the codebase for every file, component, 
+route, and query that references the dropped tables: expenses, income, 
+budgets, bills, investment_entries, net_worth_snapshots. This includes any 
+budget-progress-bar logic, expense forms, income forms, bill/calendar screens 
+built against these tables, and any Finance tab sections summarizing them 
+(e.g. "Income vs Expenses" header, budget category list, investment list, net 
+worth chart). List every file found before changing anything.
+
+PART 3 — REMOVE, DON'T JUST BREAK
+For each file found in Part 2:
+- If the file is entirely about a dropped table (e.g. a dedicated 
+  AddExpenseForm component), remove its route/nav entry and stop rendering 
+  it, but do not permanently delete the file this pass — same safety rule as 
+  prior prompts, unused files can remain temporarily
+- If the file is partially about a dropped table (e.g. the Finance tab home 
+  screen mixes a budget summary with savings goals), edit it to remove only 
+  the dropped-table sections, keep the parts referencing savings_goals and 
+  debts exactly as they are — do not touch or refactor the goals/debt code 
+  in this pass
+- Remove any Finance-related routes in App.tsx that only existed to serve 
+  dropped tables (e.g. an /expenses or /bills route if one exists) — leave 
+  the main Finance tab route itself intact, since savings_goals and debts 
+  still render there
+
+PART 4 — RESULTING FINANCE TAB (after removal)
+The Finance tab should now show only: Savings Goals list (existing, 
+untouched), Debt Payoff list (existing, untouched). It's expected to look 
+sparse after this prompt — Prompt 13 adds Savings Challenges and shareable 
+cards back in, and Prompt 14 adds Market News. Do not build placeholder 
+content for the empty space in this prompt; leave it sparse and confirmed 
+working rather than guessing at what goes there.
+
+SAFETY RULES (same as all prior prompts)
+- Do not permanently delete files this pass
+- Do not touch environment variables, Supabase auth config, or API keys
+- Do not refactor savings_goals or debts code while removing the 
+  ledger-adjacent code around it
+- Do not build any new UI in this prompt — removal and schema only
+
+OUTPUT (required format)
+- Confirm schema migration ran successfully; list tables dropped, tables 
+  created, column added
+- Confirm types file regenerated
+- Full list of files found in Part 2 (every reference to a dropped table)
+- For each file: what was removed vs. what was left alone, and why
+- Confirm the Finance tab still builds and renders (even if sparse) with no 
+  broken imports or dead links
+- Any errors

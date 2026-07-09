@@ -8,6 +8,7 @@
 
 export interface Topic {
   id: number;
+  code: string;
   name: string;
   /** @nullable */
   description?: string | null;

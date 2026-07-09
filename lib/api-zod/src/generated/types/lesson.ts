@@ -12,6 +12,10 @@ export interface Lesson {
   title: string;
   /** @nullable */
   content?: string | null;
+  /** @nullable */
+  videoUrl?: string | null;
+  /** @nullable */
+  scheduledDate?: Date | null;
   sortOrder: number;
   xpReward: number;
   createdAt?: Date;

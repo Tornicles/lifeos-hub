@@ -864,6 +864,51 @@ paths:
             application/json:
               schema: { type: array, items: { $ref: "#/components/schemas/Lesson" } }
 
+  /lessons:
+    get:
+      operationId: listAllLessons
+      tags: [academy]
+      responses:
+        "200":
+          description: List of all lessons, joined with topic name/code
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/LessonWithTopic" } }
+
+  /lessons/today:
+    get:
+      operationId: getTodayLesson
+      tags: [academy]
+      responses:
+        "200":
+          description: >
+            The lesson scheduled for today, or if none is scheduled, the next
+            unread lesson in sequence. Null if every lesson has been completed.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/LessonWithTopic"
+                  - type: "null"
+
+  /lessons/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      operationId: getLesson
+      tags: [academy]
+      responses:
+        "200":
+          description: Lesson detail with topic name/code
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LessonWithTopic" }
+        "404":
+          description: Lesson not found
+
   /lesson-progress:
     get:
       operationId: listLessonProgress
@@ -2347,9 +2392,10 @@ components:
     # ---------- Academy ----------
     Topic:
       type: object
-      required: [id, name, sortOrder]
+      required: [id, code, name, sortOrder]
       properties:
         id: { type: integer }
+        code: { type: string }
         name: { type: string }
         description: { type: ["string", "null"] }
         hubId: { type: ["integer", "null"] }
@@ -2364,9 +2410,20 @@ components:
         topicId: { type: integer }
         title: { type: string }
         content: { type: ["string", "null"] }
+        videoUrl: { type: ["string", "null"] }
+        scheduledDate: { type: ["string", "null"], format: date }
         sortOrder: { type: integer }
         xpReward: { type: integer }
         createdAt: { type: string, format: date-time }
+
+    LessonWithTopic:
+      allOf:
+        - $ref: "#/components/schemas/Lesson"
+        - type: object
+          required: [topicName, topicCode]
+          properties:
+            topicName: { type: string }
+            topicCode: { type: string }
 
     LessonProgress:
       type: object

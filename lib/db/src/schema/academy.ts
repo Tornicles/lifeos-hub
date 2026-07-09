@@ -1,4 +1,4 @@
-import { boolean, integer, jsonb, pgPolicy, pgTable, serial, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { boolean, date, integer, jsonb, pgPolicy, pgTable, serial, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { sql } from "drizzle-orm";
 import { z } from "zod/v4";
@@ -15,6 +15,7 @@ const userIsolation = () =>
 
 export const topicsTable = pgTable("topics", {
   id: serial("id").primaryKey(),
+  code: text("code").notNull().unique(),
   name: text("name").notNull(),
   description: text("description"),
   hubId: integer("hub_id").references(() => hubsTable.id),
@@ -30,6 +31,8 @@ export const lessonsTable = pgTable("lessons", {
   topicId: integer("topic_id").notNull().references(() => topicsTable.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
   content: text("content"),
+  videoUrl: text("video_url"),
+  scheduledDate: date("scheduled_date"),
   sortOrder: integer("sort_order").notNull().default(0),
   xpReward: integer("xp_reward").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

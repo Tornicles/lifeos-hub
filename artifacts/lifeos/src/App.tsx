@@ -28,6 +28,7 @@ import NotificationSettings from "./pages/NotificationSettings";
 import Analytics from "./pages/Analytics";
 import Finance from "./pages/Finance";
 import Academy from "./pages/Academy";
+import AcademyLessonDetail from "./pages/AcademyLessonDetail";
 import BibleStudy from "./pages/BibleStudy";
 import Couples from "./pages/Couples";
 import Gamification from "./pages/Gamification";
@@ -206,6 +207,7 @@ function ClerkProviderWithRoutes() {
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/finance" element={<Finance />} />
           <Route path="/academy" element={<Academy />} />
+          <Route path="/academy/lessons/:id" element={<AcademyLessonDetail />} />
           <Route path="/couples" element={<Couples />} />
           <Route path="/bible" element={<BibleStudy />} />
           <Route path="/achievements" element={<Gamification />} />

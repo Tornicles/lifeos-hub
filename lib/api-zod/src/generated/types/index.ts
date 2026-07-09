@@ -66,6 +66,7 @@ export * from './lesson';
 export * from './lessonProgress';
 export * from './lessonProgressInput';
 export * from './lessonProgressResult';
+export * from './lessonWithTopic';
 export * from './listBibleVersesParams';
 export * from './listCalendarEntriesParams';
 export * from './listHabitsParams';

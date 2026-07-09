@@ -77,6 +77,7 @@ import type {
   LessonProgress,
   LessonProgressInput,
   LessonProgressResult,
+  LessonWithTopic,
   ListBibleVersesParams,
   ListCalendarEntriesParams,
   ListHabitsParams,
@@ -4279,6 +4280,219 @@ export function useListLessons<TData = Awaited<ReturnType<typeof listLessons>>, 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getListLessonsQueryOptions(topicId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListAllLessonsUrl = () => {
+
+
+
+
+  return `/api/lessons`
+}
+
+export const listAllLessons = async ( options?: RequestInit): Promise<LessonWithTopic[]> => {
+
+  return customFetch<LessonWithTopic[]>(getListAllLessonsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAllLessonsQueryKey = () => {
+    return [
+    `/api/lessons`
+    ] as const;
+    }
+
+
+export const getListAllLessonsQueryOptions = <TData = Awaited<ReturnType<typeof listAllLessons>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAllLessons>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAllLessonsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAllLessons>>> = ({ signal }) => listAllLessons({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAllLessons>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListAllLessonsQueryResult = NonNullable<Awaited<ReturnType<typeof listAllLessons>>>
+export type ListAllLessonsQueryError = ErrorType<unknown>
+
+
+
+export function useListAllLessons<TData = Awaited<ReturnType<typeof listAllLessons>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAllLessons>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListAllLessonsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetTodayLessonUrl = () => {
+
+
+
+
+  return `/api/lessons/today`
+}
+
+export const getTodayLesson = async ( options?: RequestInit): Promise<LessonWithTopic | null> => {
+
+  return customFetch<LessonWithTopic | null>(getGetTodayLessonUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetTodayLessonQueryKey = () => {
+    return [
+    `/api/lessons/today`
+    ] as const;
+    }
+
+
+export const getGetTodayLessonQueryOptions = <TData = Awaited<ReturnType<typeof getTodayLesson>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTodayLesson>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetTodayLessonQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getTodayLesson>>> = ({ signal }) => getTodayLesson({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getTodayLesson>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetTodayLessonQueryResult = NonNullable<Awaited<ReturnType<typeof getTodayLesson>>>
+export type GetTodayLessonQueryError = ErrorType<unknown>
+
+
+
+export function useGetTodayLesson<TData = Awaited<ReturnType<typeof getTodayLesson>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTodayLesson>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetTodayLessonQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetLessonUrl = (id: number,) => {
+
+
+
+
+  return `/api/lessons/${id}`
+}
+
+export const getLesson = async (id: number, options?: RequestInit): Promise<LessonWithTopic> => {
+
+  return customFetch<LessonWithTopic>(getGetLessonUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetLessonQueryKey = (id: number,) => {
+    return [
+    `/api/lessons/${id}`
+    ] as const;
+    }
+
+
+export const getGetLessonQueryOptions = <TData = Awaited<ReturnType<typeof getLesson>>, TError = ErrorType<void>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLesson>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetLessonQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLesson>>> = ({ signal }) => getLesson(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLesson>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetLessonQueryResult = NonNullable<Awaited<ReturnType<typeof getLesson>>>
+export type GetLessonQueryError = ErrorType<void>
+
+
+
+export function useGetLesson<TData = Awaited<ReturnType<typeof getLesson>>, TError = ErrorType<void>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLesson>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetLessonQueryOptions(id,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
