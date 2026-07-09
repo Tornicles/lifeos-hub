@@ -16,4 +16,12 @@ export interface CalendarEntryInput {
   startTime?: string;
   endTime?: string;
   focusDomain?: string;
+  amount?: string;
+  /**
+     * @minimum 1
+     * @maximum 31
+     */
+  dueDay?: number;
+  isAutopay?: boolean;
+  category?: string;
 }

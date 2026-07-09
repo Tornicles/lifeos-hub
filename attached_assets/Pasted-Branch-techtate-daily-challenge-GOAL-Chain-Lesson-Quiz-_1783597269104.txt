@@ -1,0 +1,45 @@
+Branch: techtate-daily-challenge
+
+GOAL
+Chain Lesson → Quiz → Challenge into one visible daily sequence on the Home tab.
+
+DATA SEEDING
+For each of the 7 sample lessons, create one challenges row with a realistic 
+description (e.g. for a Stocks lesson: "Research one publicly traded company 
+and write 2-3 sentences on why you would or wouldn't invest in it") and 
+xp_reward = 15.
+
+HOME TAB — "TODAY'S CHALLENGE" CARD
+- Show a 3-step progress tracker: Read Lesson (check lesson_progress for 
+  today's lesson), Take Quiz (check quiz_attempts for today's quiz), Complete 
+  Challenge (check challenge_completions for today's challenge)
+- Each step is tappable and deep-links to that screen if not yet done, or 
+  shows a checkmark and is non-interactive if already done
+- Steps must be completed in order — if lesson isn't done, the quiz step 
+  should be visually present but disabled/greyed with a tooltip or label like 
+  "Complete the lesson first," not silently clickable
+
+CHALLENGE SCREEN
+- Shows challenges.description
+- Text area for the user's response, saved to challenge_completions.
+  response_text on submit
+- On submit: write challenge_completions row with completed_at = now()
+- Completion screen: simple celebratory state (use existing toast/modal 
+  patterns, don't build a new animation system) confirming all 3 steps are done 
+  for today
+
+EDGE CASES TO HANDLE
+- What happens if a lesson has no associated quiz, or a quiz has no associated 
+  challenge (both are legitimate per the schema, since lesson_id/quiz_id are 
+  nullable on some tables) — the sequence should gracefully show only the 
+  steps that exist for that day rather than showing a broken/empty step
+- What happens the first time a user opens the app and no lesson is scheduled 
+  for today at all — show a message directing them to browse the Learn 
+  library instead of a broken challenge card
+
+OUTPUT
+- Confirm 7 challenges seeded
+- Files created/changed
+- Confirm the 3-step sequence correctly locks/unlocks in order
+- Confirm both edge cases above were tested and handled
+- Any errors

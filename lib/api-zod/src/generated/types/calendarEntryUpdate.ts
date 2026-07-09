@@ -13,4 +13,15 @@ export interface CalendarEntryUpdate {
   startTime?: string;
   endTime?: string;
   focusDomain?: string;
+  /** @nullable */
+  amount?: string | null;
+  /**
+     * @minimum 1
+     * @maximum 31
+     * @nullable
+     */
+  dueDay?: number | null;
+  isAutopay?: boolean;
+  /** @nullable */
+  category?: string | null;
 }

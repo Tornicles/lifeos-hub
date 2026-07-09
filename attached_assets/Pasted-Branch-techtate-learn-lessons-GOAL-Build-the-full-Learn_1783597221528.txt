@@ -1,0 +1,50 @@
+Branch: techtate-learn-lessons
+
+GOAL
+Build the full Learn tab: browsing, reading, and completing lessons.
+
+DATA SEEDING
+Before building UI, seed the topics table with these codes/names: BUDGETING, 
+STOCKS, INVESTING, REAL_ESTATE, ENTREPRENEURSHIP, LEADERSHIP, NEGOTIATION, 
+BUSINESS_MGMT, PSYCHOLOGY, BEHAVIORAL_FINANCE, ECONOMICS, TAXES, INSURANCE, 
+RETIREMENT, AI_PRODUCTIVITY, SALES, MARKETING, TEAM_BUILDING, WEALTH_CREATION, 
+STEWARDSHIP. Then seed 7 sample lessons (one per day of a sample week) across 
+different topics with real placeholder content (2-3 paragraphs each, not lorem 
+ipsum — write genuinely useful short lessons) so the UI can be tested with 
+real-looking data.
+
+SCREENS
+1. Learn tab home
+   - "Today's Lesson" card at the top: pulls the lesson where scheduled_date 
+     = today; if none is scheduled for today, fall back to the next unread 
+     lesson in sequence rather than showing nothing
+   - Below that: a browsable library grouped by topic, with a completed 
+     checkmark on lessons the user has already finished (join against 
+     lesson_progress)
+   - Filter/search by topic name
+
+2. Lesson detail view
+   - Render lessons.content as formatted markdown (use an existing markdown 
+     renderer if one is already a dependency; if not, render as plain 
+     paragraphs with line breaks rather than adding a new markdown library 
+     dependency for this alone — note which you did)
+   - If video_url is present, embed it (assume YouTube/Vimeo-style embeddable 
+     URL, wrap in a responsive 16:9 container)
+   - "Mark Complete" button at the bottom: writes to lesson_progress with 
+     completed_at = now(); if already completed, show "Completed on [date]" 
+     instead of the button
+   - Reading time estimate shown at the top (use content length / average 
+     reading speed, roughly 200 words/min, label it as an estimate)
+
+MOBILE
+Lesson text must be comfortably readable on a phone: adequate font size 
+(16px+ base), line height, and padding — check against existing typography 
+tokens rather than picking arbitrary values.
+
+OUTPUT
+- Confirm 20 topics and 7 sample lessons were seeded
+- Files created/changed
+- Confirm completion tracking persists and reflects correctly across app 
+  restarts (not just in local component state)
+- Which markdown rendering approach was used
+- Any errors

@@ -1566,12 +1566,18 @@ export const ListCalendarEntriesResponseItem = zod.object({
   "startTime": zod.string().nullish(),
   "endTime": zod.string().nullish(),
   "focusDomain": zod.string().nullish(),
+  "amount": zod.string().nullish(),
+  "dueDay": zod.number().nullish(),
+  "isAutopay": zod.boolean().optional(),
+  "category": zod.string().nullish(),
   "createdAt": zod.coerce.date().optional(),
   "updatedAt": zod.coerce.date().optional()
 })
 export const ListCalendarEntriesResponse = zod.array(ListCalendarEntriesResponseItem)
 
 
+
+export const createCalendarEntryBodyDueDayMax = 31;
 
 
 
@@ -1583,7 +1589,11 @@ export const CreateCalendarEntryBody = zod.object({
   "date": zod.coerce.date(),
   "startTime": zod.string().optional(),
   "endTime": zod.string().optional(),
-  "focusDomain": zod.string().optional()
+  "focusDomain": zod.string().optional(),
+  "amount": zod.string().optional(),
+  "dueDay": zod.number().min(1).max(createCalendarEntryBodyDueDayMax).optional(),
+  "isAutopay": zod.boolean().optional(),
+  "category": zod.string().optional()
 })
 
 export const CreateCalendarEntryResponse = zod.object({
@@ -1597,6 +1607,10 @@ export const CreateCalendarEntryResponse = zod.object({
   "startTime": zod.string().nullish(),
   "endTime": zod.string().nullish(),
   "focusDomain": zod.string().nullish(),
+  "amount": zod.string().nullish(),
+  "dueDay": zod.number().nullish(),
+  "isAutopay": zod.boolean().optional(),
+  "category": zod.string().nullish(),
   "createdAt": zod.coerce.date().optional(),
   "updatedAt": zod.coerce.date().optional()
 })
@@ -1606,13 +1620,21 @@ export const UpdateCalendarEntryParams = zod.object({
   "id": zod.coerce.number()
 })
 
+export const updateCalendarEntryBodyDueDayMax = 31;
+
+
+
 export const UpdateCalendarEntryBody = zod.object({
   "title": zod.string().optional(),
   "description": zod.string().optional(),
   "date": zod.coerce.date().optional(),
   "startTime": zod.string().optional(),
   "endTime": zod.string().optional(),
-  "focusDomain": zod.string().optional()
+  "focusDomain": zod.string().optional(),
+  "amount": zod.string().nullish(),
+  "dueDay": zod.number().min(1).max(updateCalendarEntryBodyDueDayMax).nullish(),
+  "isAutopay": zod.boolean().optional(),
+  "category": zod.string().nullish()
 })
 
 export const UpdateCalendarEntryResponse = zod.object({
@@ -1626,6 +1648,10 @@ export const UpdateCalendarEntryResponse = zod.object({
   "startTime": zod.string().nullish(),
   "endTime": zod.string().nullish(),
   "focusDomain": zod.string().nullish(),
+  "amount": zod.string().nullish(),
+  "dueDay": zod.number().nullish(),
+  "isAutopay": zod.boolean().optional(),
+  "category": zod.string().nullish(),
   "createdAt": zod.coerce.date().optional(),
   "updatedAt": zod.coerce.date().optional()
 })
@@ -1655,6 +1681,10 @@ export const AutofillCalendarResponse = zod.object({
   "startTime": zod.string().nullish(),
   "endTime": zod.string().nullish(),
   "focusDomain": zod.string().nullish(),
+  "amount": zod.string().nullish(),
+  "dueDay": zod.number().nullish(),
+  "isAutopay": zod.boolean().optional(),
+  "category": zod.string().nullish(),
   "createdAt": zod.coerce.date().optional(),
   "updatedAt": zod.coerce.date().optional()
 }))

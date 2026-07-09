@@ -23,6 +23,13 @@ export interface CalendarEntry {
   endTime?: string | null;
   /** @nullable */
   focusDomain?: string | null;
+  /** @nullable */
+  amount?: string | null;
+  /** @nullable */
+  dueDay?: number | null;
+  isAutopay?: boolean;
+  /** @nullable */
+  category?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
 }

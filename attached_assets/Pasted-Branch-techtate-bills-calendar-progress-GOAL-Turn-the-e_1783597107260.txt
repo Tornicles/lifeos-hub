@@ -1,0 +1,43 @@
+Branch: techtate-bills-calendar-progress
+
+GOAL
+Turn the existing Calendar.tsx into a bill-tracking and due-date view, and 
+turn the /reports placeholder into a real Progress screen.
+
+BILLS
+Confirm from Prompt 2's output whether bills columns were added to 
+calendar_entries or a separate bills table was created — build against 
+whichever actually exists, don't assume.
+- List view: recurring bills sorted by due_day, showing name, amount, 
+  is_autopay status (badge if true), category
+- Add/edit form: name (required), amount (required, >0), due_day (required, 
+  1-31, validate against actual days in month if you want to be precise, or 
+  just cap at 31 and note the edge case), is_autopay (toggle), category (optional)
+- Calendar view: month grid (reuse Calendar.tsx's existing calendar UI 
+  component, just change its data source) showing a dot or amount badge on 
+  each day that has a bill due
+- "This week" summary card on the Finance or Home tab: upcoming bills due in 
+  the next 7 days, total amount
+
+PROGRESS (replacing /reports placeholder)
+- Budget vs actual: bar chart comparing budgeted amount vs. actual spent per 
+  category for the current month, pulling from budgets + expenses
+- Net worth trend: reuse the chart component built in Prompt 6, don't rebuild it
+- Savings goals progress: horizontal progress bars for each active goal, 
+  reused from Prompt 5's card style
+- This is a read-only dashboard — no new data entry happens here, it 
+  aggregates data already entered elsewhere
+
+MOBILE
+Calendar month grid must be usable at 375px width — check that day cells 
+don't get so small that tapping is unreliable; consider a list view fallback 
+below the calendar for the current month's bills if the grid gets too 
+cramped, your call, but state which approach you used.
+
+OUTPUT
+- Confirm which bills implementation was used (from Prompt 2)
+- Files created/changed
+- Confirm calendar view correctly marks due dates
+- Confirm Progress screen pulls live data from all three source tables 
+  (budgets/expenses, net_worth_snapshots, savings_goals)
+- Any errors

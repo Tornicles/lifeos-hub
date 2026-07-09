@@ -2667,6 +2667,10 @@ components:
         startTime: { type: ["string", "null"] }
         endTime: { type: ["string", "null"] }
         focusDomain: { type: ["string", "null"] }
+        amount: { type: ["string", "null"] }
+        dueDay: { type: ["integer", "null"] }
+        isAutopay: { type: boolean }
+        category: { type: ["string", "null"] }
         createdAt: { type: string, format: date-time }
         updatedAt: { type: string, format: date-time }
     CalendarEntryInput:
@@ -2681,6 +2685,10 @@ components:
         startTime: { type: string }
         endTime: { type: string }
         focusDomain: { type: string }
+        amount: { type: string }
+        dueDay: { type: integer, minimum: 1, maximum: 31 }
+        isAutopay: { type: boolean }
+        category: { type: string }
     CalendarEntryUpdate:
       type: object
       properties:
@@ -2690,6 +2698,10 @@ components:
         startTime: { type: string }
         endTime: { type: string }
         focusDomain: { type: string }
+        amount: { type: ["string", "null"] }
+        dueDay: { type: ["integer", "null"], minimum: 1, maximum: 31 }
+        isAutopay: { type: boolean }
+        category: { type: ["string", "null"] }
 
     CalendarAutofillInput:
       type: object

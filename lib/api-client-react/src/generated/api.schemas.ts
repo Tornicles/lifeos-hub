@@ -955,6 +955,13 @@ export interface CalendarEntry {
   endTime?: string | null;
   /** @nullable */
   focusDomain?: string | null;
+  /** @nullable */
+  amount?: string | null;
+  /** @nullable */
+  dueDay?: number | null;
+  isAutopay?: boolean;
+  /** @nullable */
+  category?: string | null;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -969,6 +976,14 @@ export interface CalendarEntryInput {
   startTime?: string;
   endTime?: string;
   focusDomain?: string;
+  amount?: string;
+  /**
+     * @minimum 1
+     * @maximum 31
+     */
+  dueDay?: number;
+  isAutopay?: boolean;
+  category?: string;
 }
 
 export interface CalendarEntryUpdate {
@@ -978,6 +993,17 @@ export interface CalendarEntryUpdate {
   startTime?: string;
   endTime?: string;
   focusDomain?: string;
+  /** @nullable */
+  amount?: string | null;
+  /**
+     * @minimum 1
+     * @maximum 31
+     * @nullable
+     */
+  dueDay?: number | null;
+  isAutopay?: boolean;
+  /** @nullable */
+  category?: string | null;
 }
 
 export interface CalendarAutofillInput {
