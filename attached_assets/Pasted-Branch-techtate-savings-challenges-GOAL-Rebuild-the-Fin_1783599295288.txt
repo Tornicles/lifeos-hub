@@ -1,0 +1,61 @@
+Branch: techtate-savings-challenges
+
+GOAL
+Rebuild the Finance tab up from the sparse state left by Prompt 12: add the 
+savings challenge generator and the shareable milestone-card system, using 
+savings_challenges and shareable_cards.
+
+SAVINGS CHALLENGES
+- "Create a Challenge" entry point on the Finance tab
+- Generator form: two inputs only — target_amount and duration_days (e.g. 
+  $5,000 over 365 days). On submit, calculate and display daily_amount 
+  (target_amount / duration_days is already a generated column, don't 
+  recalculate it client-side, just read it back) before the user confirms 
+  creation
+- Suggested presets as tappable shortcuts above the form: "$1,000 in 90 
+  days," "$5,000 in 365 days," "$500 in 30 days" — tapping one pre-fills the 
+  form rather than creating the challenge immediately, so the user can adjust
+- After creation, write a savings_challenges row. Also create a linked 
+  habits row (name: the challenge title) and set challenge_habit_id to it, 
+  so day-by-day check-ins reuse the existing streak logic from Prompt 
+  11 rather than new tracking code
+- Active challenge card on Finance tab: shows title, daily target, progress 
+  as (days checked in / duration_days), and a "Mark today done" action that 
+  writes a habit_checkins row for the linked habit
+- Support multiple simultaneous challenges — list them as cards, not a 
+  single active slot
+- couple_id field exists on the table but leave it unused/NULL in this pass 
+  — shared challenges come with couples work in Prompt 18, don't build 
+  couple selection UI yet
+
+SHAREABLE CARDS
+- On any milestone (challenge completed, badge earned — reuse the badge 
+  award logic already built in Prompt 10, streak hits 7/30/etc.), show a 
+  "Share your progress" prompt
+- Generate a shareable card: a styled image-like view (build this as an HTML/
+  CSS card rendered to a canvas or exported as an image — check what's 
+  already available in the project's dependencies before adding a new image-
+  generation library; if none exists, a simple canvas-based render is 
+  sufficient, doesn't need to be fancy) showing the milestone, the Tech-Tate 
+  brand mark, and an auto-generated caption
+- Write a shareable_cards row when a card is generated (card_type, 
+  reference_id, caption)
+- "Share" button uses the Web Share API if available (navigator.share) with 
+  a fallback to "Save Image" / "Copy Caption" if not supported — this matters 
+  since it'll run as a PWA and Web Share API support varies by browser
+- Caption is editable by the user before sharing, pre-filled with something 
+  like "Just hit a 7-day streak on Tech-Tate 🔥" — don't hardcode it as 
+  non-editable
+
+MOBILE
+Card generation must render correctly and remain tappable/shareable at 
+375px width — test the share flow specifically on a simulated mobile 
+viewport, not just desktop.
+
+OUTPUT
+- Files created/changed
+- Confirm challenge creation correctly creates the linked habit and that 
+  day-check-ins increment progress
+- Confirm at least one milestone type successfully generates a shareable card
+- Which image-generation approach was used (existing library vs. canvas)
+- Any errors
