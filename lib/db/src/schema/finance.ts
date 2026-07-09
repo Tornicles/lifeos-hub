@@ -1,7 +1,8 @@
-import { boolean, date, integer, numeric, pgPolicy, pgTable, serial, text, timestamp, unique, uuid } from "drizzle-orm/pg-core";
+import { boolean, date, integer, numeric, pgPolicy, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { sql } from "drizzle-orm";
 import { z } from "zod/v4";
+import { habitsTable } from "./habits";
 
 const userIsolation = () =>
   pgPolicy("user_isolation", {
@@ -11,69 +12,6 @@ const userIsolation = () =>
     using: sql`user_id = current_setting('app.current_user_id', true)`,
     withCheck: sql`user_id = current_setting('app.current_user_id', true)`,
   });
-
-export const budgetsTable = pgTable(
-  "budgets",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    userId: text("user_id").notNull(),
-    name: text("name"),
-    category: text("category").notNull(),
-    monthlyLimit: numeric("monthly_limit", { precision: 12, scale: 2 }).notNull(),
-    period: text("period").notNull().default("monthly"),
-    month: text("month").notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
-  },
-  (table) => [userIsolation(), unique("budgets_user_category_month_unique").on(table.userId, table.category, table.month)],
-).enableRLS();
-
-export const insertBudgetSchema = createInsertSchema(budgetsTable).omit({ id: true, createdAt: true, updatedAt: true });
-export type InsertBudget = z.infer<typeof insertBudgetSchema>;
-export type Budget = typeof budgetsTable.$inferSelect;
-
-export const incomeTable = pgTable(
-  "income",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    userId: text("user_id").notNull(),
-    source: text("source").notNull(),
-    amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
-    frequency: text("frequency").notNull().default("monthly"),
-    receivedDate: date("received_date", { mode: "string" }).notNull(),
-    isRecurring: boolean("is_recurring").notNull().default(false),
-    recurrenceInterval: text("recurrence_interval"),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
-  },
-  (table) => [userIsolation()],
-).enableRLS();
-
-export const insertIncomeSchema = createInsertSchema(incomeTable).omit({ id: true, createdAt: true, updatedAt: true });
-export type InsertIncome = z.infer<typeof insertIncomeSchema>;
-export type Income = typeof incomeTable.$inferSelect;
-
-export const expensesTable = pgTable(
-  "expenses",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    userId: text("user_id").notNull(),
-    budgetId: uuid("budget_id").references(() => budgetsTable.id, { onDelete: "set null" }),
-    description: text("description"),
-    amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
-    category: text("category").notNull(),
-    expenseDate: date("expense_date", { mode: "string" }).notNull(),
-    merchant: text("merchant"),
-    notes: text("notes"),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
-  },
-  (table) => [userIsolation()],
-).enableRLS();
-
-export const insertExpenseSchema = createInsertSchema(expensesTable).omit({ id: true, createdAt: true, updatedAt: true });
-export type InsertExpense = z.infer<typeof insertExpenseSchema>;
-export type Expense = typeof expensesTable.$inferSelect;
 
 export const savingsGoalsTable = pgTable(
   "savings_goals",
@@ -116,40 +54,34 @@ export const insertDebtSchema = createInsertSchema(debtsTable).omit({ id: true, 
 export type InsertDebt = z.infer<typeof insertDebtSchema>;
 export type Debt = typeof debtsTable.$inferSelect;
 
-export const investmentEntriesTable = pgTable(
-  "investment_entries",
+// A user-created savings challenge (e.g. "No-Spend Week", "$500 in 30 Days").
+// Backed by an auto-created habit so daily check-ins reuse the existing
+// streak system (see lib/gamification.ts's Daily Challenge habit pattern).
+export const savingsChallengesTable = pgTable(
+  "savings_challenges",
   {
     id: uuid("id").defaultRandom().primaryKey(),
     userId: text("user_id").notNull(),
-    assetName: text("asset_name").notNull(),
-    assetType: text("asset_type").notNull(),
-    amountInvested: numeric("amount_invested", { precision: 14, scale: 2 }).notNull(),
-    currentValue: numeric("current_value", { precision: 14, scale: 2 }),
-    entryDate: date("entry_date", { mode: "string" }).notNull(),
-    notes: text("notes"),
+    habitId: integer("habit_id").references(() => habitsTable.id, { onDelete: "set null" }),
+    name: text("name").notNull(),
+    targetAmount: numeric("target_amount", { precision: 12, scale: 2 }).notNull(),
+    savedAmount: numeric("saved_amount", { precision: 12, scale: 2 }).notNull().default("0"),
+    durationDays: integer("duration_days").notNull(),
+    startDate: date("start_date", { mode: "string" }).notNull(),
+    status: text("status").notNull().default("active"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
   },
   (table) => [userIsolation()],
 ).enableRLS();
 
-export const insertInvestmentEntrySchema = createInsertSchema(investmentEntriesTable).omit({ id: true, createdAt: true });
-export type InsertInvestmentEntry = z.infer<typeof insertInvestmentEntrySchema>;
-export type InvestmentEntry = typeof investmentEntriesTable.$inferSelect;
-
-export const netWorthSnapshotsTable = pgTable(
-  "net_worth_snapshots",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    userId: text("user_id").notNull(),
-    snapshotDate: date("snapshot_date", { mode: "string" }).notNull(),
-    totalAssets: numeric("total_assets", { precision: 14, scale: 2 }).notNull(),
-    totalLiabilities: numeric("total_liabilities", { precision: 14, scale: 2 }).notNull(),
-    netWorth: numeric("net_worth", { precision: 14, scale: 2 }).notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  },
-  (table) => [userIsolation(), unique("net_worth_user_date_unique").on(table.userId, table.snapshotDate)],
-).enableRLS();
-
-export const insertNetWorthSnapshotSchema = createInsertSchema(netWorthSnapshotsTable).omit({ id: true, createdAt: true });
-export type InsertNetWorthSnapshot = z.infer<typeof insertNetWorthSnapshotSchema>;
-export type NetWorthSnapshot = typeof netWorthSnapshotsTable.$inferSelect;
+export const insertSavingsChallengeSchema = createInsertSchema(savingsChallengesTable).omit({
+  id: true,
+  habitId: true,
+  savedAmount: true,
+  status: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertSavingsChallenge = z.infer<typeof insertSavingsChallengeSchema>;
+export type SavingsChallenge = typeof savingsChallengesTable.$inferSelect;

@@ -2,6 +2,7 @@ import { boolean, integer, jsonb, pgPolicy, pgTable, serial, text, timestamp, uu
 import { createInsertSchema } from "drizzle-zod";
 import { sql } from "drizzle-orm";
 import { z } from "zod/v4";
+import { lessonsTable } from "./academy";
 
 const userIsolation = () =>
   pgPolicy("user_isolation", {
@@ -19,6 +20,7 @@ export const challengesTable = pgTable("challenges", {
   xpReward: integer("xp_reward").notNull().default(0),
   category: text("category"),
   isActive: boolean("is_active").notNull().default(true),
+  lessonId: integer("lesson_id").references(() => lessonsTable.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 export const insertChallengeSchema = createInsertSchema(challengesTable).omit({ id: true, createdAt: true });
@@ -31,6 +33,7 @@ export const challengeCompletionsTable = pgTable(
     id: uuid("id").defaultRandom().primaryKey(),
     userId: text("user_id").notNull(),
     challengeId: integer("challenge_id").notNull().references(() => challengesTable.id, { onDelete: "cascade" }),
+    responseText: text("response_text"),
     completedAt: timestamp("completed_at", { withTimezone: true }).notNull().defaultNow(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },

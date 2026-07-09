@@ -21,9 +21,9 @@ export const useCompleteChallenge = () => {
   const mutation = useCreateChallengeCompletion();
   return {
     ...mutation,
-    mutate: (challengeId: number) =>
+    mutate: (challengeId: number, responseText?: string, options?: { onSuccess?: (data: any) => void }) =>
       mutation.mutate(
-        { data: { challengeId } },
+        { data: responseText ? { challengeId, responseText } : { challengeId } },
         {
           onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: getListChallengeCompletionsQueryKey() });
@@ -33,6 +33,7 @@ export const useCompleteChallenge = () => {
               queryClient.invalidateQueries({ queryKey: getListUserBadgesQueryKey() });
             }
             celebrateGamification(data);
+            options?.onSuccess?.(data);
           },
           onError: (error: any) => {
             console.error('Complete challenge error:', error);

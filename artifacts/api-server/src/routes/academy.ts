@@ -9,6 +9,7 @@ import {
   quizzesTable,
   quizQuestionsTable,
   quizAttemptsTable,
+  challengesTable,
 } from "@workspace/db";
 import { awardXp, checkAndAwardBadges } from "../lib/gamification";
 import {
@@ -43,6 +44,7 @@ const lessonWithTopicColumns = {
   topicName: topicsTable.name,
   topicCode: topicsTable.code,
   quizId: quizzesTable.id,
+  challengeId: challengesTable.id,
 };
 
 function lessonWithTopicQuery() {
@@ -50,7 +52,8 @@ function lessonWithTopicQuery() {
     .select(lessonWithTopicColumns)
     .from(lessonsTable)
     .innerJoin(topicsTable, eq(lessonsTable.topicId, topicsTable.id))
-    .leftJoin(quizzesTable, eq(quizzesTable.lessonId, lessonsTable.id));
+    .leftJoin(quizzesTable, eq(quizzesTable.lessonId, lessonsTable.id))
+    .leftJoin(challengesTable, eq(challengesTable.lessonId, lessonsTable.id));
 }
 
 async function lessonWithTopic(lessonId: number) {

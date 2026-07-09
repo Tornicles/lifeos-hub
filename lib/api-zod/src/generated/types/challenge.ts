@@ -15,5 +15,7 @@ export interface Challenge {
   /** @nullable */
   category?: string | null;
   isActive: boolean;
+  /** @nullable */
+  lessonId?: number | null;
   createdAt?: Date;
 }

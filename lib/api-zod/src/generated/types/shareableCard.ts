@@ -6,16 +6,16 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface InvestmentEntry {
+export interface ShareableCard {
   id: string;
   userId: string;
-  assetName: string;
-  assetType: string;
-  amountInvested: string;
+  cardType: string;
+  title: string;
   /** @nullable */
-  currentValue?: string | null;
-  entryDate: Date;
+  subtitle?: string | null;
   /** @nullable */
-  notes?: string | null;
+  sourceType?: string | null;
+  /** @nullable */
+  sourceId?: string | null;
   createdAt?: Date;
 }

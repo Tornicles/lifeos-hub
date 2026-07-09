@@ -8,4 +8,5 @@
 
 export interface ChallengeCompletionInput {
   challengeId: number;
+  responseText?: string;
 }

@@ -1,14 +1,12 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import {
-  useListBudgets, useCreateBudget, useDeleteBudget, getListBudgetsQueryKey,
-  useListIncome, useCreateIncome, useDeleteIncome, getListIncomeQueryKey,
-  useListExpenses, useCreateExpense, useDeleteExpense, getListExpensesQueryKey,
   useListSavingsGoals, useCreateSavingsGoal, useUpdateSavingsGoal, useDeleteSavingsGoal, getListSavingsGoalsQueryKey,
   useListDebts, useCreateDebt, useUpdateDebt, useDeleteDebt, getListDebtsQueryKey,
-  useListInvestmentEntries as useListInvestments, useCreateInvestmentEntry as useCreateInvestment, useUpdateInvestmentEntry as useUpdateInvestmentHook, useDeleteInvestmentEntry as useDeleteInvestment, getListInvestmentEntriesQueryKey as getListInvestmentsQueryKey,
-  useListNetWorthSnapshots, useCreateNetWorthSnapshot, useUpdateNetWorthSnapshot as useUpdateNetWorthSnapshotHook, getListNetWorthSnapshotsQueryKey,
-  type BudgetInput, type IncomeInput, type ExpenseInput, type SavingsGoalInput, type SavingsGoalUpdate, type DebtInput, type DebtUpdate, type InvestmentEntryInput, type InvestmentEntryUpdate, type NetWorthSnapshotInput, type NetWorthSnapshotUpdate,
+  useListSavingsChallenges, useCreateSavingsChallenge, useCheckInSavingsChallenge, getListSavingsChallengesQueryKey,
+  useListShareableCards, getListShareableCardsQueryKey,
+  type SavingsGoalInput, type SavingsGoalUpdate, type DebtInput, type DebtUpdate,
+  type SavingsChallengeInput, type SavingsChallengeCheckInInput,
 } from '@workspace/api-client-react';
 
 function onMutationResult(queryClient: ReturnType<typeof useQueryClient>, queryKey: readonly unknown[], successMsg: string, errorMsg: string) {
@@ -23,101 +21,6 @@ function onMutationResult(queryClient: ReturnType<typeof useQueryClient>, queryK
     },
   };
 }
-
-// Budgets
-export const useBudgets = () => useListBudgets();
-export const useAddBudget = () => {
-  const queryClient = useQueryClient();
-  const mutation = useCreateBudget();
-  return {
-    ...mutation,
-    mutate: (data: BudgetInput, opts?: { onSuccess?: () => void; onDuplicate?: (message: string) => void }) =>
-      mutation.mutate(
-        { data },
-        {
-          onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: getListBudgetsQueryKey() });
-            toast.success('Budget added');
-            opts?.onSuccess?.();
-          },
-          onError: (error: any) => {
-            if (error?.status === 409 && opts?.onDuplicate) {
-              opts.onDuplicate(error?.data?.error || 'You already have a budget for this category this month — edit it instead');
-              return;
-            }
-            console.error('Failed to add budget', error);
-            toast.error(error?.data?.error || error?.message || 'Failed to add budget');
-          },
-        },
-      ),
-  };
-};
-export const useRemoveBudget = () => {
-  const queryClient = useQueryClient();
-  const mutation = useDeleteBudget();
-  return {
-    ...mutation,
-    mutate: (id: string) =>
-      mutation.mutate({ id }, onMutationResult(queryClient, getListBudgetsQueryKey(), 'Budget deleted', 'Failed to delete budget')),
-  };
-};
-
-// Income
-export const useIncome = () => useListIncome();
-export const useAddIncome = () => {
-  const queryClient = useQueryClient();
-  const mutation = useCreateIncome();
-  return {
-    ...mutation,
-    mutate: (data: IncomeInput) =>
-      mutation.mutate({ data }, onMutationResult(queryClient, getListIncomeQueryKey(), 'Income added', 'Failed to add income')),
-  };
-};
-export const useRemoveIncome = () => {
-  const queryClient = useQueryClient();
-  const mutation = useDeleteIncome();
-  return {
-    ...mutation,
-    mutate: (id: string) =>
-      mutation.mutate({ id }, onMutationResult(queryClient, getListIncomeQueryKey(), 'Income deleted', 'Failed to delete income')),
-  };
-};
-
-// Expenses
-export const useExpenses = () => useListExpenses();
-export const useAddExpense = () => {
-  const queryClient = useQueryClient();
-  const mutation = useCreateExpense();
-  return {
-    ...mutation,
-    mutate: (data: ExpenseInput) =>
-      mutation.mutate(
-        { data },
-        {
-          onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: getListExpensesQueryKey() });
-            if (data.budgetId) {
-              queryClient.invalidateQueries({ queryKey: getListBudgetsQueryKey() });
-            }
-            toast.success('Expense added');
-          },
-          onError: (error: any) => {
-            console.error('Failed to add expense', error);
-            toast.error(error?.data?.error || error?.message || 'Failed to add expense');
-          },
-        },
-      ),
-  };
-};
-export const useRemoveExpense = () => {
-  const queryClient = useQueryClient();
-  const mutation = useDeleteExpense();
-  return {
-    ...mutation,
-    mutate: (id: string) =>
-      mutation.mutate({ id }, onMutationResult(queryClient, getListExpensesQueryKey(), 'Expense deleted', 'Failed to delete expense')),
-  };
-};
 
 // Savings Goals
 export const useSavingsGoals = () => useListSavingsGoals();
@@ -179,75 +82,40 @@ export const useRemoveDebt = () => {
   };
 };
 
-// Investments
-export const useInvestments = () => useListInvestments();
-export const useAddInvestment = () => {
+// Savings Challenges
+export const useSavingsChallenges = () => useListSavingsChallenges();
+export const useAddSavingsChallenge = () => {
   const queryClient = useQueryClient();
-  const mutation = useCreateInvestment();
+  const mutation = useCreateSavingsChallenge();
   return {
     ...mutation,
-    mutate: (data: InvestmentEntryInput) =>
-      mutation.mutate({ data }, onMutationResult(queryClient, getListInvestmentsQueryKey(), 'Investment entry added', 'Failed to add investment entry')),
+    mutate: (data: SavingsChallengeInput) =>
+      mutation.mutate({ data }, onMutationResult(queryClient, getListSavingsChallengesQueryKey(), 'Challenge started', 'Failed to start challenge')),
   };
 };
-export const useUpdateInvestment = () => {
+export const useCheckInChallenge = () => {
   const queryClient = useQueryClient();
-  const mutation = useUpdateInvestmentHook();
+  const mutation = useCheckInSavingsChallenge();
   return {
     ...mutation,
-    mutate: ({ id, ...data }: InvestmentEntryUpdate & { id: string }) =>
-      mutation.mutate({ id, data }, onMutationResult(queryClient, getListInvestmentsQueryKey(), 'Investment entry updated', 'Failed to update investment entry')),
-  };
-};
-export const useRemoveInvestment = () => {
-  const queryClient = useQueryClient();
-  const mutation = useDeleteInvestment();
-  return {
-    ...mutation,
-    mutate: (id: string) =>
-      mutation.mutate({ id }, onMutationResult(queryClient, getListInvestmentsQueryKey(), 'Investment entry deleted', 'Failed to delete investment entry')),
-  };
-};
-
-// Net Worth Snapshots
-export const useNetWorthSnapshots = () => useListNetWorthSnapshots();
-export const useAddNetWorthSnapshot = () => {
-  const queryClient = useQueryClient();
-  const mutation = useCreateNetWorthSnapshot();
-  return {
-    ...mutation,
-    mutate: (
-      data: NetWorthSnapshotInput,
-      opts?: { onDuplicate?: (message: string, existingId: string | null) => void },
-    ) =>
+    mutate: ({ id, ...data }: SavingsChallengeCheckInInput & { id: string }, opts?: { onSuccess?: () => void }) =>
       mutation.mutate(
-        { data },
+        { id, data },
         {
           onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: getListNetWorthSnapshotsQueryKey() });
-            toast.success('Net worth snapshot saved');
+            queryClient.invalidateQueries({ queryKey: getListSavingsChallengesQueryKey() });
+            queryClient.invalidateQueries({ queryKey: getListShareableCardsQueryKey() });
+            toast.success('Checked in!');
+            opts?.onSuccess?.();
           },
           onError: (error: any) => {
-            if (error?.status === 409 && opts?.onDuplicate) {
-              opts.onDuplicate(
-                error?.data?.error || 'You already logged today — edit it instead',
-                error?.data?.existingId ?? null,
-              );
-              return;
-            }
-            console.error('Failed to save net worth snapshot', error);
-            toast.error(error?.data?.error || error?.message || 'Failed to save net worth snapshot');
+            console.error('Failed to check in', error);
+            toast.error(error?.data?.error || error?.message || 'Failed to check in');
           },
         },
       ),
   };
 };
-export const useUpdateNetWorthSnapshot = () => {
-  const queryClient = useQueryClient();
-  const mutation = useUpdateNetWorthSnapshotHook();
-  return {
-    ...mutation,
-    mutate: ({ id, ...data }: NetWorthSnapshotUpdate & { id: string }) =>
-      mutation.mutate({ id, data }, onMutationResult(queryClient, getListNetWorthSnapshotsQueryKey(), 'Net worth snapshot updated', 'Failed to update net worth snapshot')),
-  };
-};
+
+// Shareable Cards
+export const useShareableCards = () => useListShareableCards();

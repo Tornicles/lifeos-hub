@@ -14,3 +14,6 @@ export * from "./gamification";
 export * from "./bible";
 export * from "./couples";
 export * from "./subscriptions";
+export * from "./market";
+export * from "./games";
+export * from "./cards";

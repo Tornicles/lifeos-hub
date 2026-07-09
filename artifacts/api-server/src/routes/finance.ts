@@ -1,38 +1,17 @@
 import { Router, type IRouter } from "express";
 import { and, eq } from "drizzle-orm";
 import {
+  db,
   withUserContext,
-  budgetsTable,
-  incomeTable,
-  expensesTable,
   savingsGoalsTable,
   debtsTable,
-  investmentEntriesTable,
-  netWorthSnapshotsTable,
+  savingsChallengesTable,
+  shareableCardsTable,
+  habitsTable,
+  habitCheckinsTable,
 } from "@workspace/db";
 import { toDateOnlyString } from "../lib/dateUtils";
 import {
-  ListBudgetsResponse,
-  CreateBudgetBody,
-  CreateBudgetResponse,
-  UpdateBudgetParams,
-  UpdateBudgetBody,
-  UpdateBudgetResponse,
-  DeleteBudgetParams,
-  ListIncomeResponse,
-  CreateIncomeBody,
-  CreateIncomeResponse,
-  UpdateIncomeParams,
-  UpdateIncomeBody,
-  UpdateIncomeResponse,
-  DeleteIncomeParams,
-  ListExpensesResponse,
-  CreateExpenseBody,
-  CreateExpenseResponse,
-  UpdateExpenseParams,
-  UpdateExpenseBody,
-  UpdateExpenseResponse,
-  DeleteExpenseParams,
   ListSavingsGoalsResponse,
   CreateSavingsGoalBody,
   CreateSavingsGoalResponse,
@@ -47,255 +26,14 @@ import {
   UpdateDebtBody,
   UpdateDebtResponse,
   DeleteDebtParams,
-  ListInvestmentEntriesResponse,
-  CreateInvestmentEntryBody,
-  CreateInvestmentEntryResponse,
-  UpdateInvestmentEntryParams,
-  UpdateInvestmentEntryBody,
-  UpdateInvestmentEntryResponse,
-  DeleteInvestmentEntryParams,
-  ListNetWorthSnapshotsResponse,
-  CreateNetWorthSnapshotBody,
-  CreateNetWorthSnapshotResponse,
-  UpdateNetWorthSnapshotParams,
-  UpdateNetWorthSnapshotBody,
-  UpdateNetWorthSnapshotResponse,
+  ListSavingsChallengesResponse,
+  CreateSavingsChallengeBody,
+  CreateSavingsChallengeResponse,
+  CheckInSavingsChallengeParams,
+  ListShareableCardsResponse,
 } from "@workspace/api-zod";
 
 const router: IRouter = Router();
-
-router.get("/budgets", async (req, res): Promise<void> => {
-  const rows = await withUserContext(req.userId!, (tx) =>
-    tx.select().from(budgetsTable).where(eq(budgetsTable.userId, req.userId!)),
-  );
-  res.json(ListBudgetsResponse.parse(rows));
-});
-
-const BUDGET_DUPLICATE_MESSAGE =
-  "You already have a budget for this category this month — edit it instead";
-
-function currentMonthString(): string {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-}
-
-function isUniqueViolation(error: unknown): boolean {
-  if (!error || typeof error !== "object") return false;
-  const code = (error as { code?: string }).code;
-  if (code === "23505") return true;
-  const cause = (error as { cause?: unknown }).cause;
-  if (cause && typeof cause === "object" && (cause as { code?: string }).code === "23505") return true;
-  return false;
-}
-
-router.post("/budgets", async (req, res): Promise<void> => {
-  const parsed = CreateBudgetBody.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
-  }
-  try {
-    const [row] = await withUserContext(req.userId!, (tx) =>
-      tx
-        .insert(budgetsTable)
-        .values({
-          ...parsed.data,
-          userId: req.userId!,
-          name: parsed.data.name ?? parsed.data.category,
-          month: parsed.data.month ?? currentMonthString(),
-        })
-        .returning(),
-    );
-    res.status(201).json(CreateBudgetResponse.parse(row));
-  } catch (error) {
-    if (isUniqueViolation(error)) {
-      res.status(409).json({ error: BUDGET_DUPLICATE_MESSAGE, code: "DUPLICATE_BUDGET" });
-      return;
-    }
-    throw error;
-  }
-});
-
-router.patch("/budgets/:id", async (req, res): Promise<void> => {
-  const params = UpdateBudgetParams.safeParse(req.params);
-  const parsed = UpdateBudgetBody.safeParse(req.body);
-  if (!params.success || !parsed.success) {
-    res.status(400).json({ error: params.success ? parsed.error!.message : params.error.message });
-    return;
-  }
-  try {
-    const [row] = await withUserContext(req.userId!, (tx) =>
-      tx
-        .update(budgetsTable)
-        .set(parsed.data)
-        .where(and(eq(budgetsTable.id, params.data.id), eq(budgetsTable.userId, req.userId!)))
-        .returning(),
-    );
-    if (!row) {
-      res.status(404).json({ error: "Budget not found" });
-      return;
-    }
-    res.json(UpdateBudgetResponse.parse(row));
-  } catch (error) {
-    if (isUniqueViolation(error)) {
-      res.status(409).json({ error: BUDGET_DUPLICATE_MESSAGE, code: "DUPLICATE_BUDGET" });
-      return;
-    }
-    throw error;
-  }
-});
-
-router.delete("/budgets/:id", async (req, res): Promise<void> => {
-  const params = DeleteBudgetParams.safeParse(req.params);
-  if (!params.success) {
-    res.status(400).json({ error: params.error.message });
-    return;
-  }
-  const [row] = await withUserContext(req.userId!, (tx) =>
-    tx
-      .delete(budgetsTable)
-      .where(and(eq(budgetsTable.id, params.data.id), eq(budgetsTable.userId, req.userId!)))
-      .returning(),
-  );
-  if (!row) {
-    res.status(404).json({ error: "Budget not found" });
-    return;
-  }
-  res.sendStatus(204);
-});
-
-router.get("/income", async (req, res): Promise<void> => {
-  const rows = await withUserContext(req.userId!, (tx) =>
-    tx.select().from(incomeTable).where(eq(incomeTable.userId, req.userId!)),
-  );
-  res.json(ListIncomeResponse.parse(rows));
-});
-
-router.post("/income", async (req, res): Promise<void> => {
-  const parsed = CreateIncomeBody.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
-  }
-  const [row] = await withUserContext(req.userId!, (tx) =>
-    tx
-      .insert(incomeTable)
-      .values({
-        ...parsed.data,
-        userId: req.userId!,
-        receivedDate: toDateOnlyString(parsed.data.receivedDate)!,
-      })
-      .returning(),
-  );
-  res.status(201).json(CreateIncomeResponse.parse(row));
-});
-
-router.patch("/income/:id", async (req, res): Promise<void> => {
-  const params = UpdateIncomeParams.safeParse(req.params);
-  const parsed = UpdateIncomeBody.safeParse(req.body);
-  if (!params.success || !parsed.success) {
-    res.status(400).json({ error: params.success ? parsed.error!.message : params.error.message });
-    return;
-  }
-  const [row] = await withUserContext(req.userId!, (tx) =>
-    tx
-      .update(incomeTable)
-      .set({ ...parsed.data, receivedDate: toDateOnlyString(parsed.data.receivedDate) as string | undefined })
-      .where(and(eq(incomeTable.id, params.data.id), eq(incomeTable.userId, req.userId!)))
-      .returning(),
-  );
-  if (!row) {
-    res.status(404).json({ error: "Income entry not found" });
-    return;
-  }
-  res.json(UpdateIncomeResponse.parse(row));
-});
-
-router.delete("/income/:id", async (req, res): Promise<void> => {
-  const params = DeleteIncomeParams.safeParse(req.params);
-  if (!params.success) {
-    res.status(400).json({ error: params.error.message });
-    return;
-  }
-  const [row] = await withUserContext(req.userId!, (tx) =>
-    tx
-      .delete(incomeTable)
-      .where(and(eq(incomeTable.id, params.data.id), eq(incomeTable.userId, req.userId!)))
-      .returning(),
-  );
-  if (!row) {
-    res.status(404).json({ error: "Income entry not found" });
-    return;
-  }
-  res.sendStatus(204);
-});
-
-router.get("/expenses", async (req, res): Promise<void> => {
-  const rows = await withUserContext(req.userId!, (tx) =>
-    tx.select().from(expensesTable).where(eq(expensesTable.userId, req.userId!)),
-  );
-  res.json(ListExpensesResponse.parse(rows));
-});
-
-router.post("/expenses", async (req, res): Promise<void> => {
-  const parsed = CreateExpenseBody.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
-  }
-  const [row] = await withUserContext(req.userId!, (tx) =>
-    tx
-      .insert(expensesTable)
-      .values({
-        ...parsed.data,
-        userId: req.userId!,
-        description: parsed.data.description ?? parsed.data.merchant ?? parsed.data.category,
-        expenseDate: toDateOnlyString(parsed.data.expenseDate)!,
-      })
-      .returning(),
-  );
-  res.status(201).json(CreateExpenseResponse.parse(row));
-});
-
-router.patch("/expenses/:id", async (req, res): Promise<void> => {
-  const params = UpdateExpenseParams.safeParse(req.params);
-  const parsed = UpdateExpenseBody.safeParse(req.body);
-  if (!params.success || !parsed.success) {
-    res.status(400).json({ error: params.success ? parsed.error!.message : params.error.message });
-    return;
-  }
-  const [row] = await withUserContext(req.userId!, (tx) =>
-    tx
-      .update(expensesTable)
-      .set({ ...parsed.data, expenseDate: toDateOnlyString(parsed.data.expenseDate) as string | undefined })
-      .where(and(eq(expensesTable.id, params.data.id), eq(expensesTable.userId, req.userId!)))
-      .returning(),
-  );
-  if (!row) {
-    res.status(404).json({ error: "Expense not found" });
-    return;
-  }
-  res.json(UpdateExpenseResponse.parse(row));
-});
-
-router.delete("/expenses/:id", async (req, res): Promise<void> => {
-  const params = DeleteExpenseParams.safeParse(req.params);
-  if (!params.success) {
-    res.status(400).json({ error: params.error.message });
-    return;
-  }
-  const [row] = await withUserContext(req.userId!, (tx) =>
-    tx
-      .delete(expensesTable)
-      .where(and(eq(expensesTable.id, params.data.id), eq(expensesTable.userId, req.userId!)))
-      .returning(),
-  );
-  if (!row) {
-    res.status(404).json({ error: "Expense not found" });
-    return;
-  }
-  res.sendStatus(204);
-});
 
 router.get("/savings-goals", async (req, res): Promise<void> => {
   const rows = await withUserContext(req.userId!, (tx) =>
@@ -425,156 +163,114 @@ router.delete("/debts/:id", async (req, res): Promise<void> => {
   res.sendStatus(204);
 });
 
-router.get("/investments", async (req, res): Promise<void> => {
+const SAVINGS_CHALLENGE_HABIT_PREFIX = "Savings Challenge: ";
+
+router.get("/savings-challenges", async (req, res): Promise<void> => {
   const rows = await withUserContext(req.userId!, (tx) =>
-    tx.select().from(investmentEntriesTable).where(eq(investmentEntriesTable.userId, req.userId!)),
+    tx.select().from(savingsChallengesTable).where(eq(savingsChallengesTable.userId, req.userId!)),
   );
-  res.json(ListInvestmentEntriesResponse.parse(rows));
+  res.json(ListSavingsChallengesResponse.parse(rows));
 });
 
-router.post("/investments", async (req, res): Promise<void> => {
-  const parsed = CreateInvestmentEntryBody.safeParse(req.body);
+router.post("/savings-challenges", async (req, res): Promise<void> => {
+  const parsed = CreateSavingsChallengeBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
-  const today = new Date().toISOString().slice(0, 10);
-  const [row] = await withUserContext(req.userId!, (tx) =>
-    tx
-      .insert(investmentEntriesTable)
+  const row = await withUserContext(req.userId!, async (tx) => {
+    const [habit] = await tx
+      .insert(habitsTable)
+      .values({
+        userId: req.userId!,
+        name: `${SAVINGS_CHALLENGE_HABIT_PREFIX}${parsed.data.name}`,
+        description: `Daily check-in for the "${parsed.data.name}" savings challenge.`,
+      })
+      .returning();
+
+    const [challenge] = await tx
+      .insert(savingsChallengesTable)
       .values({
         ...parsed.data,
         userId: req.userId!,
-        entryDate: toDateOnlyString(parsed.data.entryDate) ?? today,
+        habitId: habit.id,
+        startDate: toDateOnlyString(parsed.data.startDate)!,
       })
-      .returning(),
-  );
-  res.status(201).json(CreateInvestmentEntryResponse.parse(row));
+      .returning();
+    return challenge;
+  });
+  res.status(201).json(CreateSavingsChallengeResponse.parse(row));
 });
 
-router.patch("/investments/:id", async (req, res): Promise<void> => {
-  const params = UpdateInvestmentEntryParams.safeParse(req.params);
-  const parsed = UpdateInvestmentEntryBody.safeParse(req.body);
-  if (!params.success || !parsed.success) {
-    res.status(400).json({ error: params.success ? parsed.error!.message : params.error.message });
-    return;
-  }
-  const [row] = await withUserContext(req.userId!, (tx) =>
-    tx
-      .update(investmentEntriesTable)
-      .set({ ...parsed.data, entryDate: toDateOnlyString(parsed.data.entryDate) as string | undefined })
-      .where(and(eq(investmentEntriesTable.id, params.data.id), eq(investmentEntriesTable.userId, req.userId!)))
-      .returning(),
-  );
-  if (!row) {
-    res.status(404).json({ error: "Investment entry not found" });
-    return;
-  }
-  res.json(UpdateInvestmentEntryResponse.parse(row));
-});
-
-router.delete("/investments/:id", async (req, res): Promise<void> => {
-  const params = DeleteInvestmentEntryParams.safeParse(req.params);
+router.post("/savings-challenges/:id/check-in", async (req, res): Promise<void> => {
+  const params = CheckInSavingsChallengeParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
     return;
   }
-  const [row] = await withUserContext(req.userId!, (tx) =>
-    tx
-      .delete(investmentEntriesTable)
-      .where(and(eq(investmentEntriesTable.id, params.data.id), eq(investmentEntriesTable.userId, req.userId!)))
-      .returning(),
-  );
-  if (!row) {
-    res.status(404).json({ error: "Investment entry not found" });
-    return;
-  }
-  res.sendStatus(204);
-});
+  const amount = typeof req.body?.amount === "string" ? req.body.amount : undefined;
 
-const NET_WORTH_DUPLICATE_MESSAGE = "You already logged today — edit it instead";
-
-router.get("/net-worth-snapshots", async (req, res): Promise<void> => {
-  const rows = await withUserContext(req.userId!, (tx) =>
-    tx.select().from(netWorthSnapshotsTable).where(eq(netWorthSnapshotsTable.userId, req.userId!)),
-  );
-  res.json(ListNetWorthSnapshotsResponse.parse(rows));
-});
-
-router.post("/net-worth-snapshots", async (req, res): Promise<void> => {
-  const parsed = CreateNetWorthSnapshotBody.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
-  }
-  const netWorth = (parseFloat(parsed.data.totalAssets) - parseFloat(parsed.data.totalLiabilities)).toFixed(2);
-  try {
-    const [row] = await withUserContext(req.userId!, (tx) =>
-      tx
-        .insert(netWorthSnapshotsTable)
-        .values({
-          ...parsed.data,
-          userId: req.userId!,
-          snapshotDate: toDateOnlyString(parsed.data.snapshotDate)!,
-          netWorth,
-        })
-        .returning(),
-    );
-    res.status(201).json(CreateNetWorthSnapshotResponse.parse(row));
-  } catch (error) {
-    if (isUniqueViolation(error)) {
-      // Find the existing row so the client can open it for editing
-      const [existing] = await withUserContext(req.userId!, (tx) =>
-        tx
-          .select()
-          .from(netWorthSnapshotsTable)
-          .where(
-            and(
-              eq(netWorthSnapshotsTable.userId, req.userId!),
-              eq(netWorthSnapshotsTable.snapshotDate, toDateOnlyString(parsed.data.snapshotDate)!),
-            ),
-          ),
-      );
-      res.status(409).json({
-        error: NET_WORTH_DUPLICATE_MESSAGE,
-        code: "DUPLICATE_SNAPSHOT",
-        existingId: existing?.id ?? null,
-      });
-      return;
-    }
-    throw error;
-  }
-});
-
-router.patch("/net-worth-snapshots/:id", async (req, res): Promise<void> => {
-  const params = UpdateNetWorthSnapshotParams.safeParse(req.params);
-  const parsed = UpdateNetWorthSnapshotBody.safeParse(req.body);
-  if (!params.success || !parsed.success) {
-    res.status(400).json({ error: params.success ? parsed.error!.message : params.error.message });
-    return;
-  }
-  // Fetch current row to recompute netWorth if only one side changes
-  const [existing] = await withUserContext(req.userId!, (tx) =>
-    tx
+  const result = await withUserContext(req.userId!, async (tx) => {
+    const [challenge] = await tx
       .select()
-      .from(netWorthSnapshotsTable)
-      .where(and(eq(netWorthSnapshotsTable.id, params.data.id), eq(netWorthSnapshotsTable.userId, req.userId!))),
-  );
-  if (!existing) {
-    res.status(404).json({ error: "Net worth snapshot not found" });
+      .from(savingsChallengesTable)
+      .where(and(eq(savingsChallengesTable.id, params.data.id), eq(savingsChallengesTable.userId, req.userId!)));
+    if (!challenge) return null;
+
+    const newSaved = (parseFloat(challenge.savedAmount) + parseFloat(amount ?? "0")).toFixed(2);
+    const reachedGoal = parseFloat(newSaved) >= parseFloat(challenge.targetAmount);
+    const wasAlreadyComplete = challenge.status === "completed";
+
+    const [updated] = await tx
+      .update(savingsChallengesTable)
+      .set({ savedAmount: newSaved, status: reachedGoal ? "completed" : challenge.status })
+      .where(eq(savingsChallengesTable.id, challenge.id))
+      .returning();
+
+    if (challenge.habitId) {
+      const today = toDateOnlyString(new Date())!;
+      const [habit] = await tx.select().from(habitsTable).where(eq(habitsTable.id, challenge.habitId));
+      if (habit && habit.lastCheckin !== today) {
+        const [existingCheckin] = await tx
+          .select()
+          .from(habitCheckinsTable)
+          .where(and(eq(habitCheckinsTable.habitId, habit.id), eq(habitCheckinsTable.date, today)));
+        if (!existingCheckin) {
+          await tx.insert(habitCheckinsTable).values({ habitId: habit.id, date: today, done: true });
+          await tx
+            .update(habitsTable)
+            .set({ streak: habit.streak + 1, lastCheckin: today })
+            .where(eq(habitsTable.id, habit.id));
+        }
+      }
+    }
+
+    if (reachedGoal && !wasAlreadyComplete) {
+      await tx.insert(shareableCardsTable).values({
+        userId: req.userId!,
+        cardType: "savings_challenge_complete",
+        title: `Challenge complete: ${challenge.name}`,
+        subtitle: `Saved $${newSaved} in ${challenge.durationDays} days`,
+        sourceType: "savings_challenge",
+        sourceId: challenge.id,
+      });
+    }
+
+    return updated;
+  });
+
+  if (!result) {
+    res.status(404).json({ error: "Savings challenge not found" });
     return;
   }
-  const newAssets = parsed.data.totalAssets ?? existing.totalAssets;
-  const newLiabilities = parsed.data.totalLiabilities ?? existing.totalLiabilities;
-  const netWorth = (parseFloat(newAssets) - parseFloat(newLiabilities)).toFixed(2);
-  const [row] = await withUserContext(req.userId!, (tx) =>
-    tx
-      .update(netWorthSnapshotsTable)
-      .set({ ...parsed.data, netWorth })
-      .where(and(eq(netWorthSnapshotsTable.id, params.data.id), eq(netWorthSnapshotsTable.userId, req.userId!)))
-      .returning(),
+  res.json(CreateSavingsChallengeResponse.parse(result));
+});
+
+router.get("/shareable-cards", async (req, res): Promise<void> => {
+  const rows = await withUserContext(req.userId!, (tx) =>
+    tx.select().from(shareableCardsTable).where(eq(shareableCardsTable.userId, req.userId!)),
   );
-  res.json(UpdateNetWorthSnapshotResponse.parse(row));
+  res.json(ListShareableCardsResponse.parse(rows));
 });
 
 export default router;

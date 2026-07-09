@@ -12,4 +12,6 @@ export type LessonWithTopic = Lesson & ({
   topicCode: string;
   /** @nullable */
   quizId?: number | null;
+  /** @nullable */
+  challengeId?: number | null;
 });

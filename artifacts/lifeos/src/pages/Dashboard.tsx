@@ -3,6 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAutomationEngine } from "@/hooks/useAutomationEngine";
 import { HubTile } from "@/components/cards/HubTile";
 import { AICoachCard } from "@/components/dashboard/AICoachCard";
+import { DailySequenceCard } from "@/components/dashboard/DailySequenceCard";
 import { useNavigate } from "react-router-dom";
 import { 
   Sparkles,
@@ -49,6 +50,9 @@ export default function Dashboard() {
           {dateStr}
         </p>
       </div>
+
+      {/* Today's Sequence */}
+      <DailySequenceCard />
 
       {/* AI Coach Dashboard */}
       <AICoachCard />

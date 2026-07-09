@@ -359,142 +359,6 @@ export interface HabitCheckinInput {
   done?: boolean;
 }
 
-export interface Budget {
-  id: string;
-  userId: string;
-  /** @nullable */
-  name?: string | null;
-  category: string;
-  monthlyLimit: string;
-  period: string;
-  month: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-export interface BudgetInput {
-  /** @minLength 1 */
-  name?: string;
-  /** @minLength 1 */
-  category: string;
-  monthlyLimit: string;
-  period?: string;
-  /** @pattern ^[0-9]{4}-[0-9]{2}$ */
-  month?: string;
-}
-
-export interface BudgetUpdate {
-  name?: string;
-  category?: string;
-  monthlyLimit?: string;
-  period?: string;
-  /** @pattern ^[0-9]{4}-[0-9]{2}$ */
-  month?: string;
-}
-
-export interface Income {
-  id: string;
-  userId: string;
-  source: string;
-  amount: string;
-  frequency: string;
-  receivedDate: string;
-  isRecurring: boolean;
-  /** @nullable */
-  recurrenceInterval?: string | null;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-/**
- * @nullable
- */
-export type IncomeInputRecurrenceInterval = typeof IncomeInputRecurrenceInterval[keyof typeof IncomeInputRecurrenceInterval] | null;
-
-
-export const IncomeInputRecurrenceInterval = {
-  weekly: 'weekly',
-  biweekly: 'biweekly',
-  monthly: 'monthly',
-} as const;
-
-export interface IncomeInput {
-  /** @minLength 1 */
-  source: string;
-  amount: string;
-  frequency?: string;
-  receivedDate: string;
-  isRecurring?: boolean;
-  /** @nullable */
-  recurrenceInterval?: IncomeInputRecurrenceInterval;
-}
-
-/**
- * @nullable
- */
-export type IncomeUpdateRecurrenceInterval = typeof IncomeUpdateRecurrenceInterval[keyof typeof IncomeUpdateRecurrenceInterval] | null;
-
-
-export const IncomeUpdateRecurrenceInterval = {
-  weekly: 'weekly',
-  biweekly: 'biweekly',
-  monthly: 'monthly',
-} as const;
-
-export interface IncomeUpdate {
-  source?: string;
-  amount?: string;
-  frequency?: string;
-  receivedDate?: string;
-  isRecurring?: boolean;
-  /** @nullable */
-  recurrenceInterval?: IncomeUpdateRecurrenceInterval;
-}
-
-export interface Expense {
-  id: string;
-  userId: string;
-  /** @nullable */
-  budgetId?: string | null;
-  /** @nullable */
-  description?: string | null;
-  amount: string;
-  category: string;
-  expenseDate: string;
-  /** @nullable */
-  merchant?: string | null;
-  /** @nullable */
-  notes?: string | null;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-export interface ExpenseInput {
-  /** @nullable */
-  budgetId?: string | null;
-  /** @minLength 1 */
-  description?: string;
-  amount: string;
-  /** @minLength 1 */
-  category: string;
-  expenseDate: string;
-  merchant?: string;
-  notes?: string;
-}
-
-export interface ExpenseUpdate {
-  /** @nullable */
-  budgetId?: string | null;
-  description?: string;
-  amount?: string;
-  category?: string;
-  expenseDate?: string;
-  /** @nullable */
-  merchant?: string | null;
-  /** @nullable */
-  notes?: string | null;
-}
-
 export interface SavingsGoal {
   id: string;
   userId: string;
@@ -572,65 +436,46 @@ export interface DebtUpdate {
   dueDay?: number | null;
 }
 
-export interface InvestmentEntry {
+export interface SavingsChallenge {
   id: string;
   userId: string;
-  assetName: string;
-  assetType: string;
-  amountInvested: string;
   /** @nullable */
-  currentValue?: string | null;
-  entryDate: string;
-  /** @nullable */
-  notes?: string | null;
+  habitId?: number | null;
+  name: string;
+  targetAmount: string;
+  savedAmount: string;
+  durationDays: number;
+  startDate: string;
+  status: string;
   createdAt?: string;
+  updatedAt?: string;
 }
 
-export interface InvestmentEntryInput {
+export interface SavingsChallengeInput {
   /** @minLength 1 */
-  assetName: string;
-  /** @minLength 1 */
-  assetType: string;
-  amountInvested: string;
-  /** @nullable */
-  currentValue?: string | null;
-  entryDate?: string;
-  /** @nullable */
-  notes?: string | null;
+  name: string;
+  targetAmount: string;
+  /** @minimum 1 */
+  durationDays: number;
+  startDate: string;
 }
 
-export interface InvestmentEntryUpdate {
-  /** @minLength 1 */
-  assetName?: string;
-  /** @minLength 1 */
-  assetType?: string;
-  amountInvested?: string;
-  /** @nullable */
-  currentValue?: string | null;
-  entryDate?: string;
-  /** @nullable */
-  notes?: string | null;
+export interface SavingsChallengeCheckInInput {
+  amount?: string;
 }
 
-export interface NetWorthSnapshot {
+export interface ShareableCard {
   id: string;
   userId: string;
-  snapshotDate: string;
-  totalAssets: string;
-  totalLiabilities: string;
-  netWorth: string;
+  cardType: string;
+  title: string;
+  /** @nullable */
+  subtitle?: string | null;
+  /** @nullable */
+  sourceType?: string | null;
+  /** @nullable */
+  sourceId?: string | null;
   createdAt?: string;
-}
-
-export interface NetWorthSnapshotInput {
-  snapshotDate: string;
-  totalAssets: string;
-  totalLiabilities: string;
-}
-
-export interface NetWorthSnapshotUpdate {
-  totalAssets?: string;
-  totalLiabilities?: string;
 }
 
 export interface Topic {
@@ -665,6 +510,8 @@ export type LessonWithTopic = Lesson & ({
   topicCode: string;
   /** @nullable */
   quizId?: number | null;
+  /** @nullable */
+  challengeId?: number | null;
 });
 
 export interface LessonProgress {
@@ -760,12 +607,16 @@ export interface Challenge {
   /** @nullable */
   category?: string | null;
   isActive: boolean;
+  /** @nullable */
+  lessonId?: number | null;
   createdAt?: string;
 }
 
 export interface ChallengeCompletion {
   id: string;
   userId: string;
+  /** @nullable */
+  responseText?: string | null;
   challengeId: number;
   completedAt: string;
   createdAt?: string;
@@ -773,6 +624,7 @@ export interface ChallengeCompletion {
 
 export interface ChallengeCompletionInput {
   challengeId: number;
+  responseText?: string;
 }
 
 export type ChallengeCompletionResult = ChallengeCompletion & {

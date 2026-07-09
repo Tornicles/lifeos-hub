@@ -9,6 +9,8 @@
 export interface ChallengeCompletion {
   id: string;
   userId: string;
+  /** @nullable */
+  responseText?: string | null;
   challengeId: number;
   completedAt: Date;
   createdAt?: Date;

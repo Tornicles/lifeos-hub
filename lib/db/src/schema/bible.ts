@@ -8,6 +8,7 @@ export const bibleVersesTable = pgTable("bible_verses", {
   verseText: text("verse_text").notNull(),
   translation: text("translation").notNull().default("ESV"),
   theme: text("theme"),
+  prayerText: text("prayer_text"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

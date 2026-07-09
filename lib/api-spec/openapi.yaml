@@ -480,159 +480,6 @@ paths:
               schema: { $ref: "#/components/schemas/HabitCheckin" }
 
   # ---------- Finance ----------
-  /budgets:
-    get:
-      operationId: listBudgets
-      tags: [finance]
-      responses:
-        "200":
-          description: List of budgets
-          content:
-            application/json:
-              schema: { type: array, items: { $ref: "#/components/schemas/Budget" } }
-    post:
-      operationId: createBudget
-      tags: [finance]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/BudgetInput" }
-      responses:
-        "201":
-          description: Created budget
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/Budget" }
-  /budgets/{id}:
-    parameters:
-      - name: id
-        in: path
-        required: true
-        schema: { type: string, format: uuid }
-    patch:
-      operationId: updateBudget
-      tags: [finance]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/BudgetUpdate" }
-      responses:
-        "200":
-          description: Updated budget
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/Budget" }
-    delete:
-      operationId: deleteBudget
-      tags: [finance]
-      responses:
-        "204":
-          description: Deleted
-
-  /income:
-    get:
-      operationId: listIncome
-      tags: [finance]
-      responses:
-        "200":
-          description: List of income entries
-          content:
-            application/json:
-              schema: { type: array, items: { $ref: "#/components/schemas/Income" } }
-    post:
-      operationId: createIncome
-      tags: [finance]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/IncomeInput" }
-      responses:
-        "201":
-          description: Created income entry
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/Income" }
-  /income/{id}:
-    parameters:
-      - name: id
-        in: path
-        required: true
-        schema: { type: string, format: uuid }
-    patch:
-      operationId: updateIncome
-      tags: [finance]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/IncomeUpdate" }
-      responses:
-        "200":
-          description: Updated income entry
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/Income" }
-    delete:
-      operationId: deleteIncome
-      tags: [finance]
-      responses:
-        "204":
-          description: Deleted
-
-  /expenses:
-    get:
-      operationId: listExpenses
-      tags: [finance]
-      responses:
-        "200":
-          description: List of expenses
-          content:
-            application/json:
-              schema: { type: array, items: { $ref: "#/components/schemas/Expense" } }
-    post:
-      operationId: createExpense
-      tags: [finance]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/ExpenseInput" }
-      responses:
-        "201":
-          description: Created expense
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/Expense" }
-  /expenses/{id}:
-    parameters:
-      - name: id
-        in: path
-        required: true
-        schema: { type: string, format: uuid }
-    patch:
-      operationId: updateExpense
-      tags: [finance]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/ExpenseUpdate" }
-      responses:
-        "200":
-          description: Updated expense
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/Expense" }
-    delete:
-      operationId: deleteExpense
-      tags: [finance]
-      responses:
-        "204":
-          description: Deleted
-
   /savings-goals:
     get:
       operationId: listSavingsGoals
@@ -735,102 +582,61 @@ paths:
         "204":
           description: Deleted
 
-  /investments:
+  /savings-challenges:
     get:
-      operationId: listInvestmentEntries
+      operationId: listSavingsChallenges
       tags: [finance]
       responses:
         "200":
-          description: List of investment entries
+          description: List of savings challenges
           content:
             application/json:
-              schema: { type: array, items: { $ref: "#/components/schemas/InvestmentEntry" } }
+              schema: { type: array, items: { $ref: "#/components/schemas/SavingsChallenge" } }
     post:
-      operationId: createInvestmentEntry
+      operationId: createSavingsChallenge
       tags: [finance]
       requestBody:
         required: true
         content:
           application/json:
-            schema: { $ref: "#/components/schemas/InvestmentEntryInput" }
+            schema: { $ref: "#/components/schemas/SavingsChallengeInput" }
       responses:
         "201":
-          description: Created investment entry
+          description: Created savings challenge
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/InvestmentEntry" }
-  /investments/{id}:
+              schema: { $ref: "#/components/schemas/SavingsChallenge" }
+  /savings-challenges/{id}/check-in:
     parameters:
       - name: id
         in: path
         required: true
         schema: { type: string, format: uuid }
-    patch:
-      operationId: updateInvestmentEntry
-      tags: [finance]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/InvestmentEntryUpdate" }
-      responses:
-        "200":
-          description: Updated investment entry
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/InvestmentEntry" }
-    delete:
-      operationId: deleteInvestmentEntry
-      tags: [finance]
-      responses:
-        "204":
-          description: Deleted
-
-  /net-worth-snapshots:
-    get:
-      operationId: listNetWorthSnapshots
-      tags: [finance]
-      responses:
-        "200":
-          description: List of net worth snapshots
-          content:
-            application/json:
-              schema: { type: array, items: { $ref: "#/components/schemas/NetWorthSnapshot" } }
     post:
-      operationId: createNetWorthSnapshot
+      operationId: checkInSavingsChallenge
       tags: [finance]
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
-            schema: { $ref: "#/components/schemas/NetWorthSnapshotInput" }
-      responses:
-        "201":
-          description: Created net worth snapshot
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/NetWorthSnapshot" }
-
-  /net-worth-snapshots/{id}:
-    parameters:
-      - name: id
-        in: path
-        required: true
-        schema: { type: string, format: uuid }
-    patch:
-      operationId: updateNetWorthSnapshot
-      tags: [finance]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/NetWorthSnapshotUpdate" }
+            schema: { $ref: "#/components/schemas/SavingsChallengeCheckInInput" }
       responses:
         "200":
-          description: Updated net worth snapshot
+          description: Updated savings challenge (with milestone card if earned)
           content:
             application/json:
-              schema: { $ref: "#/components/schemas/NetWorthSnapshot" }
+              schema: { $ref: "#/components/schemas/SavingsChallenge" }
+
+  /shareable-cards:
+    get:
+      operationId: listShareableCards
+      tags: [finance]
+      responses:
+        "200":
+          description: List of shareable cards
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/ShareableCard" } }
 
   # ---------- Academy ----------
   /topics:
@@ -2167,108 +1973,6 @@ components:
         done: { type: boolean }
 
     # ---------- Finance ----------
-    Budget:
-      type: object
-      required: [id, userId, category, monthlyLimit, period, month]
-      properties:
-        id: { type: string, format: uuid }
-        userId: { type: string }
-        name: { type: ["string", "null"] }
-        category: { type: string }
-        monthlyLimit: { type: string }
-        period: { type: string }
-        month: { type: string }
-        createdAt: { type: string, format: date-time }
-        updatedAt: { type: string, format: date-time }
-    BudgetInput:
-      type: object
-      required: [category, monthlyLimit]
-      properties:
-        name: { type: string, minLength: 1 }
-        category: { type: string, minLength: 1 }
-        monthlyLimit: { type: string }
-        period: { type: string }
-        month: { type: string, pattern: "^[0-9]{4}-[0-9]{2}$" }
-    BudgetUpdate:
-      type: object
-      properties:
-        name: { type: string }
-        category: { type: string }
-        monthlyLimit: { type: string }
-        period: { type: string }
-        month: { type: string, pattern: "^[0-9]{4}-[0-9]{2}$" }
-
-    Income:
-      type: object
-      required: [id, userId, source, amount, frequency, receivedDate, isRecurring]
-      properties:
-        id: { type: string, format: uuid }
-        userId: { type: string }
-        source: { type: string }
-        amount: { type: string }
-        frequency: { type: string }
-        receivedDate: { type: string, format: date }
-        isRecurring: { type: boolean }
-        recurrenceInterval: { type: ["string", "null"] }
-        createdAt: { type: string, format: date-time }
-        updatedAt: { type: string, format: date-time }
-    IncomeInput:
-      type: object
-      required: [source, amount, receivedDate]
-      properties:
-        source: { type: string, minLength: 1 }
-        amount: { type: string }
-        frequency: { type: string }
-        receivedDate: { type: string, format: date }
-        isRecurring: { type: boolean }
-        recurrenceInterval: { type: ["string", "null"], enum: ["weekly", "biweekly", "monthly", null] }
-    IncomeUpdate:
-      type: object
-      properties:
-        source: { type: string }
-        amount: { type: string }
-        frequency: { type: string }
-        receivedDate: { type: string, format: date }
-        isRecurring: { type: boolean }
-        recurrenceInterval: { type: ["string", "null"], enum: ["weekly", "biweekly", "monthly", null] }
-
-    Expense:
-      type: object
-      required: [id, userId, amount, category, expenseDate]
-      properties:
-        id: { type: string, format: uuid }
-        userId: { type: string }
-        budgetId: { type: ["string", "null"], format: uuid }
-        description: { type: ["string", "null"] }
-        amount: { type: string }
-        category: { type: string }
-        expenseDate: { type: string, format: date }
-        merchant: { type: ["string", "null"] }
-        notes: { type: ["string", "null"] }
-        createdAt: { type: string, format: date-time }
-        updatedAt: { type: string, format: date-time }
-    ExpenseInput:
-      type: object
-      required: [amount, category, expenseDate]
-      properties:
-        budgetId: { type: ["string", "null"], format: uuid }
-        description: { type: string, minLength: 1 }
-        amount: { type: string }
-        category: { type: string, minLength: 1 }
-        expenseDate: { type: string, format: date }
-        merchant: { type: string }
-        notes: { type: string }
-    ExpenseUpdate:
-      type: object
-      properties:
-        budgetId: { type: ["string", "null"], format: uuid }
-        description: { type: string }
-        amount: { type: string }
-        category: { type: string }
-        expenseDate: { type: string, format: date }
-        merchant: { type: ["string", "null"] }
-        notes: { type: ["string", "null"] }
-
     SavingsGoal:
       type: object
       required: [id, userId, name, targetAmount, currentAmount, isShared]
@@ -2334,62 +2038,46 @@ components:
         minimumPayment: { type: ["string", "null"] }
         dueDay: { type: ["integer", "null"], minimum: 1, maximum: 31 }
 
-    InvestmentEntry:
+    SavingsChallenge:
       type: object
-      required: [id, userId, assetName, assetType, amountInvested, entryDate]
+      required: [id, userId, name, targetAmount, savedAmount, durationDays, startDate, status]
       properties:
         id: { type: string, format: uuid }
         userId: { type: string }
-        assetName: { type: string }
-        assetType: { type: string }
-        amountInvested: { type: string }
-        currentValue: { type: ["string", "null"] }
-        entryDate: { type: string, format: date }
-        notes: { type: ["string", "null"] }
+        habitId: { type: ["integer", "null"] }
+        name: { type: string }
+        targetAmount: { type: string }
+        savedAmount: { type: string }
+        durationDays: { type: integer }
+        startDate: { type: string, format: date }
+        status: { type: string }
         createdAt: { type: string, format: date-time }
-    InvestmentEntryInput:
+        updatedAt: { type: string, format: date-time }
+    SavingsChallengeInput:
       type: object
-      required: [assetName, assetType, amountInvested]
+      required: [name, targetAmount, durationDays, startDate]
       properties:
-        assetName: { type: string, minLength: 1 }
-        assetType: { type: string, minLength: 1 }
-        amountInvested: { type: string }
-        currentValue: { type: ["string", "null"] }
-        entryDate: { type: string, format: date }
-        notes: { type: ["string", "null"] }
-    InvestmentEntryUpdate:
+        name: { type: string, minLength: 1 }
+        targetAmount: { type: string }
+        durationDays: { type: integer, minimum: 1 }
+        startDate: { type: string, format: date }
+    SavingsChallengeCheckInInput:
       type: object
       properties:
-        assetName: { type: string, minLength: 1 }
-        assetType: { type: string, minLength: 1 }
-        amountInvested: { type: string }
-        currentValue: { type: ["string", "null"] }
-        entryDate: { type: string, format: date }
-        notes: { type: ["string", "null"] }
+        amount: { type: string }
 
-    NetWorthSnapshot:
+    ShareableCard:
       type: object
-      required: [id, userId, snapshotDate, totalAssets, totalLiabilities, netWorth]
+      required: [id, userId, cardType, title]
       properties:
         id: { type: string, format: uuid }
         userId: { type: string }
-        snapshotDate: { type: string, format: date }
-        totalAssets: { type: string }
-        totalLiabilities: { type: string }
-        netWorth: { type: string }
+        cardType: { type: string }
+        title: { type: string }
+        subtitle: { type: ["string", "null"] }
+        sourceType: { type: ["string", "null"] }
+        sourceId: { type: ["string", "null"] }
         createdAt: { type: string, format: date-time }
-    NetWorthSnapshotInput:
-      type: object
-      required: [snapshotDate, totalAssets, totalLiabilities]
-      properties:
-        snapshotDate: { type: string, format: date }
-        totalAssets: { type: string }
-        totalLiabilities: { type: string }
-    NetWorthSnapshotUpdate:
-      type: object
-      properties:
-        totalAssets: { type: string }
-        totalLiabilities: { type: string }
 
     # ---------- Academy ----------
     Topic:
@@ -2427,6 +2115,7 @@ components:
             topicName: { type: string }
             topicCode: { type: string }
             quizId: { type: ["integer", "null"] }
+            challengeId: { type: ["integer", "null"] }
 
     LessonProgress:
       type: object
@@ -2536,6 +2225,7 @@ components:
         xpReward: { type: integer }
         category: { type: ["string", "null"] }
         isActive: { type: boolean }
+        lessonId: { type: ["integer", "null"] }
         createdAt: { type: string, format: date-time }
 
     ChallengeCompletion:
@@ -2544,6 +2234,7 @@ components:
       properties:
         id: { type: string, format: uuid }
         userId: { type: string }
+        responseText: { type: ["string", "null"] }
         challengeId: { type: integer }
         completedAt: { type: string, format: date-time }
         createdAt: { type: string, format: date-time }
@@ -2552,6 +2243,7 @@ components:
       required: [challengeId]
       properties:
         challengeId: { type: integer }
+        responseText: { type: string }
 
     ChallengeCompletionResult:
       allOf:

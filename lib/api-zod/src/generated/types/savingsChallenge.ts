@@ -6,15 +6,17 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface Budget {
+export interface SavingsChallenge {
   id: string;
   userId: string;
   /** @nullable */
-  name?: string | null;
-  category: string;
-  monthlyLimit: string;
-  period: string;
-  month: string;
+  habitId?: number | null;
+  name: string;
+  targetAmount: string;
+  savedAmount: string;
+  durationDays: number;
+  startDate: Date;
+  status: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
