@@ -1,0 +1,195 @@
+# Tech-Tate CI — Doc 12 gates + Wave 1 foundation requirements
+# Ephemeral DB: local `supabase start` on the runner (127.0.0.1). Never uses staging/production credentials.
+name: CI
+
+on:
+  pull_request:
+    branches: [main, develop, wave-1-foundation]
+  push:
+    branches: [wave-1-foundation, develop]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-typecheck:
+    name: Lint and typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint (Prettier)
+        run: pnpm run lint
+
+      - name: Typecheck
+        run: pnpm run typecheck
+
+      - name: Commit message convention
+        uses: wagoid/commitlint-github-action@v6
+        with:
+          configFile: commitlint.config.cjs
+          failOnWarnings: false
+
+  build:
+    name: Install and build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Production build
+        run: pnpm run build
+
+  security-scan:
+    name: Security scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Gitleaks (no committed secrets)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  migrate-and-rls:
+    name: Migration check and RLS tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start ephemeral local Supabase
+        run: |
+          set -euo pipefail
+          supabase start
+          supabase status -o env > /tmp/supabase.env
+          # shellcheck disable=SC1091
+          source /tmp/supabase.env
+          {
+            echo "SUPABASE_DB_URL=${DB_URL}"
+            echo "SUPABASE_API_URL=${API_URL}"
+          } >> "$GITHUB_ENV"
+          echo "::notice::Ephemeral Supabase started on runner-local Docker (not staging/production)."
+
+      - name: Confirm CI database is ephemeral and separate
+        run: |
+          set -euo pipefail
+          # shellcheck disable=SC1091
+          source /tmp/supabase.env
+          SANITIZED="$(echo "$DB_URL" | sed -E 's#://([^:/@]+):([^@]+)@#://\1:***@#')"
+          echo "CI database connection (password redacted): $SANITIZED"
+          echo "$DB_URL" | grep -Eq '(@|//)(127\.0\.0\.1|localhost)(:|/)' \
+            || { echo "::error::CI DB host is not localhost/127.0.0.1 — refusing to continue."; exit 1; }
+          # Hard fail if known staging/production project refs appear in any env from supabase status
+          if grep -Eiq 'ngplhlclcuoxlldfpuvx|nwumkzfzibtwybrxfvvs|ggaonvyheaxrbobmxism' /tmp/supabase.env; then
+            echo "::error::Staging/production project ref detected in CI Supabase env."; exit 1
+          fi
+          echo "Confirmed: CI uses ephemeral local Supabase only."
+
+      - name: Migrate from zero
+        run: |
+          set -euo pipefail
+          supabase db reset --yes
+          echo "All migrations applied with zero errors."
+
+      - name: Install psql client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Run five-role RLS policy tests
+        run: |
+          set -euo pipefail
+          # shellcheck disable=SC1091
+          source /tmp/supabase.env
+          psql "$DB_URL" -v ON_ERROR_STOP=1 -f tests/rls/five_role_matrix.sql
+
+      - name: Stop ephemeral Supabase
+        if: always()
+        run: supabase stop --no-backup || true
+
+  unit-integration-tests:
+    name: Unit and integration tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run test suite if present (honest skip otherwise)
+        run: node scripts/ci/run-unit-tests.mjs
+
+  content-validation:
+    name: Content validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate content schemas if tooling exists
+        run: node scripts/ci/run-content-validation.mjs
+
+  preview-deployment:
+    name: Preview deployment
+    runs-on: ubuntu-latest
+    # Honest gate: only runs when Vercel project secrets are configured.
+    # Not a silent no-op — reports SKIPPED clearly when secrets are absent.
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Vercel preview (or explicit skip)
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: node scripts/ci/run-preview-deploy.mjs

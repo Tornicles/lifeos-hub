@@ -1,0 +1,12 @@
+pnpm-lock.yaml
+node_modules
+dist
+build
+coverage
+.migration-backup
+scripts/data
+**/*.sql
+supabase/migrations
+src/integrations/supabase/types.ts
+*.min.js
+*.min.css
