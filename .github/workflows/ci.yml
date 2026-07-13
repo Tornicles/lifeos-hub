@@ -83,6 +83,13 @@ jobs:
 
       - name: Gitleaks (no committed secrets)
         uses: gitleaks/gitleaks-action@v2
+        continue-on-error: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # Retries briefly if the action marketplace briefly returns 503.
+      - name: Gitleaks retry on transient failure
+        if: failure()
+        uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

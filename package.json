@@ -4,7 +4,7 @@
   "license": "MIT",
   "packageManager": "pnpm@11.0.9",
   "scripts": {
-    "preinstall": "sh -c 'rm -f package-lock.json yarn.lock; case \"$npm_config_user_agent\" in pnpm/*) ;; *) echo \"Use pnpm instead\" >&2; exit 1 ;; esac'",
+    "preinstall": "node ./scripts/ensure-pnpm.cjs",
     "lint": "prettier --check \"package.json\" \"commitlint.config.cjs\" \".prettierrc.json\" \".github/**/*.{yml,yaml,md}\" \"scripts/ci/**/*.mjs\" \"docs/**/*.md\"",
     "lint:fix": "prettier --write \"package.json\" \"commitlint.config.cjs\" \".prettierrc.json\" \".github/**/*.{yml,yaml,md}\" \"scripts/ci/**/*.mjs\" \"docs/**/*.md\"",
     "build": "pnpm run typecheck && pnpm -r --if-present run build",

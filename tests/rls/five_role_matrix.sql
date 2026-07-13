@@ -6,6 +6,14 @@
 
 begin;
 
+-- Local Supabase CI: mirror hosted defaults so `SET ROLE authenticated` can exercise RLS.
+grant usage on schema public to authenticated;
+grant select, insert, update, delete on all tables in schema public to authenticated;
+grant usage, select on all sequences in schema public to authenticated;
+grant usage on schema private to authenticated;
+grant execute on all functions in schema private to authenticated;
+grant execute on all functions in schema public to authenticated;
+
 create temporary table rls_expectations (
   role_name text not null,
   table_name text not null,
