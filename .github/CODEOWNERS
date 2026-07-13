@@ -1,0 +1,6 @@
+# Default owners for Doc 12 governance. Adjust as team roles are assigned.
+* @Tornicles
+
+/.github/ @Tornicles
+/supabase/ @Tornicles
+/tests/rls/ @Tornicles
