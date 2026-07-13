@@ -1,62 +1,15 @@
 -- Five-role RLS matrix (Prompt 1 pattern) for CI ephemeral DB.
 -- Roles: owner, authorized participant, unauthorized authenticated, blocked, staff.
--- Tables: profiles, notes, couple_answers, circle_contributions, support_requests,
---         subscriptions, entitlements.
--- Exits non-zero via RAISE if any expectation fails.
+-- Expectations live in a DO-local jsonb (not a temp table) so SET ROLE authenticated still works.
 
 begin;
 
--- Local Supabase CI: mirror hosted defaults so `SET ROLE authenticated` can exercise RLS.
 grant usage on schema public to authenticated;
 grant select, insert, update, delete on all tables in schema public to authenticated;
 grant usage, select on all sequences in schema public to authenticated;
 grant usage on schema private to authenticated;
 grant execute on all functions in schema private to authenticated;
 grant execute on all functions in schema public to authenticated;
-
-create temporary table rls_expectations (
-  role_name text not null,
-  table_name text not null,
-  expect_see boolean not null,
-  primary key (role_name, table_name)
-);
-
-insert into rls_expectations (role_name, table_name, expect_see) values
-  ('owner', 'profiles', true),
-  ('owner', 'notes', true),
-  ('owner', 'couple_answers', true),
-  ('owner', 'circle_contributions', true),
-  ('owner', 'support_requests', true),
-  ('owner', 'subscriptions', true),
-  ('owner', 'entitlements', true),
-  ('participant', 'profiles', true),
-  ('participant', 'notes', false),
-  ('participant', 'couple_answers', false),
-  ('participant', 'circle_contributions', true),
-  ('participant', 'support_requests', false),
-  ('participant', 'subscriptions', false),
-  ('participant', 'entitlements', true),
-  ('unauthorized', 'profiles', true),
-  ('unauthorized', 'notes', false),
-  ('unauthorized', 'couple_answers', false),
-  ('unauthorized', 'circle_contributions', false),
-  ('unauthorized', 'support_requests', false),
-  ('unauthorized', 'subscriptions', false),
-  ('unauthorized', 'entitlements', true),
-  ('blocked', 'profiles', false),
-  ('blocked', 'notes', false),
-  ('blocked', 'couple_answers', false),
-  ('blocked', 'circle_contributions', false),
-  ('blocked', 'support_requests', false),
-  ('blocked', 'subscriptions', false),
-  ('blocked', 'entitlements', true),
-  ('staff', 'profiles', true),
-  ('staff', 'notes', false),
-  ('staff', 'couple_answers', false),
-  ('staff', 'circle_contributions', false),
-  ('staff', 'support_requests', true),
-  ('staff', 'subscriptions', false),
-  ('staff', 'entitlements', true);
 
 do $$
 declare
@@ -74,6 +27,13 @@ declare
   cust_id uuid := '22222222-2222-2222-2222-222222222221';
   roles uuid[] := array[owner_id, partner_id, stranger_id, blocked_id, staff_id];
   names text[] := array['owner','participant','unauthorized','blocked','staff'];
+  expectations jsonb := '{
+    "owner":{"profiles":true,"notes":true,"couple_answers":true,"circle_contributions":true,"support_requests":true,"subscriptions":true,"entitlements":true},
+    "participant":{"profiles":true,"notes":false,"couple_answers":false,"circle_contributions":true,"support_requests":false,"subscriptions":false,"entitlements":true},
+    "unauthorized":{"profiles":true,"notes":false,"couple_answers":false,"circle_contributions":false,"support_requests":false,"subscriptions":false,"entitlements":true},
+    "blocked":{"profiles":false,"notes":false,"couple_answers":false,"circle_contributions":false,"support_requests":false,"subscriptions":false,"entitlements":true},
+    "staff":{"profiles":true,"notes":false,"couple_answers":false,"circle_contributions":false,"support_requests":true,"subscriptions":false,"entitlements":true}
+  }'::jsonb;
   i int;
   uid uuid;
   rname text;
@@ -82,6 +42,8 @@ declare
   exp boolean;
   failures int := 0;
   detail text := '';
+  tables text[] := array['profiles','notes','couple_answers','circle_contributions','support_requests','subscriptions','entitlements'];
+  tname text;
 begin
   insert into auth.users (
     id, instance_id, aud, role, email, encrypted_password, email_confirmed_at,
@@ -169,49 +131,49 @@ begin
     execute 'set local role authenticated';
 
     select exists(select 1 from public.profiles where id = owner_id) into seen;
-    select expect_see into exp from rls_expectations where role_name = rname and table_name = 'profiles';
+    exp := (expectations -> rname ->> 'profiles')::boolean;
     if seen is distinct from exp then
       failures := failures + 1;
       detail := detail || format(' FAIL %s.profiles saw=%s expected=%s;', rname, seen, exp);
     end if;
 
     select exists(select 1 from public.notes where id = note_id) into seen;
-    select expect_see into exp from rls_expectations where role_name = rname and table_name = 'notes';
+    exp := (expectations -> rname ->> 'notes')::boolean;
     if seen is distinct from exp then
       failures := failures + 1;
       detail := detail || format(' FAIL %s.notes saw=%s expected=%s;', rname, seen, exp);
     end if;
 
     select exists(select 1 from public.couple_answers where id = ans_id) into seen;
-    select expect_see into exp from rls_expectations where role_name = rname and table_name = 'couple_answers';
+    exp := (expectations -> rname ->> 'couple_answers')::boolean;
     if seen is distinct from exp then
       failures := failures + 1;
       detail := detail || format(' FAIL %s.couple_answers saw=%s expected=%s;', rname, seen, exp);
     end if;
 
     select exists(select 1 from public.circle_contributions where id = contrib_id) into seen;
-    select expect_see into exp from rls_expectations where role_name = rname and table_name = 'circle_contributions';
+    exp := (expectations -> rname ->> 'circle_contributions')::boolean;
     if seen is distinct from exp then
       failures := failures + 1;
       detail := detail || format(' FAIL %s.circle_contributions saw=%s expected=%s;', rname, seen, exp);
     end if;
 
     select exists(select 1 from public.support_requests where id = req_id) into seen;
-    select expect_see into exp from rls_expectations where role_name = rname and table_name = 'support_requests';
+    exp := (expectations -> rname ->> 'support_requests')::boolean;
     if seen is distinct from exp then
       failures := failures + 1;
       detail := detail || format(' FAIL %s.support_requests saw=%s expected=%s;', rname, seen, exp);
     end if;
 
     select exists(select 1 from public.subscriptions where user_id = owner_id) into seen;
-    select expect_see into exp from rls_expectations where role_name = rname and table_name = 'subscriptions';
+    exp := (expectations -> rname ->> 'subscriptions')::boolean;
     if seen is distinct from exp then
       failures := failures + 1;
       detail := detail || format(' FAIL %s.subscriptions saw=%s expected=%s;', rname, seen, exp);
     end if;
 
     select exists(select 1 from public.entitlements where entitlement_key = 'feature.pro') into seen;
-    select expect_see into exp from rls_expectations where role_name = rname and table_name = 'entitlements';
+    exp := (expectations -> rname ->> 'entitlements')::boolean;
     if seen is distinct from exp then
       failures := failures + 1;
       detail := detail || format(' FAIL %s.entitlements saw=%s expected=%s;', rname, seen, exp);
