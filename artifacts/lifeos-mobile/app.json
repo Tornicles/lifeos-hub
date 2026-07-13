@@ -15,21 +15,16 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.replit.lifeosmobile"
+      "bundleIdentifier": "com.techtate.lifeosmobile"
     },
     "android": {
-      "package": "com.replit.lifeosmobile"
+      "package": "com.techtate.lifeosmobile"
     },
     "web": {
       "favicon": "./assets/images/icon.png"
     },
     "plugins": [
-      [
-        "expo-router",
-        {
-          "origin": "https://replit.com/"
-        }
-      ],
+      "expo-router",
       "expo-font",
       "expo-web-browser"
     ],
