@@ -2,15 +2,15 @@
 
 ## Branch model
 
-| Branch | Use | Protection |
-| --- | --- | --- |
-| `main` | Production-ready source | No direct pushes; required CI checks + review |
-| `develop` | Optional shared integration | Only if parallel work justifies it |
-| `feature/*` | Scoped product work | Short-lived; linked issue |
-| `fix/*` | Non-urgent defect correction | Test coverage required |
-| `hotfix/*` | Urgent production repair | Expedited review; post-incident follow-up |
-| `content/*` | Content schema/import changes | Editorial + technical review |
-| `wave-*` | Implementation-wave work | Do not merge to `main` until the wave’s final prompt |
+| Branch      | Use                           | Protection                                           |
+| ----------- | ----------------------------- | ---------------------------------------------------- |
+| `main`      | Production-ready source       | No direct pushes; required CI checks + review        |
+| `develop`   | Optional shared integration   | Only if parallel work justifies it                   |
+| `feature/*` | Scoped product work           | Short-lived; linked issue                            |
+| `fix/*`     | Non-urgent defect correction  | Test coverage required                               |
+| `hotfix/*`  | Urgent production repair      | Expedited review; post-incident follow-up            |
+| `content/*` | Content schema/import changes | Editorial + technical review                         |
+| `wave-*`    | Implementation-wave work      | Do not merge to `main` until the wave’s final prompt |
 
 Wave 1 uses `wave-1-foundation` until the final Wave 1 prompt merges to `main`.
 

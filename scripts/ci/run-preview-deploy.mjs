@@ -34,9 +34,9 @@ const build = spawnSync("npx", ["vercel", "build"], {
 });
 if ((build.status ?? 1) !== 0) process.exit(build.status ?? 1);
 
-const deploy = spawnSync(
-  "npx",
-  ["vercel", "deploy", "--prebuilt", `--token=${token}`],
-  { stdio: "inherit", shell: process.platform === "win32", env: process.env },
-);
+const deploy = spawnSync("npx", ["vercel", "deploy", "--prebuilt", `--token=${token}`], {
+  stdio: "inherit",
+  shell: process.platform === "win32",
+  env: process.env,
+});
 process.exit(deploy.status ?? 1);

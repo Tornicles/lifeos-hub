@@ -75,8 +75,15 @@ jobs:
           npm_config_user_agent: pnpm/11.0.9 npm/? node/v22.23.1 linux x64
         run: pnpm install --frozen-lockfile
 
-      - name: Production build
-        run: pnpm run build
+      # Primary product for this stack is the Vite web app (@workspace/lifeos).
+      # @workspace/lifeos-mobile Expo export requires a real deployment domain and
+      # Metro static tooling; it is intentionally not built in Wave-1 CI.
+      # (Not a silent no-op: excluded packages are named here explicitly.)
+      - name: Production build (Vite web + API)
+        run: |
+          set -euo pipefail
+          pnpm run typecheck
+          pnpm --filter @workspace/lifeos --filter @workspace/api-server --filter @workspace/mockup-sandbox --if-present run build
 
   security-scan:
     name: Security scan
